@@ -1,0 +1,37 @@
+{
+    "description": "Rialto Pipeline Configuration - Copy to rialto_pipeline_config.json and customize",
+
+    "input_folder": "./input",
+    "processed_folder": "./processed",
+    "failed_folder": "./failed",
+    "output_folder": "./output",
+    "log_folder": "./logs",
+
+    "environment": "SANDBOX",
+    "live": false,
+    "confirm": false,
+
+    "daemon": false,
+    "interval": 3600,
+
+    "workflow_settings": {
+        "library": "AC1",
+        "department": "AcqDeptAC1",
+        "work_order_type": "AcqWorkOrder",
+        "work_order_status": "CopyCat"
+    },
+
+    "_comments": {
+        "input_folder": "Folder where Power Automate drops incoming PDFs",
+        "processed_folder": "Successfully processed PDFs are moved here",
+        "failed_folder": "Failed PDFs are moved here for review",
+        "output_folder": "Workflow reports (CSV) are saved here",
+        "log_folder": "Pipeline logs are written here",
+        "environment": "SANDBOX or PRODUCTION",
+        "live": "Set to true for live execution (default: false = dry run)",
+        "confirm": "Set to true to require confirmation before processing each PDF",
+        "daemon": "Set to true for continuous monitoring mode",
+        "interval": "Seconds between folder checks in daemon mode (default: 3600 = 1 hour)",
+        "workflow_settings": "Alma workflow configuration - see RIALTO_WORKFLOW_README.md for valid values"
+    }
+}

@@ -1,0 +1,44 @@
+{
+  "description": "Configuration for Rialto POL workflow - receive items and keep in department",
+  "environment": "SANDBOX",
+
+  "workflow_settings": {
+    "library_code": "MAIN",
+    "department_code": "ACQ",
+    "work_order_type": "AcqWorkOrder",
+    "work_order_status": "CopyCataloging"
+  },
+
+  "work_order_options": {
+    "description": "Available work order types and statuses must be configured in Alma",
+    "configuration_path": "Configuration > Fulfillment > Physical Fulfillment > Work Order Types",
+
+    "common_work_order_types": [
+      "AcqWorkOrder",
+      "CatalogingWorkOrder",
+      "ConservationWorkOrder",
+      "DigitizationWorkOrder"
+    ],
+
+    "common_work_order_statuses": {
+      "AcqWorkOrder": [
+        "CopyCataloging",
+        "Labeling",
+        "Processing",
+        "Review"
+      ],
+      "CatalogingWorkOrder": [
+        "OriginalCataloging",
+        "CopyCataloging",
+        "Review"
+      ]
+    }
+  },
+
+  "notes": [
+    "Work order types and statuses must exist in your Alma configuration",
+    "When done=false, items stay in department with work order",
+    "When done=true, work order completes and item moves to next step",
+    "This prevents items from going to 'in transit' status after receiving"
+  ]
+}
