@@ -1,0 +1,31 @@
+{
+  "test_date": "2025-10-16T11:14:55.264835",
+  "pol_id": "POL-5986",
+  "item_id": "23472644520004146",
+  "invoice_id": "35899330710004146",
+  "stages": {
+    "initial_state": {
+      "pol_status": "SENT",
+      "po_number": "PO-1767002",
+      "invoice_status": "ACTIVE",
+      "payment_status": "NOT_PAID",
+      "item_received": false
+    },
+    "receive_item": {
+      "success": true,
+      "receive_date": "2025-10-16Z"
+    },
+    "pay_invoice": {
+      "success": true,
+      "payment_status_before": "NOT_PAID",
+      "payment_status_after": "PAID",
+      "invoice_status_before": "ACTIVE",
+      "invoice_status_after": "CLOSED"
+    },
+    "pol_closure": {
+      "auto_closed": true,
+      "status_before": "SENT",
+      "status_after": "CLOSED"
+    }
+  }
+}

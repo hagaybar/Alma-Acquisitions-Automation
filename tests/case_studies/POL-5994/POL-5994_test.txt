@@ -1,0 +1,514 @@
+=============================================================================
+CASE STUDY: Invoice Creation Process for POL-5994
+=============================================================================
+Date: 2025-10-23
+Purpose: Understand the complete process of creating and paying an invoice
+
+=============================================================================
+INITIAL ENTITY INFORMATION
+=============================================================================
+
+Title: TEST for ACQ API 23.10.2025, 2022
+PO line: POL-5994
+PO: PO-1771002 (In Review)
+Vendor/Account: TestVendor/TestVendor/TestAccount/TestAccount
+Funds: Sourasky Central Library Fund (100.0%) (01/10/2025 - 30/09/2026)
+Type: Physical - One Time
+MMS ID: 9933853977604146
+PO line owner: Sourasky Central Library
+Copies: Sourasky Central Library - CTE Temporarily - technical department (1)
+
+=============================================================================
+WORKFLOW STEPS
+=============================================================================
+
+Step 1: Create Invoice
+Step 2: Create Invoice Line for POL-5994
+Step 3: DO NOT PAY (save for future testing)
+
+=============================================================================
+EXECUTION RESULTS
+=============================================================================
+
+Date/Time: 2025-10-23 18:55:07 - 18:55:15 (8 seconds)
+Environment: SANDBOX
+
+CREATED ENTITIES:
+- Invoice ID: 35925649570004146
+- Invoice Number: INV-POL5994-20251023-215508
+- Invoice Line ID: 35925649630004146
+- Amount: 25.0 ILS
+- Fund: AAC_FUND (Sourasky Central Library Fund)
+- Status: ACTIVE (In Review, NOT processed, NOT paid)
+
+WORKFLOW SUMMARY:
+1. ✓ Retrieved POL-5994 data (price: 25.0 ILS, vendor: TestVendor)
+2. ✓ Created invoice INV-POL5994-20251023-215508 (ID: 35925649570004146)
+3. ✓ Auto-extracted fund code AAC_FUND from POL-5994
+4. ✓ Created invoice line linking POL-5994 to invoice (Line ID: 35925649630004146)
+5. ⏸️ DID NOT process invoice (invoice remains in "In Review" state)
+6. ⏸️ DID NOT pay invoice (payment_status: NOT_PAID)
+
+NEXT TESTING STEPS:
+- Process invoice: acq.approve_invoice("35925649570004146")
+- Pay invoice: acq.mark_invoice_paid("35925649570004146")
+- Verify POL closure behavior after payment
+
+=============================================================================
+DETAILED EXECUTION LOGS
+=============================================================================
+
+## DOMAIN LAYER LOGS (acquisitions.log)
+-------------------------------------------
+
+### 1. Invoice Creation Operation Started
+Timestamp: 2025-10-23T18:55:08.089733+00:00
+Level: INFO
+Message: Creating invoice (simple): INV-POL5994-20251023-215508
+Context:
+  - invoice_number: INV-POL5994-20251023-215508
+  - vendor_code: TestVendor
+  - total_amount: 25.0
+  - currency: ILS
+  - invoice_date: 2025-10-23
+  - optional_fields: []
+
+### 2. Invoice Structure Built
+Timestamp: 2025-10-23T18:55:08.089854+00:00
+Level: DEBUG
+Message: Invoice structure built
+Context:
+  - invoice_number: INV-POL5994-20251023-215508
+  - structure_keys: [number, invoice_date, vendor, total_amount, currency]
+
+### 3. Invoice Created Successfully
+Timestamp: 2025-10-23T18:55:12.949383+00:00
+Level: INFO
+Message: Invoice created successfully: 35925649570004146
+Context:
+  - invoice_id: 35925649570004146
+  - invoice_number: INV-POL5994-20251023-215508
+  - vendor_code: TestVendor
+  - total_amount: 25.0
+
+### 4. Invoice Line Creation Started
+Timestamp: 2025-10-23T18:55:12.949440+00:00
+Level: INFO
+Message: Creating invoice line (simple): POL-5994
+Context:
+  - invoice_id: 35925649570004146
+  - pol_id: POL-5994
+  - amount: 25.0
+  - quantity: 1
+  - fund_code: auto-detect
+  - currency: ILS
+  - optional_fields: []
+
+### 5. Fund Code Extraction Initiated
+Timestamp: 2025-10-23T18:55:12.949512+00:00
+Level: DEBUG
+Message: Extracting fund code from POL: POL-5994
+Context:
+  - pol_id: POL-5994
+
+### 6. Fund Code Extracted Successfully
+Timestamp: 2025-10-23T18:55:13.388200+00:00
+Level: INFO
+Message: Fund code extracted from POL: AAC_FUND
+Context:
+  - pol_id: POL-5994
+  - fund_code: AAC_FUND
+
+### 7. Invoice Line Structure Built
+Timestamp: 2025-10-23T18:55:13.388284+00:00
+Level: DEBUG
+Message: Invoice line structure built
+Context:
+  - pol_id: POL-5994
+  - invoice_id: 35925649570004146
+  - structure_keys: [po_line, price, quantity, invoice_line_type, fund_distribution]
+
+### 8. Invoice Line Created Successfully
+Timestamp: 2025-10-23T18:55:15.572368+00:00
+Level: INFO
+Message: Invoice line created successfully
+Context:
+  - invoice_id: 35925649570004146
+  - pol_id: POL-5994
+  - amount: 25.0
+  - quantity: 1
+  - fund_code: AAC_FUND
+
+-------------------------------------------
+## HTTP/API LAYER LOGS (api_client.log)
+-------------------------------------------
+
+### 1. GET POL Data (Initial Retrieval)
+Timestamp: 2025-10-23T18:55:07.383082+00:00
+Request: GET almaws/v1/acq/po-lines/POL-5994
+Response Status: 200 OK
+Duration: 642.59 ms
+Response Data Highlights:
+  - number: POL-5994
+  - status: SENT
+  - type: Physical - One Time (PRINT_OT)
+  - vendor: TestVendor
+  - price: 25.0 ILS
+  - po_number: PO-1771002
+  - fund_distribution: AAC_FUND (100%)
+  - item pid: 23472684490004146
+  - item barcode: AC1-800062117
+
+### 2. POST Create Invoice
+Timestamp: 2025-10-23T18:55:08.089899+00:00
+Request: POST almaws/v1/acq/invoices
+Request Body:
+  {
+    "number": "INV-POL5994-20251023-215508",
+    "invoice_date": "2025-10-23Z",
+    "vendor": {"value": "TestVendor"},
+    "total_amount": 25.0,
+    "currency": {"value": "ILS"}
+  }
+Response Status: 200 OK
+Duration: 4919.75 ms
+Response Data:
+  {
+    "id": "35925649570004146",
+    "number": "INV-POL5994-20251023-215508",
+    "vendor": {"value": "TestVendor", "desc": "TestVendor"},
+    "currency": {"value": "ILS", "desc": "New Israeli Sheqel"},
+    "payment": {
+      "prepaid": false,
+      "payment_status": {"value": "NOT_PAID", "desc": "Not Paid"},
+      "voucher_date": "2025-10-23Z"
+    },
+    "invoice_date": "2025-10-23Z",
+    "total_amount": 25,
+    "total_invoice_lines_amount": 0,
+    "invoice_status": {"value": "ACTIVE", "desc": "Active"},
+    "invoice_workflow_status": {"value": "InReview", "desc": "In Review"},
+    "invoice_approval_status": {"value": "PENDING", "desc": "Pending"}
+  }
+
+### 3. GET POL Data (For Fund Extraction)
+Timestamp: 2025-10-23T18:55:12.949588+00:00
+Request: GET almaws/v1/acq/po-lines/POL-5994
+Response Status: 200 OK
+Duration: 437.61 ms
+(Same POL data as request #1 - retrieved for fund extraction)
+
+### 4. POST Create Invoice Line
+Timestamp: 2025-10-23T18:55:13.388372+00:00
+Request: POST almaws/v1/acq/invoices/35925649570004146/lines
+Request Body:
+  {
+    "po_line": "POL-5994",
+    "price": 25.0,
+    "quantity": 1,
+    "invoice_line_type": {"value": "REGULAR"},
+    "fund_distribution": [
+      {
+        "fund_code": {"value": "AAC_FUND"},
+        "percent": 100
+      }
+    ]
+  }
+Response Status: 200 OK
+Duration: 2182.87 ms
+Response Data:
+  {
+    "id": "35925649630004146",
+    "type": {"value": "REGULAR", "desc": "Regular"},
+    "number": "1",
+    "status": {"value": "INREVIEW", "desc": "In-Review"},
+    "price": 25.0,
+    "quantity": 1,
+    "po_line": "POL-5994",
+    "total_price": 25.0,
+    "fully_invoiced": false,
+    "fund_distribution": [
+      {
+        "percent": 100.0,
+        "amount": 25,
+        "fund_code": {"value": "AAC_FUND", "desc": "Sourasky Central Library Fund"}
+      }
+    ]
+  }
+
+=============================================================================
+LOGGING ANALYSIS
+=============================================================================
+
+WHAT THE LOGS SHOW:
+
+1. Two-Layer Visibility:
+   ✓ Domain Layer (acquisitions.log): Business logic, workflow steps, decisions
+   ✓ HTTP Layer (api_client.log): Complete API requests/responses
+
+2. Complete Request/Response Tracking:
+   ✓ Full request bodies sent to Alma API
+   ✓ Full response bodies received from Alma API
+   ✓ Request timing (duration in milliseconds)
+   ✓ HTTP status codes
+
+3. Business Logic Context:
+   ✓ Auto-detection of fund code from POL
+   ✓ Structure building steps
+   ✓ Success/failure states with detailed context
+
+4. Debugging Information Available:
+   ✓ All field values sent in requests
+   ✓ All field values received in responses
+   ✓ Invoice ID linking invoice to lines
+   ✓ POL linking to MMS ID and item details
+   ✓ Fund distribution details
+   ✓ Invoice status progression
+
+5. Key Insights from Logs:
+   - Invoice creation took ~5 seconds (4919ms)
+   - Line creation took ~2 seconds (2182ms)
+   - POL data retrieval was fast (437-642ms)
+   - Fund code was successfully auto-extracted from POL
+   - Invoice is in "In Review" workflow status
+   - Invoice has NOT been processed or paid
+   - Line status is "INREVIEW" (not yet approved)
+
+=============================================================================
+QUESTIONS THESE LOGS CAN ANSWER
+=============================================================================
+
+Q: What data was sent to create the invoice?
+A: See HTTP log entry #2 - complete request body with all fields
+
+Q: What invoice ID was generated?
+A: 35925649570004146 (visible in both domain and HTTP logs)
+
+Q: Was the fund code correctly extracted?
+A: Yes - domain logs show "Fund code extracted from POL: AAC_FUND"
+
+Q: What is the current invoice status?
+A: invoice_status=ACTIVE, workflow_status=InReview, approval_status=PENDING, payment_status=NOT_PAID
+
+Q: How long did each operation take?
+A: POL retrieval: ~600ms, Invoice creation: ~5s, Line creation: ~2s
+
+Q: What is the complete invoice line structure?
+A: See HTTP log entry #4 response - shows all fields including fund distribution
+
+Q: Can I recreate this invoice creation manually?
+A: Yes - HTTP logs show exact request bodies that can be reused
+
+=============================================================================
+PART 2: COMPLETE INVOICE WORKFLOW (Process + Payment)
+=============================================================================
+
+Date/Time: 2025-10-23 22:21:18 - 22:21:24 (6 seconds)
+Environment: SANDBOX
+
+⚠️ CRITICAL DISCOVERY: First invoice (35925649570004146) was deleted from system
+   - Reason: Invoice not processed within retention period OR manual deletion
+   - Created new invoice to demonstrate complete workflow
+
+=============================================================================
+COMPLETE WORKFLOW EXECUTION
+=============================================================================
+
+CREATED ENTITIES (Second Attempt):
+- Invoice ID: 35925649890004146
+- Invoice Number: INV-POL5994-20251023-222118
+- Invoice Line ID: 35925649950004146
+- Amount: 25.0 ILS
+- Fund: AAC_FUND (Sourasky Central Library Fund)
+
+WORKFLOW SUMMARY:
+1. ✓ Retrieved POL-5994 initial state (Status: SENT, no invoice reference)
+2. ✓ Created invoice INV-POL5994-20251023-222118 (ID: 35925649890004146)
+   State: ACTIVE / InReview / PENDING / NOT_PAID
+3. ✓ Created invoice line (Line ID: 35925649950004146, Fund: AAC_FUND)
+4. ✓ PROCESSED invoice (MANDATORY STEP before payment!)
+   API: POST /almaws/v1/acq/invoices/35925649890004146?op=process_invoice
+   State changed: InReview → Ready to be Paid, PENDING → APPROVED
+5. ✓ PAID invoice
+   API: POST /almaws/v1/acq/invoices/35925649890004146?op=paid
+   State changed: NOT_PAID → PAID, ACTIVE → CLOSED
+6. ✓ Verified POL status (Status: SENT - remained unchanged)
+
+=============================================================================
+STATE TRANSITIONS
+=============================================================================
+
+INVOICE STATE CHANGES:
+
+After Creation:
+  invoice_status: ACTIVE
+  workflow_status: InReview
+  approval_status: PENDING
+  payment_status: NOT_PAID
+
+After Processing (approve_invoice):
+  invoice_status: ACTIVE
+  workflow_status: Ready to be Paid
+  approval_status: APPROVED (approved_by: API Ex Libris, date: 2025-10-23Z)
+  payment_status: NOT_PAID
+
+After Payment (mark_invoice_paid):
+  invoice_status: CLOSED
+  workflow_status: (empty - invoice closed)
+  approval_status: APPROVED
+  payment_status: PAID
+
+POL STATE:
+  Before: SENT (invoice_reference: empty)
+  After: SENT (invoice_reference: empty)
+  Item Status: Not received
+
+  ⚠️ POL did NOT auto-close because:
+     - Item not yet received (receive_date: null)
+     - POL requires BOTH invoice payment AND item receipt for auto-closure
+
+=============================================================================
+API CALLS SEQUENCE (CORRECT WORKFLOW)
+=============================================================================
+
+1. GET /almaws/v1/acq/po-lines/POL-5994 (initial state)
+   Duration: 582ms
+
+2. POST /almaws/v1/acq/invoices (create invoice)
+   Duration: 547ms
+   Body: {
+     "number": "INV-POL5994-20251023-222118",
+     "invoice_date": "2025-10-23Z",
+     "vendor": {"value": "TestVendor"},
+     "total_amount": 25.0,
+     "currency": {"value": "ILS"}
+   }
+   Response: {"id": "35925649890004146", "invoice_status": "ACTIVE", ...}
+
+3. GET /almaws/v1/acq/invoices/35925649890004146 (verify creation)
+   Duration: 343ms
+
+4. GET /almaws/v1/acq/po-lines/POL-5994 (for fund extraction)
+   Duration: 422ms
+
+5. POST /almaws/v1/acq/invoices/35925649890004146/lines (create line)
+   Duration: 991ms
+   Body: {
+     "po_line": "POL-5994",
+     "price": 25.0,
+     "quantity": 1,
+     "invoice_line_type": {"value": "REGULAR"},
+     "fund_distribution": [{"fund_code": {"value": "AAC_FUND"}, "percent": 100}]
+   }
+   Response: {"id": "35925649950004146", "total_price": 25.0, ...}
+
+6. POST /almaws/v1/acq/invoices/35925649890004146?op=process_invoice ✓ MANDATORY
+   Duration: 1438ms
+   Body: {} (empty)
+   Response: {
+     "invoice_workflow_status": "Ready to be Paid",
+     "invoice_approval_status": "APPROVED",
+     "approved_by": "API Ex Libris"
+   }
+
+7. GET /almaws/v1/acq/invoices/35925649890004146 (verify processing)
+   Duration: 348ms
+
+8. POST /almaws/v1/acq/invoices/35925649890004146?op=paid ✓
+   Duration: 624ms
+   Body: {} (empty)
+   Response: {
+     "payment_status": "PAID",
+     "invoice_status": "CLOSED"
+   }
+
+9. GET /almaws/v1/acq/invoices/35925649890004146 (verify payment)
+   Duration: 357ms
+
+10. GET /almaws/v1/acq/po-lines/POL-5994 (verify POL state)
+    Duration: 591ms
+
+Total Workflow Duration: ~6 seconds
+Total API Calls: 10 (5 GET, 3 POST operations, 2 POST data)
+
+=============================================================================
+KEY FINDINGS AND LESSONS LEARNED
+=============================================================================
+
+1. MANDATORY PROCESSING STEP:
+   ⚠️ Invoices MUST be processed/approved before payment
+   - Without processing: ERROR 402459 "Error while trying to retrieve invoice"
+   - Correct sequence: Create → Process → Pay
+   - API operation: POST /invoices/{id}?op=process_invoice
+
+2. INVOICE STATE MACHINE:
+   Created (ACTIVE/InReview/PENDING/NOT_PAID)
+     ↓ process_invoice
+   Approved (ACTIVE/Ready to be Paid/APPROVED/NOT_PAID)
+     ↓ paid
+   Paid (CLOSED/empty/APPROVED/PAID)
+
+3. POL AUTO-CLOSURE CONDITIONS:
+   - Requires BOTH: invoice paid AND item received
+   - In this test: Invoice paid ✓, Item received ✗
+   - Result: POL remains SENT (not closed)
+   - Next step: Receive item to trigger POL closure
+
+4. INVOICE ALERTS AFTER PROCESSING:
+   - ADDITIONAL_INVOICE_EXISTS: Multiple invoice lines for same POL
+   - DIFFERENT_VENDOR_ACCOUNT: Vendor account mismatch warning
+   - NOT_READY_LINES: Some lines still in review
+   (Alerts don't block payment but indicate potential issues)
+
+5. FUND AUTO-EXTRACTION:
+   - Successfully extracted AAC_FUND from POL fund_distribution
+   - No manual fund code specification needed
+   - Fund distribution: 100% AAC_FUND (25.0 ILS)
+
+6. INVOICE LIFECYCLE:
+   - Unprocessed invoices may be deleted by system after retention period
+   - Best practice: Process invoices soon after creation
+   - First invoice (35925649570004146) was no longer accessible
+
+=============================================================================
+VERIFIED API METHODS
+=============================================================================
+
+✓ acq.create_invoice_simple(invoice_number, invoice_date, vendor_code, total_amount, currency)
+✓ acq.create_invoice_line_simple(invoice_id, pol_id, amount, quantity, currency)
+✓ acq.approve_invoice(invoice_id) - MANDATORY before payment
+✓ acq.mark_invoice_paid(invoice_id) - Only works after processing
+✓ acq.get_invoice(invoice_id) - Retrieves complete invoice data
+✓ acq.get_pol(pol_id) - Retrieves POL data
+✓ acq.extract_items_from_pol_data(pol_data) - Extracts items from location→copy structure
+
+=============================================================================
+NEXT TESTING STEPS
+=============================================================================
+
+To complete the POL-5994 case study and trigger POL auto-closure:
+
+1. Receive the item:
+   acq.receive_item("POL-5994", "23472684490004146")
+
+2. Verify POL auto-closure:
+   pol_after = acq.get_pol("POL-5994")
+   status = pol_after.get('status', {}).get('value')
+   # Expected: status == "CLOSED" (invoice paid ✓ + item received ✓)
+
+3. Document complete lifecycle:
+   POL Created → Item Created → Invoice Created → Invoice Processed → Invoice Paid → Item Received → POL Closed
+
+=============================================================================
+DOCUMENTATION FILES
+=============================================================================
+
+- complete_invoice_workflow_POL5994.py: Demonstrates correct create→process→pay workflow
+- process_and_pay_invoice_POL5994.py: Documents process→pay steps (assumes invoice exists)
+- pay_invoice_POL5994.py: Initial payment attempt (failed - revealed processing requirement)
+- test_duplicate_detection_POL5994.py: Validates check_pol_invoiced() method
+
+=============================================================================
+END OF CASE STUDY
+=============================================================================
+

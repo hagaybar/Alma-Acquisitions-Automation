@@ -1,0 +1,144 @@
+{
+  "number": "POL-5984",
+  "status": {
+    "value": "READY",
+    "desc": "Ready"
+  },
+  "owner": {
+    "value": "AC1",
+    "desc": "Sourasky Central Library"
+  },
+  "type": {
+    "value": "PRINTED_BOOK_OT",
+    "desc": "Print Book - One Time"
+  },
+  "vendor": {
+    "value": "RIALTO",
+    "desc": "ProQuest, LLC"
+  },
+  "rush": false,
+  "price": {
+    "sum": "234.0",
+    "currency": {
+      "value": "ILS",
+      "desc": "New Israeli Sheqel"
+    }
+  },
+  "portfolios": {
+    "portfolio": [],
+    "total_record_count": 0
+  },
+  "license": {
+    "value": "",
+    "desc": ""
+  },
+  "url": "",
+  "vendor_account": "RIALTO",
+  "reclaim_interval": "0",
+  "expected_receipt_interval": "21",
+  "claiming_interval": "7",
+  "acquisition_method": {
+    "value": "PURCHASE",
+    "desc": "Purchase"
+  },
+  "no_charge": false,
+  "cancellation_restriction": false,
+  "vendor_reference_number": "",
+  "source_type": {
+    "value": "MANUALENTRY",
+    "desc": "Manual Entry"
+  },
+  "po_number": "PO-1766001",
+  "additional_order_reference": "",
+  "invoice_reference": "",
+  "resource_metadata": {
+    "title": "TEST for ACQ API",
+    "author": "Bar, Hagay",
+    "issn": "",
+    "isbn": "",
+    "publisher": "",
+    "mms_id": {
+      "value": "9933853677604146",
+      "link": "https://api-eu.hosted.exlibrisgroup.com/almaws/v1/bibs/9933853677604146"
+    },
+    "publication_place": "",
+    "publication_year": "2022",
+    "vendor_title_number": "",
+    "system_control_number": [
+      ""
+    ]
+  },
+  "fund_distribution": [
+    {
+      "amount": {
+        "sum": "234.0",
+        "currency": {
+          "value": "ILS",
+          "desc": "New Israeli Sheqel"
+        }
+      },
+      "fund_code": {
+        "value": "MAIN_TAU_FUND",
+        "desc": "Main TAU Fund"
+      }
+    }
+  ],
+  "reporting_code": "",
+  "secondary_reporting_code": "",
+  "tertiary_reporting_code": "",
+  "fourth_reporting_code": "",
+  "fifth_reporting_code": "",
+  "vendor_note": "",
+  "receiving_note": "",
+  "alert": [
+    {
+      "value": "",
+      "desc": "The bib record is brief."
+    },
+    {
+      "value": "",
+      "desc": "At least one of the reporting codes is missing."
+    }
+  ],
+  "note": [],
+  "location": [
+    {
+      "quantity": 1,
+      "library": {
+        "value": "AC1",
+        "desc": "Sourasky Central Library"
+      },
+      "shelving_location": "CTE",
+      "holding": [
+        {
+          "id": "22472624540004146",
+          "link": "https://api-eu.hosted.exlibrisgroup.com/almaws/v1/bibs/9933853677604146/holdings/22472624540004146"
+        }
+      ],
+      "copy": [
+        {
+          "pid": "23472624530004146",
+          "barcode": "AC1-800062107",
+          "item_policy": {
+            "value": ""
+          },
+          "receive_date": "2025-10-15Z",
+          "link": "https://api-eu.hosted.exlibrisgroup.com/almaws/v1/bibs/9933853677604146/holdings/22472624540004146/items/23472624530004146"
+        }
+      ]
+    }
+  ],
+  "access_model": "Null",
+  "base_status": "",
+  "access_provider": "",
+  "manual_renewal": false,
+  "renewal_cycle": {},
+  "renewal_period": 0,
+  "renewal_note": "",
+  "material_type": {
+    "value": "BOOK",
+    "desc": "Book"
+  },
+  "created_date": "2025-10-15Z",
+  "status_date": "2025-10-15Z"
+}
