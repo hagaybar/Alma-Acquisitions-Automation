@@ -49,6 +49,11 @@ logs/**
 .DS_Store
 Thumbs.db
 
+# Babysitter (only ignore node_modules, cache, and logs - keep runs/processes)
+.a5c/node_modules/
+.a5c/cache/
+.a5c/logs/
+
 # Testing
 .pytest_cache/
 .coverage
