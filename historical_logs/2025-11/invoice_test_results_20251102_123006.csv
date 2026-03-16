@@ -1,0 +1,3 @@
+pol_id,invoice_id,invoice_number,amount,currency,voucher_id,invoice_status,payment_status,status,error
+POL-2505,,test_inv_id_1000,76.07,ILS,test_voucher_id_500,,,FAILED,Unexpected Error: Invalid invoice line parameters: Fund code is required but not provided and could not be extracted from POL POL-2505. Please provide fund_code parameter explicitly.
+POL-2554,,test_inv_id_1001,2409.0,GBP,test_voucher_id_501,,,FAILED,Unexpected Error: Invalid invoice line parameters: Fund code is required but not provided and could not be extracted from POL POL-2554. Please provide fund_code parameter explicitly.

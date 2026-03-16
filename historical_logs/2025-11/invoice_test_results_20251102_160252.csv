@@ -1,0 +1,3 @@
+pol_id,invoice_id,invoice_number,amount,currency,voucher_id,invoice_status,payment_status,status,error
+POL-2505,,test_inv_20251102_160242_2505,76.07,ILS,voucher_20251102_160242_2505,,,FAILED,API Error: Failed to create invoice line for POL POL-2505: Invoice line subscription from/to dates not found.
+POL-2554,,test_inv_20251102_160242_2554,2409.0,GBP,voucher_20251102_160242_2554,,,FAILED,API Error: Failed to create invoice line for POL POL-2554: Invoice line subscription from/to dates not found.
