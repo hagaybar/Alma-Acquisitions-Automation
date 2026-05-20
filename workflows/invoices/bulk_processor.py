@@ -123,7 +123,15 @@ class AutomatedInvoiceProcessor:
         
         self.logger = logging.getLogger(__name__)
         self.logger.info(f"Starting automated invoice processor")
-        self.logger.info(f"Config: {self.config}")
+        # Curated subset only — never log the full dict, in case a credential-like field is added to config later.
+        self.logger.info(
+            f"Config: environment={self.config.get('environment')}, "
+            f"excel_file_path={self.config.get('excel_file_path')}, "
+            f"output_directory={self.config.get('output_directory')}, "
+            f"log_level={self.config.get('log_level')}, "
+            f"backup_reports={self.config.get('backup_reports')}, "
+            f"max_errors_before_stop={self.config.get('max_errors_before_stop')}"
+        )
         self.logger.info(f"Log file: {log_file}")
     
     def setup_alma_client(self):
