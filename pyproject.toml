@@ -20,3 +20,9 @@ pytest = "^8.0"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+# tests/integration/ holds hand-run scripts that call Alma at import time
+# (some pay invoices or receive items); pytest must never collect them.
+norecursedirs = ["integration", "case_studies"]
