@@ -159,9 +159,11 @@ Run all tests:
 # Smoke test (import verification)
 poetry run python scripts/smoke_project.py
 
-# Unit tests
-poetry run python -m pytest tests/
+# Unit tests (skips tests/integration/ and tests/case_studies/)
+poetry run python -m pytest
 ```
+
+The scripts in `tests/integration/` are not pytest tests: they call Alma (SANDBOX) when run, and some of them write (pay invoices, receive items). Run them one at a time by hand, e.g. `poetry run python tests/integration/pols/test_get_pol.py <POL number>`.
 
 ## Project Structure
 
