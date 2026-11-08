@@ -86,5 +86,7 @@ request and returned response body when inspection is requested; metadata or a p
 assertion is not a substitute for input/output. Mask authentication, keep useful
 record IDs in private local captures, and interpret each result before moving to
 the next test. Keep read tests distinct from processing/payment/receiving mutations.
-The Acquisitions project supplies scripts/sandbox_get_review.py for one GET per
-command; it is a project helper, not a mandatory dependency of this generic skill.
+The Acquisitions project supplies scripts/sandbox_get_review.py for named GET tests
+and interactive Sandbox request composition. Mutation choices require explicit
+confirmation; generic HTTP success is not business verification. It is a project
+helper, not a mandatory dependency of this generic skill.
