@@ -113,3 +113,5 @@ interactive cancellation, a vendor GET preview and an invoice-service POST previ
 were smoke-checked in the debug Python environment without sending API requests. Development used mocked transport and preview/help checks, not live writes.
 The broader cross-domain CLI is a follow-up in AlmaAPITK rather than part of this
 project's prototype scope.
+
+Extended reusable CLI design/build: https://github.com/hagaybar/AlmaAPITK/issues/230. The prototype and its 45-test offline validation are preserved in Acquisitions PR 8.

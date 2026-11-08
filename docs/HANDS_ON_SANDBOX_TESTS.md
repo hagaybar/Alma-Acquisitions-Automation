@@ -153,3 +153,7 @@ placeholder in quotes; placeholders are not runnable fixture IDs:
 Run these individually after reviewing the preceding result. No script chains them
 or silently selects a payment sample. Codes above are pilot inputs, not defaults
 embedded in the reusable specialist.
+
+## Broader AlmaAPITK follow up
+
+The generic cross-domain CLI is tracked in [AlmaAPITK issue 230](https://github.com/hagaybar/AlmaAPITK/issues/230). This project remains the Acquisitions prototype.
