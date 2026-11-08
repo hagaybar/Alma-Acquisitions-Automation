@@ -1,12 +1,19 @@
-# Hands on Alma Sandbox tests
+# Hands on Alma Sandbox request tests
 
-Run one test, inspect its input/output and interpret the result before continuing.
-scripts/sandbox_get_review.py executes one named GET only. It previews by default;
---live-readonly explicitly runs it. SDK selection is SANDBOX, timeout 15 seconds,
-retries disabled and redirects refused. It does not process or pay invoices.
+This is an Acquisitions-project prototype, not yet a general AlmaAPITK CLI.
+Run one request, inspect its actual input/output and interpret the result before
+continuing. Starting scripts/sandbox_get_review.py without arguments opens the
+interactive request composer. Existing named GET commands still work.
 
-Each live test prints the prepared URL/headers/body, actual response headers/body,
-timestamps, expected assertion and result. Authentication is masked, while useful
+The prototype supports GET, POST, PUT and DELETE for operations in the dated
+Acquisitions catalog, plus the existing libraries GET lookup. It always selects
+Alma Sandbox on the EU API host. Requests use a 15-second timeout, no retries and
+no redirect following. Method dispatch and confirmation were verified with mocks;
+live write operations have not been validated by this development work.
+
+Each sent request prints the prepared URL/headers/body, actual response headers/body,
+timestamps and result. Named GET tests retain their specific assertions; generic
+request mode records HTTP success without certifying a business outcome. Authentication is masked, while useful
 record IDs and business values remain visible. Local JSON files are saved under
 ignored output/sandbox-review. Do not commit or paste authentication values.
 HTTP errors retain their response content when the HTTP response was captured;
@@ -27,7 +34,72 @@ This uses the prepared Python 3.12 project environment without changing the acti
 Codex pane's project branch. The variable belongs to this shell; set it again in a
 new pane. No key is supplied on the command line.
 
-## Planned sequence
+## Interactive request composer
+
+From the prepared guest shell:
+
+```bash
+"$acq_python" scripts/sandbox_get_review.py
+```
+
+1. Choose GET, POST, PUT or DELETE.
+2. Choose an object such as Invoices, Invoice lines, Vendors or PO lines.
+3. Choose the exact operation, such as list invoices or retrieve one invoice.
+4. Supply the requested path IDs. Required service actions use a documented menu.
+5. Add optional query parameters if needed. List requests start with limit=1;
+   change it through the parameter menu. Continue with the displayed parameters.
+6. For documented bodies, choose a JSON/XML file or enter a one-line JSON object.
+   The prototype does not invent an empty body for a service action.
+7. Review the method, full path/query, body, reference validity and last-tested date.
+   Choose Send or return to selection. Data-changing requests additionally require
+   typing the exact displayed confirmation, including a service action when present.
+8. Inspect the actual input/output and result. Captures are saved as JSON and HTML
+   under ignored output/sandbox-review. Choose another request or finish.
+
+Enter 0 at a selection menu to cancel/back out. Ctrl+C at a prompt exits. If a write
+was already sent and is interrupted or times out, its effect may be unknown: inspect
+the result and read back state before retrying. HTTP 2xx is reported as transport
+success with the business outcome unverified; the tool does not automatically replay
+or verify a mutation. Processing, payment, receiving and deletion have real Sandbox
+effects and are not discovery steps.
+
+## Help and command mode
+
+```bash
+"$acq_python" scripts/sandbox_get_review.py --help
+"$acq_python" scripts/sandbox_get_review.py --list-operations --method GET --object invoice
+```
+
+Preview a vendor GET with exact named path parameters:
+
+```bash
+"$acq_python" scripts/sandbox_get_review.py request --method GET --object vendor --id vendorCode=RIALTO
+```
+
+Add --send to execute that GET. Command mode previews by default. For nested objects,
+repeat --id NAME=VALUE with each path ID, and repeat --param NAME=VALUE for queries.
+Use --list-operations to see exact parameter names in the path templates.
+
+For an operation with several possible meanings, select its exact catalog key.
+This example is a preview only; replace the quoted placeholder before any live use:
+
+```bash
+"$acq_python" scripts/sandbox_get_review.py request \
+  --operation 'POST /almaws/v1/acq/invoices/{invoice_id}' \
+  --id 'invoice_id=<sandbox-invoice-id>' --param op=process_invoice --json '{}'
+```
+
+Writes require --send plus the exact interactive confirmation; there is no --yes
+or production mode. JSON objects and XML text/files are supported when their media
+type is documented. Names, primitive parameter types and required inputs are checked,
+but complete body schemas and business eligibility are not validated. Binary/multipart
+body composition, lossless binary downloads, pagination automation, reusable profiles
+and other Alma domains are deferred to the broader AlmaAPITK design.
+
+## Existing named GET tests
+
+These commands retain their earlier assertions. Interactive/generic requests instead
+require interpretation of the actual response and separate business verification.
 
 | Test | Purpose | Inspect before continuing |
 |---|---|---|

@@ -10,6 +10,7 @@ import logging
 from importlib.metadata import version
 from pathlib import Path
 import re
+import sys
 import time
 from urllib.parse import quote, urlparse
 from zoneinfo import ZoneInfo
@@ -128,6 +129,9 @@ def capture(client, args):
 
 
 def main():
+    if len(sys.argv) == 1 or sys.argv[1].startswith('-') or sys.argv[1] in ('interactive', 'request'):
+        from sandbox_request_cli import main as request_main
+        return request_main(sys.argv[1:])
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('test', choices=['libraries', 'vendor', 'invoices', 'invoice', 'lines', 'pol'])
     parser.add_argument('--library-code')

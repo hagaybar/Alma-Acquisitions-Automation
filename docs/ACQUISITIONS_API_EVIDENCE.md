@@ -98,3 +98,18 @@ Six new offline tests cover dated evidence, retained failure history, redaction,
 empty population handling, HTTP-only semantics and rejection of production reports.
 All 22 configured offline tests passed. The temporary inspection document is a local
 review copy of the redacted report; it does not contain raw API response bodies.
+
+## Interactive request prototype
+
+The project tester now has method/object/operation menus, path IDs, documented
+query parameters and service-action options, JSON/XML input, complete previews,
+and actual authentication-masked input/output saved in local JSON/HTML files.
+Command mode retains preview by default; typed confirmation gates writes. Legacy
+named GET commands remain supported. HTTP success is not labelled business success.
+Interrupted/timed-out writes have uncertain outcomes and are not retried.
+
+All 45 configured offline tests passed, including 19 request-composer tests. Help,
+interactive cancellation, a vendor GET preview and an invoice-service POST preview
+were smoke-checked in the debug Python environment without sending API requests. Development used mocked transport and preview/help checks, not live writes.
+The broader cross-domain CLI is a follow-up in AlmaAPITK rather than part of this
+project's prototype scope.
