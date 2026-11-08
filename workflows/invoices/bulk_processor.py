@@ -246,7 +246,7 @@ class AutomatedInvoiceProcessor:
             initial_invoice = self.acq.get_invoice(invoice_id)
             
             result['initial_status'] = initial_invoice.get('invoice_status', {}).get('value', 'Unknown')
-            result['initial_payment_status'] = initial_invoice.get('payment_status', {}).get('value', 'Unknown')
+            result['initial_payment_status'] = initial_invoice.get('payment', {}).get('payment_status', {}).get('value', 'Unknown')
             
             self.logger.debug(f"Invoice {invoice_id} - Initial: {result['initial_status']}/{result['initial_payment_status']}")
             
@@ -275,7 +275,7 @@ class AutomatedInvoiceProcessor:
             updated_invoice = self.acq.get_invoice(invoice_id)
             
             result['final_status'] = updated_invoice.get('invoice_status', {}).get('value', 'Unknown')
-            result['final_payment_status'] = updated_invoice.get('payment_status', {}).get('value', 'Unknown')
+            result['final_payment_status'] = updated_invoice.get('payment', {}).get('payment_status', {}).get('value', 'Unknown')
             
             # Check for changes
             result['status_changed'] = result['initial_status'] != result['final_status']
