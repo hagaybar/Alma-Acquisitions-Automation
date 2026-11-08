@@ -360,7 +360,7 @@ def test_full_wizard_process_journey_is_fake_and_records_expected_vs_actual(tmp_
     store, api, output = Store(tmp_path / 'evidence'), FakeAlma(), []
     answers = iter(['1', 'synthetic-001', 'CONFIRM SANDBOX CONFIG',
                     '1', '2', '1', '', '1', '', '3',
-                    'SEND SANDBOX POST /almaws/v1/acq/invoices/synthetic-001 op=process_invoice', '', '0'])
+                    'PROCESS', '', '0'])
     result = wizard.interactive(load_operations(), store=store, executor=api, sleep=lambda _: None,
                                 reader=lambda _: next(answers), writer=output.append)
     assert result == 0 and dispatch_count(api) == 1

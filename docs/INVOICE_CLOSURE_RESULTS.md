@@ -77,7 +77,8 @@ operator update. Do not proceed with the earlier physical candidate.
 
 ## Deferred CLI improvements
 
-- Replace the long typed request confirmation with a simpler explicit confirmation.
+- DONE (feature/short-write-confirmation): writes now require typing a short action
+  word instead of the full request line.
 - Offer invoice amount/currency as editable proposed payment defaults; do not silently
   assert that they equal an actual historical payment.
 - Review configurable verification timing after the observed delayed processing.

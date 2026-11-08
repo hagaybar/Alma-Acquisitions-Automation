@@ -23,7 +23,9 @@ The home screen also offers Workflow wizard as option 3. Local-only commands:
 ```
 
 Opening, creating or resuming a run sends nothing. No key appears on the command
-line. Writes require the exact typed request confirmation, including the service op.
+line. Each write shows its method, path and service op, then requires typing its
+action word (PAY, PROCESS, MARK_IN_ERP, REJECT, or the method such as PUT).
+Case is ignored; any other input or Enter cancels.
 
 ## One guided experiment
 

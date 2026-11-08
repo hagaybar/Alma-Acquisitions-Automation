@@ -178,9 +178,14 @@ def preview(request):
             'scope': 'One request; HTTP success alone does not verify a business outcome.'}
 
 
+ACTION_WORDS = {'paid': 'PAY', 'process_invoice': 'PROCESS', 'mark_in_erp': 'MARK_IN_ERP', 'rejected': 'REJECT'}
+
+
 def confirmation_phrase(request):
-    suffix = ' op=' + str(request.parameters['op']) if 'op' in request.parameters else ''
-    return 'SEND SANDBOX ' + request.method + ' ' + request.path + suffix
+    if 'op' in request.parameters:
+        op = str(request.parameters['op'])
+        return ACTION_WORDS.get(op, op.upper())
+    return request.method
 
 
 def authorize(request, *, send=False, reader=input, writer=print):
@@ -189,10 +194,11 @@ def authorize(request, *, send=False, reader=input, writer=print):
     if request.method == 'GET':
         return True
     phrase = confirmation_phrase(request)
-    writer('This request changes Sandbox data. Review the body and action above.')
-    writer('Type exactly: ' + phrase)
+    suffix = ' op=' + str(request.parameters['op']) if 'op' in request.parameters else ''
+    writer('This request changes Sandbox data: ' + request.method + ' ' + request.path + suffix)
+    writer('Review the body and action above, then type ' + phrase + ' to send.')
     try:
-        return reader('Confirmation (Enter cancels): ').strip() == phrase
+        return reader('Action word (Enter cancels): ').strip().upper() == phrase
     except (EOFError, KeyboardInterrupt):
         return False
 
@@ -440,7 +446,7 @@ def main(argv=None):
     body_group.add_argument('--json', dest='json_body', help='Explicit JSON object body')
     body_group.add_argument('--body-file', help='JSON or XML body file')
     parser.add_argument('--content-type', choices=['application/json', 'application/xml'])
-    parser.add_argument('--send', action='store_true', help='Send instead of preview; writes still require typed confirmation')
+    parser.add_argument('--send', action='store_true', help='Send instead of preview; writes still require typing the action word')
     parser.add_argument('--list-operations', action='store_true')
     args = parser.parse_args(argv)
     operations = load_operations()
@@ -473,7 +479,7 @@ def main(argv=None):
         request = compose(operation, ids, params, body, content_type)
         print(json.dumps(preview(request), ensure_ascii=False, indent=2))
         if not args.send:
-            print('\nPreview only. Add --send to execute; writes require typed confirmation.')
+            print('\nPreview only. Add --send to execute; writes require typing the action word.')
             return 0
         if not authorize(request, send=True):
             print('Cancelled. No request sent.')

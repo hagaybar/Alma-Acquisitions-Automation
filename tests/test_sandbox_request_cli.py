@@ -52,7 +52,7 @@ def test_required_body_and_documented_service_action(cli):
         cli.compose(op, {'invoice_id': 'synthetic'}, {'op': 'close'}, {}, 'application/json')
     request = cli.compose(op, {'invoice_id': 'synthetic'}, {'op': 'paid'}, {}, 'application/json')
     assert request.body == {}
-    assert 'op=paid' in cli.confirmation_phrase(request)
+    assert cli.confirmation_phrase(request) == 'PAY'
 
 
 def test_parameter_types_and_bounds(cli):
@@ -78,6 +78,21 @@ def test_preview_and_wrong_confirmation_do_not_authorize_writes(cli):
     assert cli.authorize(request, send=False, reader=lambda _: pytest.fail('Unexpected prompt')) is False
     assert cli.authorize(request, send=True, reader=lambda _: 'yes', writer=lambda _: None) is False
     assert cli.authorize(request, send=True, reader=lambda _: cli.confirmation_phrase(request), writer=lambda _: None) is True
+
+
+def test_confirmation_is_the_short_action_word(cli):
+    op = operation('POST', '/almaws/v1/acq/invoices/{invoice_id}', body=True)
+    op['parameters'] = [{'name': 'invoice_id', 'in': 'path', 'required': True, 'schema': {'type': 'string'}},
+                        {'name': 'op', 'in': 'query', 'required': True, 'schema': {'type': 'string'}}]
+    op['documented_op_values'] = ['paid', 'process_invoice']
+    process = cli.compose(op, {'invoice_id': 'synthetic'}, {'op': 'process_invoice'}, {}, 'application/json')
+    put = cli.compose(operation('PUT', body=True), {'vendorCode': 'synthetic'}, {}, {}, 'application/json')
+    assert cli.confirmation_phrase(process) == 'PROCESS'
+    assert cli.confirmation_phrase(put) == 'PUT'
+    quiet = dict(writer=lambda _: None)
+    assert cli.authorize(process, send=True, reader=lambda _: ' process ', **quiet) is True
+    assert cli.authorize(process, send=True, reader=lambda _: 'PAY', **quiet) is False
+    assert cli.authorize(process, send=True, reader=lambda _: '', **quiet) is False
 
 
 class FakeClient:
