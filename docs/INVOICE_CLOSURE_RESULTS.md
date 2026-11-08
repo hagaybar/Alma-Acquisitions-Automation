@@ -34,7 +34,7 @@ does not authorize ignoring them in every invoice. HTTP timing and asynchronous
 workflow progression also require separate evidence; the processing timeout was
 not cured by replaying the write.
 
-## Next branch: PAID but still In Review
+## Deferred branch: physical book PAID but still In Review
 
 A bounded read-only discovery found a Central Library/RIALTO invoice with one
 physical-book one-time PO line (PRINTED_BOOK_OT, material BOOK): ACTIVE, InReview,
@@ -54,8 +54,26 @@ This candidate changes both starting payment state and format. It is useful bran
 coverage, not a controlled experiment isolating which variable explains an outcome.
 If it remains open, a separate paid-stage continuation investigation is required.
 
-Before another write, first create a new wizard run and inspect the fresh baseline.
-No write has been performed on this candidate during discovery.
+**Operator update: physical receiving branch on hold.** Staff may have shelved items
+without completing Alma receiving. The candidate's actual receipt/item/loan state
+has not been checked, and a SENT PO line alone does not establish the item's state.
+The operator reports that a receiving action could affect item processing,
+availability or active loans. Do not receive, change item processes, or try to
+complete physical orders as a closure shortcut. No automatic remediation is agreed.
+Physical RIALTO purchasing has ceased; priority is electronic-resource invoices.
+
+The hypothesis that non-receipt prevents invoice closure itself is not established
+by this case. Invoice closure and linked PO-line closure remain separate assertions.
+No write was performed on this candidate during discovery. Future receiving work
+requires a separately designed investigation of actual item and loan conditions.
+
+## Current next branch: electronic resources
+
+Seek an electronic-book invoice with a different starting state, preferably PAID
+but still In Review, so the continuation experiment does not introduce physical
+receiving. Inspect actual linked types/material and all lines; hold mixed or
+unresolved records. A suitable candidate has not yet been selected after this
+operator update. Do not proceed with the earlier physical candidate.
 
 ## Deferred CLI improvements
 
