@@ -64,3 +64,22 @@ synthetic tests and redacted claims in Git and pushed review branches. No produc
 acquisition write is authorized; no message to the librarian is authorized.
 
 The portable read-probe script was run against the same reviewed Sandbox codes: library lookup, vendor lookup, filters on the three returned active invoices, nested payment shape and linked POL retrieval all passed. Coverage remained explicitly partial (3 of the reported 1,341 active invoices). The shared skill passed the skill-creator structural validator; the offline descriptor returned the official invoice-service parameters and four documented actions. These checks do not validate mutation transitions or automatic skill discovery in either client.
+
+## Skill restructuring — 8 November 2026
+
+The specialist is now organized around domain assistance rather than the current
+pilot or an evaluation procedure. It remains an initial draft with partial Sandbox
+read coverage. Workflow, invoice interpretation and coverage references separate
+business knowledge from API contracts and historical evidence. Campaign-specific
+selection/review rules moved to INVOICE_CLOSING_PILOT.md.
+
+The shared evaluation method is canonical in hagaybar/agent-sandbox under
+skills/alma-api-knowledge-evaluator. The specialist retains lightweight evidence
+checks and focused re-evaluation triggers; it does not require that evaluator for
+ordinary domain assistance. No new API call or mutation is part of this restructuring.
+
+The revised specialist and separate evaluator passed structural checks and relative
+link validation. An independent four-task read-only model scenario exercise met its
+predefined reviewer criteria; its full evidence is in agent-sandbox at
+docs/debug-sbx/skill-evaluations/2026-11-08/. This does not add live API validation,
+automatic skill discovery evidence or actual Claude Code use. Both remain initial drafts.
