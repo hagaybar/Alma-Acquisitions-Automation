@@ -385,7 +385,11 @@ def interactive(operations, *, reader=input, writer=print, executor=execute, sav
                 elif mode != 'none':
                     body, content_type = body_from_file(reader('File path: ').strip(), 'application/xml' if mode == 'xml-file' else 'application/json')
             request = compose(operation, ids, params, body, content_type)
-            writer('\nREQUEST PREVIEW\n' + json.dumps(preview(request), ensure_ascii=False, indent=2))
+            from sandbox_terminal import display
+            display('REQUEST PREVIEW | SANDBOX / EU', [
+                'Method: ' + method + ' | Object: ' + obj + '\nOperation: ' + operation['path'],
+                json.dumps(preview(request), ensure_ascii=False, indent=2)
+            ], writer=writer)
             action = choose('Next action', [('Send this one Sandbox request', 'send'), ('Return to request selection', 'back')], reader=reader, writer=writer)
             if action != 'send':
                 continue
@@ -425,7 +429,8 @@ def resolve_operation(operations, args, ids):
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog='Examples:\n  sandbox_get_review.py\n  sandbox_get_review.py request --method GET --object vendor --id vendorCode=SYNTHETIC\n  sandbox_get_review.py request --object invoice --param limit=1 --send\n\nLegacy vendor/invoice/lines/pol commands remain available. Use vendor --help for that interface.')
-    parser.add_argument('command', nargs='?', choices=['interactive', 'request'], default='interactive')
+    parser.add_argument('command', nargs='?', choices=['interactive', 'request', 'invoice-desk'], default='interactive',
+                        help='Default: app dashboard. invoice-desk opens guided GET / PAY / compare.')
     parser.add_argument('--method', choices=METHODS)
     parser.add_argument('--object', choices=sorted(LABELS))
     parser.add_argument('--operation', help='Exact documented METHOD /path template')
@@ -440,13 +445,18 @@ def main(argv=None):
     args = parser.parse_args(argv)
     operations = load_operations()
     try:
+        if args.command == 'invoice-desk':
+            from sandbox_invoice_desk import interactive as invoice_app
+            return invoice_app(operations)
         if args.list_operations:
             for key, op in operations.items():
                 if (not args.method or op['method'] == args.method) and (not args.object or object_name(op['path']) == args.object):
                     print(key)
             return 0
         if args.command == 'interactive' and not args.object and not args.operation:
-            return interactive(operations)
+            from sandbox_terminal import home
+            from sandbox_invoice_desk import interactive as invoice_app
+            return home(operations, composer=interactive, invoice_app=invoice_app)
         ids, params = pairs(args.id), pairs(args.param)
         operation = resolve_operation(operations, args, ids)
         body, content_type = None, args.content_type

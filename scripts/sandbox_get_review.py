@@ -129,7 +129,7 @@ def capture(client, args):
 
 
 def main():
-    if len(sys.argv) == 1 or sys.argv[1].startswith('-') or sys.argv[1] in ('interactive', 'request'):
+    if len(sys.argv) == 1 or sys.argv[1].startswith('-') or sys.argv[1] in ('interactive', 'request', 'invoice-desk'):
         from sandbox_request_cli import main as request_main
         return request_main(sys.argv[1:])
     parser = argparse.ArgumentParser(description=__doc__)

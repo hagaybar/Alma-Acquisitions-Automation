@@ -3,7 +3,7 @@
 This is an Acquisitions-project prototype, not yet a general AlmaAPITK CLI.
 Run one request, inspect its actual input/output and interpret the result before
 continuing. Starting scripts/sandbox_get_review.py without arguments opens the
-interactive request composer. Existing named GET commands still work.
+app dashboard: request composer or invoice desk. Existing named GET commands still work.
 
 The prototype supports GET, POST, PUT and DELETE for operations in the dated
 Acquisitions catalog, plus the existing libraries GET lookup. It always selects
@@ -42,7 +42,7 @@ From the prepared guest shell:
 "$acq_python" scripts/sandbox_get_review.py
 ```
 
-1. Choose GET, POST, PUT or DELETE.
+1. Choose Request composer, then GET, POST, PUT or DELETE.
 2. Choose an object such as Invoices, Invoice lines, Vendors or PO lines.
 3. Choose the exact operation, such as list invoices or retrieve one invoice.
 4. Supply the requested path IDs. Required service actions use a documented menu.
@@ -62,6 +62,66 @@ the result and read back state before retrying. HTTP 2xx is reported as transpor
 success with the business outcome unverified; the tool does not automatically replay
 or verify a mutation. Processing, payment, receiving and deletion have real Sandbox
 effects and are not discovery steps.
+
+## Invoice desk: inspect, prepare PAY, compare
+
+Open the dashboard and choose Invoice desk, or open it directly:
+
+```bash
+"$acq_python" scripts/sandbox_get_review.py invoice-desk
+```
+
+The terminal redraws one panel with the selected invoice ID, number/vendor,
+base/workflow/approval/payment states, payment details, PAY readiness and last result.
+Both API code and description are shown. Redirected output uses plain text; NO_COLOR
+disables colour. The request composer also shows a panel with your selections and
+the complete preview. No extra terminal library is required.
+
+First hands-on test: choose **1 Select ID**, enter one Alma Sandbox internal invoice
+ID (not its vendor invoice number), then **2 GET / Refresh / compare**. Inspect the
+dashboard and **6 Actual input/output**. Stop there and interpret the current states.
+Opening the desk, selecting an ID or editing payment details sends nothing.
+
+Only after deciding that the invoice is the intended payment test:
+
+1. Choose **8 Workflow help**. PAY means recording payment in Alma, not sending money.
+   Processing, approval and ERP handoff are distinct stages. The generic composer
+   exposes their documented service actions separately; the desk never chains them.
+2. Choose **3 Payment details**: explicitly enter date, identifier, final amount and
+   currency. No invoice total is silently substituted. Four required fields are a
+   prototype policy; no institution-specific currency/exchange/tax rules are validated.
+3. Choose **4 Preview PAY**. Expect exactly one POST to the selected invoice with
+   op=paid and a minimal JSON payment object. It sends nothing. The local eligibility
+   policy requires ACTIVE, API workflow code Ready to be Paid (UI Waiting for Payment),
+   APPROVED or NOT_REQUIRED, and NOT_PAID. Paid/unknown/PENDING states require review.
+4. **5 Send reviewed PAY** first performs one GET preflight. Any changed invoice or
+   failed read cancels the proposal. If unchanged, the exact request is displayed
+   again and the operator must type its full confirmation phrase. Cancelling here
+   sends only the preflight GET. Confirming dispatches exactly one POST, without retry.
+5. Inspect **6 Actual input/output**, including any HTTP error body. Then choose
+   **2 GET / Refresh / compare**, followed by **7 Compare before/after**. The comparison
+   is also saved in local JSON/HTML with the actual GET. Payment, invoice closure and
+   PO-line closure are separate assertions. Use named lines/pol GETs for linked orders;
+   the desk does not validate linked-order closure or population eligibility.
+
+The API workflow code Waiting to be Sent means UI Ready to be paid (ERP handoff);
+Ready to be Paid means UI Waiting for Payment. Neither ACTIVE nor PENDING alone
+establishes payment eligibility. Rialto can mark payment status/date without changing
+invoice status; do not replay PAY on a paid-but-open invoice as a closure shortcut.
+Read the specialist invoice reference for dated official sources and unresolved rules.
+
+Each invoice is limited to one PAY attempt per CLI process, including revisiting the
+desk. A timeout, interrupt, failed capture or unchanged immediate read-back is not a
+reason to resend: processing may be asynchronous. The lock is not durable across
+relaunches, other terminals or other tools; reconcile state and saved evidence first.
+The tool cannot remove the race between preflight GET and POST and cannot certify
+that a submitted payment was accepted. No automatic polling, rollback or write chain
+is performed. A later GET is an observation, not proof of causation for every change.
+
+Development validation: mocked tests only, with synthetic records and fake executors.
+No live Alma GET or write was issued while implementing the invoice desk. All payment
+transitions and institution-specific effects remain untested until the operator runs
+and reviews a bounded Sandbox experiment. Production remains unsupported by this tool.
 
 ## Help and command mode
 

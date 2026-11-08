@@ -39,6 +39,64 @@ The paid operation must be investigated as a payment-recording action, not used 
 a generic administrative close. Confirm the intended financial/ERP semantics and
 read back the result. Current evidence does not establish any mutation transition.
 
+## Payment flow: documentation checked 8 November 2026
+
+**Evidence: official documentation, not a live mutation test.** Invoice processing,
+approval, ERP handoff, payment confirmation and closure are separate stages.
+Institutional configuration can skip ERP or payment tracking. With
+handle_invoice_payment=true, the ERP handoff can lead to Waiting for Payment;
+false can close the invoice without waiting for payment confirmation. Do not change
+that configuration merely to make a test work.
+
+Preserve the API/UI naming distinction documented in the invoice schema:
+
+| API workflow code | User-facing stage |
+|---|---|
+| Waiting to be Sent | Ready to be paid; ERP handoff stage |
+| Ready to be Paid | Waiting for Payment; payment stage |
+
+The invoice service POST with op=paid records a payment confirmation in Alma. It is
+not an instruction to transfer money. The official ERP integration example supplies
+a minimal invoice object containing payment.voucher_date, voucher_amount,
+voucher_currency and voucher_number. The invoice schema also documents optional
+explicit_ratios and notes; create_rt_invoice controls a reporting-tax invoice.
+Do not replay all GET fields or infer final paid amount/currency from invoice totals
+when exchange rates may apply. Inspect the relevant financial requirements.
+
+The API schema describes a default current payment date; the UI payment guide
+requires a payment identifier for Accounting Department. Do not assume UI field
+requirements completely specify the service API's conditional validation. The
+project's guided PAY desk requires all four voucher fields as a conservative local
+prototype policy, not a universal Alma requirement. It uses ACTIVE, APPROVED or
+NOT_REQUIRED, the waiting-for-payment workflow code and NOT_PAID as local entry
+conditions. These checks are not proof that Alma will accept the action.
+
+The schema warns that processing is asynchronous. Read back payment, base and
+workflow state after an action; a POST body or HTTP 2xx alone is insufficient.
+Inspect linked PO lines separately: closure depends on invoicing/payment and
+receiving or activation. An older official ERP blog comment also reports a PO-line
+closure defect; neither that historical report nor current workflow prose proves
+this institution's current behavior. Do not automatically close PO lines to hide a
+discrepancy.
+
+Rialto's optional "Mark Invoices as Paid in Alma" feature updates payment status/date
+without itself changing invoice status. This makes paid-but-open a meaningful
+investigation case; it does not establish that this institution enabled the option
+or that repeating op=paid is an appropriate remedy.
+
+Official references checked on that date:
+
+- [Invoice service](https://developers.exlibrisgroup.com/alma/apis/docs/acq/UE9TVCAvYWxtYXdzL3YxL2FjcS9pbnZvaWNlcy97aW52b2ljZV9pZH0=/)
+- [Invoice schema and payment fields](https://developers.exlibrisgroup.com/alma/apis/docs/xsd/rest_invoice.xsd/?tags=POST)
+- [ERP invoice API integration and minimal payment example](https://developers.exlibrisgroup.com/blog/alma-erp-invoices-integration-using-apis/)
+- [Invoicing workflow and configuration](https://knowledge.exlibrisgroup.com/Alma/Product_Documentation/010Alma_Online_Help_%28English%29/020Acquisitions/020Invoicing/010Invoicing_Workflow)
+- [Working with invoices waiting for payment](https://knowledge.exlibrisgroup.com/Alma/Product_Documentation/010Alma_Online_Help_%28English%29/020Acquisitions/020Invoicing/060Working_with_Invoices_Waiting_for_Payment)
+- [Rialto invoicing option](https://knowledge.exlibrisgroup.com/Rialto/Product_Documentation/040Rialto_Administrator_Guide/API_Invoicing_Workflow_and_Options)
+
+**Last live PAY test: none.** Payload construction, local policy, confirmation,
+preflight-change detection and read-back comparison have offline mocked coverage in
+the project. This is implementation evidence, not validation of an Alma transition.
+
 ## Implementation discrepancies and troubleshooting
 
 The baseline bulk processor read payment_status at the root. The review branch
