@@ -39,7 +39,7 @@ def home(operations, *, reader=input, writer=print, composer=None, invoice_app=N
             '3  Workflow wizard    Saved hypotheses / one action / automatic GET verification\n'
             '0  Exit',
             'Choose an area. Opening the app sends no requests.\n'
-            'PAY is operator-run; its Alma transition has not been live-tested.'
+            'PAY is operator-run; one Sandbox case supports its tested transition.'
         ], writer=writer)
         choice = reader('Choose: ').strip()
         if choice == '0':

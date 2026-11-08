@@ -165,3 +165,7 @@ from its exact starting state remains a question to test, not an assumed solutio
 
 Documentation checked 8 November 2026. No mutation was performed to prepare this
 protocol. Historical read examples do not validate any of its proposed transitions.
+
+## Recorded case and next branch
+
+See [closure experiment results](INVOICE_CLOSURE_RESULTS.md) for Case 001, operator UI corroboration, retained alerts, and the proposed paid-in-review physical-book branch. Evidence remains scoped to the tested record.

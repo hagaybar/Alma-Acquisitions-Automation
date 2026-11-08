@@ -1069,12 +1069,17 @@
         "rejected"
       ],
       "validation": {
-        "status": "not_live_tested",
-        "last_tested_at": null,
-        "last_result": null,
-        "evidence_ids": [],
-        "tested_scope": null,
-        "limits": "No live test for this operation is recorded."
+        "status": "sandbox_tested_partial",
+        "last_tested_at": "2026-11-08T13:53:25.499+02:00",
+        "last_result": "paid_passed_in_one_case_process_response_unknown",
+        "environment": "SANDBOX",
+        "sdk_version": "0.4.5",
+        "evidence_ids": [
+          "invoice-electronic-case-001"
+        ],
+        "evidence_file": "invoice-transition-evidence.json",
+        "tested_scope": "Operator-run paid with four voucher fields on one approved waiting-for-payment electronic-book invoice: HTTP 200 and GET verified CLOSED/PAID with supplied vouchers. Processing response unknown; later state observed.",
+        "limits": "One record/configuration only. Other ops, optional parameters, paid-open continuation, fiscal rules and production unvalidated."
       }
     },
     "PUT /almaws/v1/acq/invoices/{invoice_id}": {

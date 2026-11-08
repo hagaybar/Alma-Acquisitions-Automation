@@ -22,7 +22,8 @@ and test the relevant transitions. The current skill has no live creation covera
 
 The current official catalog documents invoice-service `op` values mark_in_erp,
 paid, process_invoice and rejected, plus create_rt_invoice. These are documented
-contracts, not live-tested transitions. Read the exact official parameter/body schema
+contracts with action-specific coverage. The paid case below has bounded operator-run
+evidence; other actions remain unvalidated. Read the exact official parameter/body schema
 and current state requirements before a previously unused operation.
 
 In the reviewed toolkit source, approve_invoice delegates to process_invoice.
@@ -37,7 +38,8 @@ an assertion that all operations need the same payload.
 
 The paid operation must be investigated as a payment-recording action, not used as
 a generic administrative close. Confirm the intended financial/ERP semantics and
-read back the result. Current evidence does not establish any mutation transition.
+read back the result. One operator-run paid transition is now supported within the
+specific scope recorded in [transition evidence](invoice-transition-evidence.json).
 
 ## Payment flow: documentation checked 8 November 2026
 
@@ -93,9 +95,26 @@ Official references checked on that date:
 - [Working with invoices waiting for payment](https://knowledge.exlibrisgroup.com/Alma/Product_Documentation/010Alma_Online_Help_%28English%29/020Acquisitions/020Invoicing/060Working_with_Invoices_Waiting_for_Payment)
 - [Rialto invoicing option](https://knowledge.exlibrisgroup.com/Rialto/Product_Documentation/040Rialto_Administrator_Guide/API_Invoicing_Workflow_and_Options)
 
-**Last live PAY test: none.** Payload construction, local policy, confirmation,
-preflight-change detection and read-back comparison have offline mocked coverage in
-the project. This is implementation evidence, not validation of an Alma transition.
+**Last live PAY test: 8 November 2026, 13:53 Israel time.** An operator-run Sandbox
+simulation on one approved Waiting for Payment electronic-book invoice returned
+HTTP 200. Subsequent GET confirmed CLOSED/PAID, supplied voucher fields, and unchanged
+owner/vendor; all eight checks passed. The operator's UI screenshots corroborated
+Closed and four retained alerts. This does not validate every record or fiscal rule.
+
+Its preceding process_invoice request lost its response after approximately 15
+seconds. Later reconciliation at 13:43 observed APPROVED and Waiting for Payment,
+with payment unchanged. This supports the observed progression, not a captured
+successful processing response or a general approval guarantee. The linked one-time
+electronic-book PO line changed to CLOSED before PAY, while the invoice remained
+NOT_PAID. Keep that observation separate from invoice closure and claims about
+receiving/activation. See the [sanitized evidence](invoice-transition-evidence.json).
+
+The actual JSON invoice returned a flat `alert` list (singular); the schema describes
+an alerts container. Inspect the actual shape, and support both without changing raw
+evidence. Four alerts persisted after CLOSED/PAID; they did not prevent these
+transitions in this case. They are not proven harmless in other workflows.
+The closed invoice returned invoice_workflow_status={} while its base status was
+CLOSED: do not require a populated workflow code to recognize closure.
 
 ## Implementation discrepancies and troubleshooting
 
@@ -124,8 +143,9 @@ do not force payment, recreate an invoice or automatically process it as a diagn
 | Invoice-line collection and linked PO read | Confirmed for one invoice and one linked PO line | 8 Nov 2026 09:46 Israel time |
 | approve_invoice maps to process_invoice | Source-reviewed implementation fact; resulting approval not established | Not transition-tested |
 | PENDING makes an invoice eligible for payment | Unresolved business/API claim; wrapper logic is insufficient | Not tested |
-| paid produces the desired closure | Documented service action; before/after business result untested | Not tested |
-| ERP and PO-line closure effects | Configuration-dependent and not established by current reads | Not tested |
+| paid produces the desired closure | One operator-run approved electronic-book Sandbox case: HTTP 200 plus GET CLOSED/PAID and supplied vouchers | 8 Nov 2026 13:53 Israel time |
+| PO-line closure during processing | One electronic-book PO line closed before PAY; processing response unknown, later state observed | 8 Nov 2026 13:43 Israel time |
+| ERP and other PO-line closure effects | No active ERP in the tested environment; other configurations/record types unvalidated | Not tested |
 
 See [validation-status.md](validation-status.md) and the dated evidence for exact
 operation scope. A test date does not establish every parameter combination.

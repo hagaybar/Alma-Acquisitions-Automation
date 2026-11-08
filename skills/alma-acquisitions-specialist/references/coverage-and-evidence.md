@@ -1,6 +1,6 @@
 # Maturity, coverage and continuing evaluation
 
-**Status: initial draft with partial Sandbox read validation.** The skill has not
+**Status: initial draft with bounded reads and one operator-run Sandbox payment/closure case.** The skill has not
 been established as a reliable full-domain specialist. Coverage below is separate
 from script correctness, structural format validation and agent behavior evaluation.
 
@@ -12,8 +12,8 @@ from script correctness, structural format validation and agent behavior evaluat
 | Invoice payment field | One detailed Sandbox invoice showed payment.payment_status; root field absent | Other response variants; mutation postconditions |
 | Invoice-line/PO linkage | One invoice line had a plain-string PO reference; linked PO GET succeeded | Other line types, mixed invoices, multi-page/link edge cases |
 | Physical-book example | One linked PO-line had BOOK/PRINTED_BOOK_OT | Classification coverage, receiving and closure transitions |
-| Electronic-book workflows | Official/project material only | Classification, activation, payment and closure tests |
-| Processing, approval, payment, ERP | Contract/source review, with unresolved terminology/readiness issues | Scoped Sandbox transition tests; institution-specific rules |
+| Electronic-book workflows | One E_BOOK_OT invoice: reconciled processing progression and HTTP 200 PAY with GET CLOSED/PAID, 8 Nov 2026 | Other records, activation and paid-open continuation |
+| Processing, approval, payment, ERP | One operator-run payment case; prior processing response unknown with later APPROVED/Waiting for Payment observed; no active ERP | Other transitions and institutional rules; ERP untested |
 | Invoice creation, updating and duplicate workflows | Existing skill/toolkit/project references; no new live write validation | Relevant schema/payload combinations and state transitions |
 | Vendors, funds, fiscal management, licenses, purchase requests | Dated official acquisition-contract catalog | Substantive workflow and live behavior coverage |
 | Cross-vendor skill format | Shared standard SKILL.md structure validated | Actual discovery and end-to-end use in both installed clients |
@@ -72,3 +72,5 @@ The live report preserves operation templates, request parameter names, client
 timestamps, SDK version, HTTP status, assertion outcomes and partial population
 counts. Raw responses, headers, server request IDs/timestamps and durations were
 not retained. HTTP-only, failed and untested results remain distinguishable.
+
+See [scoped operator-run transition evidence](invoice-transition-evidence.json) for the payment case, unknown processing response and retained-alert/empty-workflow observations. No generic approval or closure guarantee is established.

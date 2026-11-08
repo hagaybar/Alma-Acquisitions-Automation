@@ -16,7 +16,7 @@ from sandbox_terminal import display
 PATH = '/almaws/v1/acq/invoices/{invoice_id}'
 STATE_FIELDS = ('invoice_status', 'invoice_workflow_status', 'invoice_approval_status')
 SESSION_PAY_ATTEMPTS = set()
-GUIDE = '''Invoice payment experiment | documentation checked 2026-11-08; no live PAY test
+GUIDE = '''Invoice payment experiment | documentation checked 2026-11-08; one operator-run PAY case validated
 
 Review -> processing/approval -> ERP handoff or configured ERP skip -> payment -> closure.
 These are separate stages, not a sequence this app runs automatically.
@@ -66,13 +66,31 @@ def label(value):
     return str(value) if value is not None else '(not returned)'
 
 
+def invoice_alerts(invoice):
+    """Normalize observed flat JSON alert and documented/legacy alerts wrappers.
+
+    Keep the original API body intact in evidence. Retained alerts are observations,
+    not a reason to claim that every alert blocks processing or payment.
+    """
+    result = []
+    for name in ('alert', 'alerts'):
+        value = invoice.get(name)
+        if isinstance(value, dict) and 'alert' in value:
+            value = value['alert']
+        values = value if isinstance(value, list) else ([value] if value else [])
+        for alert in values:
+            if alert not in result:
+                result.append(alert)
+    return result
+
+
 def snapshot(invoice):
     payment = invoice.get('payment') or {}
     return {**{key: invoice.get(key) for key in STATE_FIELDS},
             'payment': payment, 'payment_method': invoice.get('payment_method'),
             'total_amount': invoice.get('total_amount'), 'currency': invoice.get('currency'),
             'vendor': invoice.get('vendor'), 'owner': invoice.get('owner'),
-            'alerts': invoice.get('alerts')}
+            'alerts': invoice_alerts(invoice)}
 
 
 def pay_blockers(invoice):
@@ -209,7 +227,7 @@ class InvoiceDesk:
         display('PAY PREVIEW | SANDBOX | one POST, no automatic follow-up writes', [
             json.dumps(preview(request), ensure_ascii=False, indent=2),
             'This records payment in Alma. It does not transfer money.\n'
-            'Business transition untested. After sending, choose Refresh/compare (GET).'
+            'Transition supported in one scoped case only. After sending, choose Refresh/compare (GET).'
         ], writer=writer)
         if not authorize(request, send=True, reader=reader, writer=writer):
             self.notice = 'PAY cancelled. Only the preflight GET ran.'
@@ -232,6 +250,7 @@ class InvoiceDesk:
                  'Workflow code | description: ' + label(invoice.get('invoice_workflow_status')) + '\n'
                  'Approval: ' + label(invoice.get('invoice_approval_status')) + '\n'
                  'Payment: ' + label(payment.get('payment_status')) + '\n'
+                 'Alerts recorded: ' + str(len(invoice_alerts(invoice))) + '\n'
                  'Amount: ' + str(invoice.get('total_amount', '-')) + ' ' + label(invoice.get('currency')) + '\n'
                  'Read at: ' + (self.read_at or '(not read)') + (' | state invalidated; refresh required' if not self.invoice and self.read_at else ''))
         proposal = ('Action: PAY -> POST ?op=paid | ' + ('PREVIEW READY' if self.pending else 'not prepared') + '\n'
@@ -254,7 +273,7 @@ class InvoiceDesk:
 def interactive(operations, *, reader=input, writer=print, executor=execute, saver=save_report):
     desk = InvoiceDesk(operations, executor=executor, saver=saver, attempted=SESSION_PAY_ATTEMPTS)
     while True:
-        display('ALMA INVOICE DESK | SANDBOX / EU | PAY transition not live-tested', desk.sections(), writer=writer)
+        display('ALMA INVOICE DESK | SANDBOX / EU | PAY validated in one scoped Sandbox case', desk.sections(), writer=writer)
         try:
             choice = reader('Choose: ').strip()
             if choice == '0':

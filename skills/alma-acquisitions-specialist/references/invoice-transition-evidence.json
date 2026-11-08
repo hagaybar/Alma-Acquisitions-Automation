@@ -1,0 +1,62 @@
+{
+  "evidence_id": "invoice-electronic-case-001",
+  "environment": "SANDBOX",
+  "sdk_version": "0.4.5",
+  "execution": "Operator executed CLI writes; desktop agent reviewed existing journal and UI screenshots.",
+  "configuration": {
+    "invoice_skip_erp": true,
+    "handle_invoice_payment": true,
+    "active_erp_integration": false,
+    "source": "operator confirmed"
+  },
+  "scope": "One existing EDI invoice with one electronic-book one-time PO line; private identifiers omitted.",
+  "process": {
+    "op": "process_invoice",
+    "request_result": "ConnectionError after approximately 15 seconds; no captured HTTP response",
+    "dispatched_at": "2026-11-08T13:41:41.285+02:00",
+    "reconciled_at": "2026-11-08T13:43:01.830+02:00",
+    "observed": "InReview/PENDING/NOT_PAID -> Waiting for Payment/APPROVED/NOT_PAID; owner/vendor/payment unchanged; linked order changed to CLOSED.",
+    "verdict": "state_observed_request_outcome_unknown"
+  },
+  "pay": {
+    "op": "paid",
+    "http_status": 200,
+    "verified_at": "2026-11-08T13:53:25.499+02:00",
+    "payload_fields": [
+      "payment.voucher_date",
+      "payment.voucher_number",
+      "payment.voucher_amount",
+      "payment.voucher_currency.value"
+    ],
+    "expected_and_observed": [
+      "invoice base CLOSED",
+      "payment PAID",
+      "all four supplied voucher fields recorded",
+      "owner unchanged",
+      "vendor unchanged"
+    ],
+    "checks_passed": 8,
+    "verdict": "supported_for_this_case"
+  },
+  "response_shapes": {
+    "closed_invoice_workflow": {},
+    "invoice_alert_key": "alert",
+    "retained_alert_count": 4
+  },
+  "retained_alert_codes": [
+    "DIFFERENT_VENDOR_ACCOUNT",
+    "DIFF_PRICE_THAN_POLINE",
+    "EDI_INVOICE_OF_EXTERNAL_SYSTEM",
+    "NOT_READY_LINES"
+  ],
+  "ui_confirmation": "Operator screenshots corroborate Closed and four retained alerts; no screenshot of the final payment section.",
+  "limits": [
+    "No universal eligibility claim",
+    "No production claim",
+    "No complete fiscal-year-rule validation",
+    "No real-world payment established",
+    "PAID-but-open continuation untested",
+    "Other service ops and create_rt_invoice untested",
+    "Historical processing response remains unknown"
+  ]
+}

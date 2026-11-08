@@ -245,3 +245,19 @@ def test_home_menu_routes_without_api_side_effects():
                   invoice_app=lambda *args, **kwargs: calls.append('invoice'),
                   composer=lambda *args, **kwargs: calls.append('composer'))
     assert calls == ['invoice', 'composer']
+
+
+@pytest.mark.parametrize('payload', [
+    {'alert': [{'value': 'SYNTHETIC_ALERT', 'desc': 'Retained after closure'}]},
+    {'alerts': {'alert': [{'value': 'SYNTHETIC_ALERT', 'desc': 'Retained after closure'}]}},
+    {'alerts': [{'value': 'SYNTHETIC_ALERT', 'desc': 'Retained after closure'}]}])
+def test_flat_and_wrapped_alerts_are_preserved_in_snapshot(payload):
+    record = invoice()
+    record.update(payload)
+    assert app.snapshot(record)['alerts'] == [{'value': 'SYNTHETIC_ALERT', 'desc': 'Retained after closure'}]
+
+
+def test_alert_change_is_visible_even_when_invoice_state_does_not_change():
+    before, after = invoice(), invoice()
+    after['alert'] = [{'value': 'SYNTHETIC_NEW_ALERT'}]
+    assert app.snapshot(before) != app.snapshot(after)

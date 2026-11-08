@@ -3,7 +3,7 @@ import argparse
 import json
 from pathlib import Path
 
-from sandbox_invoice_desk import label, payment_body
+from sandbox_invoice_desk import invoice_alerts, label, payment_body
 from sandbox_request_cli import authorize, body_from_file, choose, load_operations
 from sandbox_terminal import display
 from sandbox_workflow import DEFAULT_DEFINITION, DEFAULT_STORE, Workflow, load_definition, routing
@@ -118,9 +118,12 @@ def run_screen(workflow, *, reader=input, writer=print):
         state = '\n'.join(name + ': ' + label(invoice.get(name)) for name in
                           ('invoice_status', 'invoice_workflow_status', 'invoice_approval_status'))
         payment = label((invoice.get('payment') or {}).get('payment_status'))
+        alerts = invoice_alerts(invoice)
         display('INVOICE WORKFLOW WIZARD | SANDBOX / EU | no active ERP integration', [
             'Run: ' + workflow.run_id + ' | Workflow version: ' + str(workflow.definition['version']) + '\n'
-            'Invoice ID: ' + workflow.invoice_id + '\n' + state + '\nPayment: ' + payment,
+            'Invoice ID: ' + workflow.invoice_id + '\n' + state + '\nPayment: ' + payment + '\n'
+            'Alerts recorded (' + str(len(alerts)) + '): ' +
+            (', '.join(str(item.get('value', '?')) if isinstance(item, dict) else str(item) for item in alerts) or 'none returned'),
             routing(invoice) if resources else 'Baseline missing/incomplete: complete inspection required.',
             'Saved step: ' + (step_event['data']['step_id'] + ' / ' + step_event['data']['action'] if step_event else '-') + '\n'
             'Latest verdict: ' + (verified['data']['verdict'] if verified else '(not tested)') + '\n' + notice,
