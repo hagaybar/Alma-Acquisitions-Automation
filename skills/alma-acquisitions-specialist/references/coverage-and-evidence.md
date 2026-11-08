@@ -57,3 +57,18 @@ branching, Letters domain boundary and evaluation of an unsupported verification
 Inputs, reviewer rubric, responses, hashes and limitations are versioned in
 hagaybar/agent-sandbox at docs/debug-sbx/skill-evaluations/2026-11-08/REVIEW.md.
 This is limited model scenario evidence, not a full-domain or cross-vendor validation.
+
+## Dated API reference validity
+
+[validation-status.md](validation-status.md) separates the official snapshot check
+date from each operation's actual last-tested timestamp. The current read run on
+8 November 2026 at 09:46 Israel time passed six bounded GET assertions. Five belong
+to the Acquisitions catalog and are marked sandbox_tested_partial; 54 remain
+not_live_tested with null dates. The supporting Configuration libraries GET is
+recorded in [validation-evidence.json](validation-evidence.json), not inserted into
+the Acquisitions contract catalog. No write transition was tested.
+
+The live report preserves operation templates, request parameter names, client
+timestamps, SDK version, HTTP status, assertion outcomes and partial population
+counts. Raw responses, headers, server request IDs/timestamps and durations were
+not retained. HTTP-only, failed and untested results remain distinguishable.

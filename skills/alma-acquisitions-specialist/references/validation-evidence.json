@@ -1,0 +1,109 @@
+{
+  "environment": "SANDBOX",
+  "sdk_version": "0.4.5",
+  "started_at": "2026-11-08T09:46:44+02:00",
+  "timezone": "Asia/Jerusalem",
+  "method": "GET",
+  "scope": "bounded read contracts only; no write/transition claims",
+  "operations": [
+    {
+      "operation": "GET /almaws/v1/conf/libraries",
+      "tested_at": "2026-11-08T09:46:44+02:00",
+      "parameter_names": [],
+      "http_status": 200
+    },
+    {
+      "operation": "GET /almaws/v1/acq/vendors/{vendorCode}",
+      "tested_at": "2026-11-08T09:46:45+02:00",
+      "parameter_names": [],
+      "http_status": 200
+    },
+    {
+      "operation": "GET /almaws/v1/acq/invoices/",
+      "tested_at": "2026-11-08T09:46:45+02:00",
+      "parameter_names": [
+        "base_status",
+        "limit",
+        "owner",
+        "q",
+        "view"
+      ],
+      "http_status": 200
+    },
+    {
+      "operation": "GET /almaws/v1/acq/invoices/{invoice_id}",
+      "tested_at": "2026-11-08T09:46:46+02:00",
+      "parameter_names": [],
+      "http_status": 200
+    },
+    {
+      "operation": "GET /almaws/v1/acq/invoices/{invoice_id}/lines",
+      "tested_at": "2026-11-08T09:46:46+02:00",
+      "parameter_names": [
+        "limit"
+      ],
+      "http_status": 200
+    },
+    {
+      "operation": "GET /almaws/v1/acq/po-lines/{po_line_id}",
+      "tested_at": "2026-11-08T09:46:46+02:00",
+      "parameter_names": [],
+      "http_status": 200
+    }
+  ],
+  "checks": [
+    {
+      "id": "library-code",
+      "operation": "GET /almaws/v1/conf/libraries",
+      "passed": true
+    },
+    {
+      "id": "vendor-code",
+      "operation": "GET /almaws/v1/acq/vendors/{vendorCode}",
+      "passed": true
+    },
+    {
+      "id": "filters-on-returned-page",
+      "operation": "GET /almaws/v1/acq/invoices/",
+      "passed": true
+    },
+    {
+      "id": "nested-payment-field",
+      "operation": "GET /almaws/v1/acq/invoices/{invoice_id}",
+      "passed": true,
+      "top_level_payment_status_present": false
+    },
+    {
+      "id": "invoice-line-list-shape",
+      "operation": "GET /almaws/v1/acq/invoices/{invoice_id}/lines",
+      "passed": true
+    },
+    {
+      "id": "linked-pol-classification-shape",
+      "operation": "GET /almaws/v1/acq/po-lines/{po_line_id}",
+      "passed": true,
+      "classification_fields_present": [
+        "type",
+        "material_type",
+        "owner",
+        "status"
+      ]
+    }
+  ],
+  "invoice_search": {
+    "q_field": "vendor_code",
+    "owner": "supplied-library-code",
+    "vendor": "supplied-vendor-code",
+    "base_status": "ACTIVE",
+    "view": "brief",
+    "limit": 3,
+    "requested_path_variant": "/almaws/v1/acq/invoices"
+  },
+  "api_total_active_population": 1341,
+  "returned": 3,
+  "coverage_complete": false,
+  "first_invoice_line_count_returned": 1,
+  "first_invoice_line_total": 1,
+  "completed_at": "2026-11-08T09:46:46+02:00",
+  "result": "passed_in_tested_scope"
+}

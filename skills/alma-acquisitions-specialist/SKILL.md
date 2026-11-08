@@ -25,7 +25,11 @@ this skill is a reliable expert across the whole domain.
 - For an exact method, path, parameter or schema, use
   [the documented API catalog](references/api-contracts.json). The offline helper
   `python scripts/describe_contract.py --method GET --path /almaws/v1/acq/invoices/`
-  selects one contract. Check the linked official documentation for conditional
+  selects one contract with its validation status and last-tested date. The
+  [validation overview](references/validation-status.md) lists every operation;
+  [recorded evidence](references/validation-evidence.json) preserves the redacted live run.
+  Documentation-check dates and actual Sandbox test dates are separate.
+  Check the linked official documentation for conditional
   requirements and semantics omitted by this projection.
 - For toolkit/project provenance and portable installation, read
   [sources](references/sources.md). Inspect the installed SDK version and actual
@@ -67,3 +71,9 @@ For a deliberate accuracy or behavioral review, use `alma-api-knowledge-evaluato
 when available. If it is unavailable, these evidence rules still apply and uncertainty
 must remain visible. Project-specific selection criteria and review gates belong in
 the project, not in this reusable skill.
+
+For a new reviewed read-probe report, `scripts/record_validation.py --report REPORT
+--write` updates the dated references. It records only the tested assertion scope;
+an HTTP response alone does not establish business semantics. Review the redacted
+report before recording it. A last-tested date is an observation, not a guarantee
+or automatic expiry rule.

@@ -2,7 +2,7 @@
   "source": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/acq.json",
   "retrieved_date": "2026-11-08",
   "source_sha256": "757c317b98597900faef010399547fec38a6ec4b2f094f11f7a6f8839f46ef85",
-  "status": "documented, untested",
+  "status": "Documented contract snapshot; live validation is recorded per operation",
   "operations": {
     "GET /almaws/v1/acq/currencies": {
       "method": "GET",
@@ -82,6 +82,14 @@
         "500": {
           "content": {}
         }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
       }
     },
     "GET /almaws/v1/acq/fiscal-periods": {
@@ -120,6 +128,14 @@
         "500": {
           "content": {}
         }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
       }
     },
     "GET /almaws/v1/acq/funds": {
@@ -248,6 +264,14 @@
         "500": {
           "content": {}
         }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
       }
     },
     "POST /almaws/v1/acq/funds": {
@@ -301,6 +325,14 @@
         "500": {
           "content": {}
         }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
       }
     },
     "GET /almaws/v1/acq/funds/{fund_id}/transactions": {
@@ -374,6 +406,14 @@
         "500": {
           "content": {}
         }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
       }
     },
     "POST /almaws/v1/acq/funds/{fund_id}/transactions": {
@@ -426,6 +466,14 @@
         "500": {
           "content": {}
         }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
       }
     },
     "DELETE /almaws/v1/acq/funds/{fund_id}": {
@@ -452,6 +500,14 @@
         "500": {
           "content": {}
         }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
       }
     },
     "GET /almaws/v1/acq/funds/{fund_id}": {
@@ -498,6 +554,14 @@
         "500": {
           "content": {}
         }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
       }
     },
     "POST /almaws/v1/acq/funds/{fund_id}": {
@@ -547,7 +611,15 @@
       "documented_op_values": [
         "activate",
         "deactivate"
-      ]
+      ],
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
+      }
     },
     "PUT /almaws/v1/acq/funds/{fund_id}": {
       "method": "PUT",
@@ -608,6 +680,14 @@
         "500": {
           "content": {}
         }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
       }
     },
     "POST /almaws/v1/acq/invoices": {
@@ -651,6 +731,14 @@
         "500": {
           "content": {}
         }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
       }
     },
     "GET /almaws/v1/acq/invoices/": {
@@ -761,6 +849,19 @@
         "500": {
           "content": {}
         }
+      },
+      "validation": {
+        "status": "sandbox_tested_partial",
+        "last_tested_at": "2026-11-08T09:46:45+02:00",
+        "last_result": "passed_in_tested_scope",
+        "evidence_ids": [
+          "filters-on-returned-page"
+        ],
+        "tested_scope": "Vendor-code query, owner, ACTIVE and brief filters on one bounded page; not all query combinations or pages.",
+        "limits": "Other records, configurations, parameter combinations and transitions are not established.",
+        "environment": "SANDBOX",
+        "sdk_version": "0.4.5",
+        "evidence_file": "validation-evidence.json"
       }
     },
     "GET /almaws/v1/acq/invoices/{invoice_id}/attachments/{attachment_id}": {
@@ -815,6 +916,14 @@
         "500": {
           "content": {}
         }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
       }
     },
     "GET /almaws/v1/acq/invoices/{invoice_id}": {
@@ -870,6 +979,19 @@
         "500": {
           "content": {}
         }
+      },
+      "validation": {
+        "status": "sandbox_tested_partial",
+        "last_tested_at": "2026-11-08T09:46:46+02:00",
+        "last_result": "passed_in_tested_scope",
+        "evidence_ids": [
+          "nested-payment-field"
+        ],
+        "tested_scope": "One invoice detail: nested payment-status shape; no mutation or workflow transition.",
+        "limits": "Other records, configurations, parameter combinations and transitions are not established.",
+        "environment": "SANDBOX",
+        "sdk_version": "0.4.5",
+        "evidence_file": "validation-evidence.json"
       }
     },
     "POST /almaws/v1/acq/invoices/{invoice_id}": {
@@ -945,7 +1067,15 @@
         "paid",
         "process_invoice",
         "rejected"
-      ]
+      ],
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
+      }
     },
     "PUT /almaws/v1/acq/invoices/{invoice_id}": {
       "method": "PUT",
@@ -997,6 +1127,14 @@
         "500": {
           "content": {}
         }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
       }
     },
     "GET /almaws/v1/acq/invoices/{invoice_id}/attachments": {
@@ -1052,6 +1190,14 @@
         "500": {
           "content": {}
         }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
       }
     },
     "POST /almaws/v1/acq/invoices/{invoice_id}/attachments": {
@@ -1104,6 +1250,14 @@
         "500": {
           "content": {}
         }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
       }
     },
     "GET /almaws/v1/acq/invoices/{invoice_id}/lines": {
@@ -1168,6 +1322,19 @@
         "500": {
           "content": {}
         }
+      },
+      "validation": {
+        "status": "sandbox_tested_partial",
+        "last_tested_at": "2026-11-08T09:46:46+02:00",
+        "last_result": "passed_in_tested_scope",
+        "evidence_ids": [
+          "invoice-line-list-shape"
+        ],
+        "tested_scope": "Invoice-line list shape for one invoice and one bounded page; no line mutations.",
+        "limits": "Other records, configurations, parameter combinations and transitions are not established.",
+        "environment": "SANDBOX",
+        "sdk_version": "0.4.5",
+        "evidence_file": "validation-evidence.json"
       }
     },
     "POST /almaws/v1/acq/invoices/{invoice_id}/lines": {
@@ -1220,6 +1387,14 @@
         "500": {
           "content": {}
         }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
       }
     },
     "GET /almaws/v1/acq/invoices/{invoice_id}/lines/{invoice_line_id}": {
@@ -1265,6 +1440,14 @@
         "500": {
           "content": {}
         }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
       }
     },
     "PUT /almaws/v1/acq/invoices/{invoice_id}/lines/{invoice_line_id}": {
@@ -1325,6 +1508,14 @@
         "500": {
           "content": {}
         }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
       }
     },
     "POST /almaws/v1/acq/licenses": {
@@ -1368,6 +1559,14 @@
         "500": {
           "content": {}
         }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
       }
     },
     "GET /almaws/v1/acq/licenses/": {
@@ -1496,6 +1695,14 @@
         "500": {
           "content": {}
         }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
       }
     },
     "DELETE /almaws/v1/acq/licenses/{license_code}": {
@@ -1531,6 +1738,14 @@
         "500": {
           "content": {}
         }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
       }
     },
     "GET /almaws/v1/acq/licenses/{license_code}": {
@@ -1586,6 +1801,14 @@
         "500": {
           "content": {}
         }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
       }
     },
     "PUT /almaws/v1/acq/licenses/{license_code}": {
@@ -1638,6 +1861,14 @@
         "500": {
           "content": {}
         }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
       }
     },
     "GET /almaws/v1/acq/licenses/{license_code}/attachments": {
@@ -1693,6 +1924,14 @@
         "500": {
           "content": {}
         }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
       }
     },
     "POST /almaws/v1/acq/licenses/{license_code}/attachments": {
@@ -1745,6 +1984,14 @@
         "500": {
           "content": {}
         }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
       }
     },
     "DELETE /almaws/v1/acq/licenses/{license_code}/attachments/{attachment_id}": {
@@ -1779,6 +2026,14 @@
         "500": {
           "content": {}
         }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
       }
     },
     "GET /almaws/v1/acq/licenses/{license_code}/attachments/{attachment_id}": {
@@ -1833,6 +2088,14 @@
         "500": {
           "content": {}
         }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
       }
     },
     "PUT /almaws/v1/acq/licenses/{license_code}/attachments/{attachment_id}": {
@@ -1893,6 +2156,14 @@
         "500": {
           "content": {}
         }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
       }
     },
     "GET /almaws/v1/acq/licenses/{license_code}/amendments": {
@@ -1930,6 +2201,14 @@
         "500": {
           "content": {}
         }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
       }
     },
     "POST /almaws/v1/acq/licenses/{license_code}/amendments": {
@@ -1982,6 +2261,14 @@
         "500": {
           "content": {}
         }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
       }
     },
     "DELETE /almaws/v1/acq/licenses/{license_code}/amendments/{amendment_code}": {
@@ -2016,6 +2303,14 @@
         "500": {
           "content": {}
         }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
       }
     },
     "GET /almaws/v1/acq/licenses/{license_code}/amendments/{amendment_code}": {
@@ -2061,6 +2356,14 @@
         "500": {
           "content": {}
         }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
       }
     },
     "PUT /almaws/v1/acq/licenses/{license_code}/amendments/{amendment_code}": {
@@ -2121,6 +2424,14 @@
         "500": {
           "content": {}
         }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
       }
     },
     "GET /almaws/v1/acq/po-lines": {
@@ -2249,6 +2560,14 @@
         "500": {
           "content": {}
         }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
       }
     },
     "POST /almaws/v1/acq/po-lines": {
@@ -2311,6 +2630,14 @@
         "500": {
           "content": {}
         }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
       }
     },
     "DELETE /almaws/v1/acq/po-lines/{po_line_id}": {
@@ -2381,6 +2708,14 @@
         "500": {
           "content": {}
         }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
       }
     },
     "GET /almaws/v1/acq/po-lines/{po_line_id}": {
@@ -2418,6 +2753,19 @@
         "500": {
           "content": {}
         }
+      },
+      "validation": {
+        "status": "sandbox_tested_partial",
+        "last_tested_at": "2026-11-08T09:46:46+02:00",
+        "last_result": "passed_in_tested_scope",
+        "evidence_ids": [
+          "linked-pol-classification-shape"
+        ],
+        "tested_scope": "One linked PO-line: type/material/owner/status fields present; no receiving or activation.",
+        "limits": "Other records, configurations, parameter combinations and transitions are not established.",
+        "environment": "SANDBOX",
+        "sdk_version": "0.4.5",
+        "evidence_file": "validation-evidence.json"
       }
     },
     "PUT /almaws/v1/acq/po-lines/{po_line_id}": {
@@ -2488,6 +2836,14 @@
         "500": {
           "content": {}
         }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
       }
     },
     "GET /almaws/v1/acq/po-lines/{po_line_id}/items": {
@@ -2543,6 +2899,14 @@
         "500": {
           "content": {}
         }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
       }
     },
     "POST /almaws/v1/acq/po-lines/{po_line_id}/items": {
@@ -2622,6 +2986,14 @@
         "500": {
           "content": {}
         }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
       }
     },
     "POST /almaws/v1/acq/po-lines/{po_line_id}/items/{item_id}": {
@@ -2720,7 +3092,15 @@
       },
       "documented_op_values": [
         "receive"
-      ]
+      ],
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
+      }
     },
     "GET /almaws/v1/acq/purchase-requests/": {
       "method": "GET",
@@ -2821,6 +3201,14 @@
         "500": {
           "content": {}
         }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
       }
     },
     "DELETE /almaws/v1/acq/purchase-requests/{id}": {
@@ -2847,6 +3235,14 @@
         "500": {
           "content": {}
         }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
       }
     },
     "GET /almaws/v1/acq/purchase-requests/{id}": {
@@ -2884,6 +3280,14 @@
         "500": {
           "content": {}
         }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
       }
     },
     "POST /almaws/v1/acq/purchase-requests/{id}": {
@@ -2948,7 +3352,15 @@
       "documented_op_values": [
         "approve",
         "reject"
-      ]
+      ],
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
+      }
     },
     "PUT /almaws/v1/acq/purchase-requests/{id}": {
       "method": "PUT",
@@ -3000,6 +3412,14 @@
         "500": {
           "content": {}
         }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
       }
     },
     "GET /almaws/v1/acq/test": {
@@ -3028,6 +3448,14 @@
         "500": {
           "content": {}
         }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
       }
     },
     "POST /almaws/v1/acq/test": {
@@ -3056,6 +3484,14 @@
         "500": {
           "content": {}
         }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
       }
     },
     "GET /almaws/v1/acq/vendors": {
@@ -3130,6 +3566,14 @@
         "500": {
           "content": {}
         }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
       }
     },
     "POST /almaws/v1/acq/vendors": {
@@ -3173,6 +3617,14 @@
         "500": {
           "content": {}
         }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
       }
     },
     "DELETE /almaws/v1/acq/vendors/{vendorCode}": {
@@ -3199,6 +3651,14 @@
         "500": {
           "content": {}
         }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
       }
     },
     "GET /almaws/v1/acq/vendors/{vendorCode}": {
@@ -3236,6 +3696,19 @@
         "500": {
           "content": {}
         }
+      },
+      "validation": {
+        "status": "sandbox_tested_partial",
+        "last_tested_at": "2026-11-08T09:46:45+02:00",
+        "last_result": "passed_in_tested_scope",
+        "evidence_ids": [
+          "vendor-code"
+        ],
+        "tested_scope": "Exact lookup of one supplied vendor code.",
+        "limits": "Other records, configurations, parameter combinations and transitions are not established.",
+        "environment": "SANDBOX",
+        "sdk_version": "0.4.5",
+        "evidence_file": "validation-evidence.json"
       }
     },
     "PUT /almaws/v1/acq/vendors/{vendorCode}": {
@@ -3288,6 +3761,14 @@
         "500": {
           "content": {}
         }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
       }
     },
     "GET /almaws/v1/acq/vendors/{vendorCode}/invoices": {
@@ -3343,6 +3824,14 @@
         "500": {
           "content": {}
         }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
       }
     },
     "GET /almaws/v1/acq/vendors/{vendorCode}/po-lines": {
@@ -3398,7 +3887,16 @@
         "500": {
           "content": {}
         }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
       }
     }
-  }
+  },
+  "validation_note": "A tested operation is confirmed only within the recorded scope; date is not a guarantee of current validity."
 }

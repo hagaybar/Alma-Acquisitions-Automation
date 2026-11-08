@@ -83,3 +83,18 @@ link validation. An independent four-task read-only model scenario exercise met 
 predefined reviewer criteria; its full evidence is in agent-sandbox at
 docs/debug-sbx/skill-evaluations/2026-11-08/. This does not add live API validation,
 automatic skill discovery evidence or actual Claude Code use. Both remain initial drafts.
+
+## Dated basic GET verification
+
+On 8 November 2026 at 09:46:44–09:46:46 Asia/Jerusalem, the updated probe made six
+bounded GETs and all six assertions passed: library lookup, vendor lookup, filtered
+invoice list, invoice detail/payment shape, invoice lines, and linked PO metadata.
+The catalog now has explicit validation status, last-tested timestamp, last result,
+evidence ID, SDK/environment and tested-scope limits for each operation. Five
+Acquisitions reads have partial passes; 54 operations remain untested. The libraries
+lookup is recorded as supporting Configuration evidence. No records were changed.
+
+Six new offline tests cover dated evidence, retained failure history, redaction,
+empty population handling, HTTP-only semantics and rejection of production reports.
+All 22 configured offline tests passed. The temporary inspection document is a local
+review copy of the redacted report; it does not contain raw API response bodies.

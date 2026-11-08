@@ -56,3 +56,18 @@ For errors, collect the HTTP operation, relevant state, sanitized error code and
 official error contract. A general retrieval/validation error does not uniquely
 prove a missing approval step. Read back before retrying an uncertain mutation;
 do not force payment, recreate an invoice or automatically process it as a diagnosis.
+
+## Validation status of invoice claims
+
+| Claim | Validity indication | Last live test |
+|---|---|---|
+| Owner/vendor/ACTIVE search predicate | Confirmed on the three returned records only | 8 Nov 2026 09:46 Israel time |
+| Nested payment status field | Confirmed in one invoice detail; root field absent | 8 Nov 2026 09:46 Israel time |
+| Invoice-line collection and linked PO read | Confirmed for one invoice and one linked PO line | 8 Nov 2026 09:46 Israel time |
+| approve_invoice maps to process_invoice | Source-reviewed implementation fact; resulting approval not established | Not transition-tested |
+| PENDING makes an invoice eligible for payment | Unresolved business/API claim; wrapper logic is insufficient | Not tested |
+| paid produces the desired closure | Documented service action; before/after business result untested | Not tested |
+| ERP and PO-line closure effects | Configuration-dependent and not established by current reads | Not tested |
+
+See [validation-status.md](validation-status.md) and the dated evidence for exact
+operation scope. A test date does not establish every parameter combination.
