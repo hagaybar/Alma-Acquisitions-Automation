@@ -77,3 +77,14 @@ For a new reviewed read-probe report, `scripts/record_validation.py --report REP
 an HTTP response alone does not establish business semantics. Review the redacted
 report before recording it. A last-tested date is an observation, not a guarantee
 or automatic expiry rule.
+
+## Hands on inspection
+
+When the user wants to run tests hands on, present one named test, its exact inputs,
+expected observations and stop point before execution. Show the actual prepared
+request and returned response body when inspection is requested; metadata or a pass
+assertion is not a substitute for input/output. Mask authentication, keep useful
+record IDs in private local captures, and interpret each result before moving to
+the next test. Keep read tests distinct from processing/payment/receiving mutations.
+The Acquisitions project supplies scripts/sandbox_get_review.py for one GET per
+command; it is a project helper, not a mandatory dependency of this generic skill.
