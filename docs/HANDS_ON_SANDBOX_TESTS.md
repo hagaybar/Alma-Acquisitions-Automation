@@ -1,5 +1,10 @@
 # Hands on Alma Sandbox request tests
 
+For saved hypotheses, step-by-step execution and automatic GET verification, use
+the [workflow wizard](WORKFLOW_WIZARD.md), available as app option 3 or command
+workflow-wizard. Standalone request-composer and invoice-desk operations below
+are not automatically added to a wizard run.
+
 This is an Acquisitions-project prototype, not yet a general AlmaAPITK CLI.
 Run one request, inspect its actual input/output and interpret the result before
 continuing. Starting scripts/sandbox_get_review.py without arguments opens the

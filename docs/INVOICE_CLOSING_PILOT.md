@@ -145,8 +145,11 @@ possible state is not promised.
 A per-step record needs: expected result, actual result, verdict, next action and
 evidence location, alongside the exact I/O and execution metadata. Distinguish
 request submitted, HTTP accepted, workflow progressed, payment recorded and closure
-verified. The current CLI captures only part of this protocol; case cards and the
-full routing matrix are planned additions, not already implemented CLI features.
+verified. The [workflow wizard](WORKFLOW_WIZARD.md) now supplies saved case plans,
+explicit expected checks, automatic bounded GET verification and durable run history.
+Its initial routing restrictions expose unresolved cases as holds; this is not a
+validated automatic closer or completed transition matrix. No active ERP integration
+is present: all changes are manual or operator-controlled API actions.
 
 First experiment priority: read/classify an existing paid-in-review example and an
 unpaid-in-review example. Prepare a single process_invoice hypothesis for one

@@ -31,11 +31,12 @@ def display(title, sections, *, writer=print, clear=True):
     writer(('\x1b[36m' + text + '\x1b[0m') if tty and 'NO_COLOR' not in os.environ else text)
 
 
-def home(operations, *, reader=input, writer=print, composer=None, invoice_app=None):
+def home(operations, *, reader=input, writer=print, composer=None, invoice_app=None, workflow_app=None):
     while True:
         display('ALMA API LAB  |  SANDBOX / EU  |  Acquisitions prototype', [
             '1  Request composer   GET / POST / PUT / DELETE\n'
             '2  Invoice desk       Inspect / prepare PAY / compare states\n'
+            '3  Workflow wizard    Saved hypotheses / one action / automatic GET verification\n'
             '0  Exit',
             'Choose an area. Opening the app sends no requests.\n'
             'PAY is operator-run; its Alma transition has not been live-tested.'
@@ -47,3 +48,5 @@ def home(operations, *, reader=input, writer=print, composer=None, invoice_app=N
             composer(operations, reader=reader, writer=writer)
         elif choice == '2':
             invoice_app(operations, reader=reader, writer=writer)
+        elif choice == '3' and workflow_app is not None:
+            workflow_app(operations, reader=reader, writer=writer)
