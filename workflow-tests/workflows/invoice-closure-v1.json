@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "id": "central-rialto-invoice-investigation",
+  "version": 1,
+  "maturity": "Hypotheses; no live mutation transition validated",
+  "scope": {"environment": "SANDBOX", "owner": "AC1", "vendor": "RIALTO"},
+  "configuration": {"invoice_skip_erp": true, "handle_invoice_payment": true, "active_erp_integration": false},
+  "configuration_source": "Operator report on 2026-11-08; reconfirm for each run",
+  "verification": {"max_reads": 3, "interval_seconds": 2, "deadline_seconds": 30},
+  "bounds": {"line_pages": 10, "po_lines": 20},
+  "actions": ["process", "pay", "update_invoice", "update_line"],
+  "hypotheses": {
+    "process": "Processing may advance an existing In Review invoice without changing its recorded payment information. The exact transition is unvalidated.",
+    "pay": "An approved, unpaid invoice waiting for payment may record the supplied payment and close. Verify payment and closure separately.",
+    "update_invoice": "An explicit invoice correction may repair a review issue; it does not imply approval or closure.",
+    "update_line": "An explicit line correction may repair a review issue; verify the line and inspect header/order effects."
+  },
+  "holds": {
+    "InApproval": "Manual approval may be required. No independently verified API approval action is established.",
+    "Waiting to be Sent": "Historical ERP-stage record conflicts with the current ERP-skipping route. Investigate; do not mark it in ERP automatically.",
+    "paid_waiting": "A paid invoice waiting for payment needs a separately researched continuation action; do not record payment again.",
+    "unknown": "Unknown or conflicting states require investigation before a write."
+  },
+  "sources": [
+    "https://developers.exlibrisgroup.com/alma/apis/docs/acq/UE9TVCAvYWxtYXdzL3YxL2FjcS9pbnZvaWNlcy97aW52b2ljZV9pZH0=/",
+    "https://developers.exlibrisgroup.com/alma/apis/docs/xsd/rest_invoice.xsd/",
+    "https://developers.exlibrisgroup.com/blog/creating-an-invoice-using-apis/"
+  ],
+  "documentation_checked": "2026-11-08",
+  "lessons": []
+}

@@ -1,0 +1,3907 @@
+{
+  "source": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/acq.json",
+  "retrieved_date": "2026-11-08",
+  "source_sha256": "757c317b98597900faef010399547fec38a6ec4b2f094f11f7a6f8839f46ef85",
+  "status": "Documented contract snapshot; live validation is recorded per operation",
+  "operations": {
+    "GET /almaws/v1/acq/currencies": {
+      "method": "GET",
+      "path": "/almaws/v1/acq/currencies",
+      "parameters": [
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "10",
+            "type": "integer"
+          }
+        },
+        {
+          "name": "offset",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "0",
+            "type": "integer"
+          }
+        },
+        {
+          "name": "mode",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "ALL",
+            "type": "string"
+          }
+        },
+        {
+          "name": "source_currency",
+          "in": "query",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "target_currency",
+          "in": "query",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "exchange_date",
+          "in": "query",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "request_body": null,
+      "responses": {
+        "400": {
+          "content": {}
+        },
+        "200": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_currencies.json#/rest_currencies"
+              }
+            },
+            "application/xml": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_currencies.json#/rest_currencies"
+              }
+            }
+          }
+        },
+        "500": {
+          "content": {}
+        }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
+      }
+    },
+    "GET /almaws/v1/acq/fiscal-periods": {
+      "method": "GET",
+      "path": "/almaws/v1/acq/fiscal-periods",
+      "parameters": [
+        {
+          "name": "mode",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "ALL",
+            "type": "string"
+          }
+        }
+      ],
+      "request_body": null,
+      "responses": {
+        "400": {
+          "content": {}
+        },
+        "200": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_fiscal_periods.json#/rest_fiscal_periods"
+              }
+            },
+            "application/xml": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_fiscal_periods.json#/rest_fiscal_periods"
+              }
+            }
+          }
+        },
+        "500": {
+          "content": {}
+        }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
+      }
+    },
+    "GET /almaws/v1/acq/funds": {
+      "method": "GET",
+      "path": "/almaws/v1/acq/funds",
+      "parameters": [
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "10",
+            "type": "integer"
+          }
+        },
+        {
+          "name": "offset",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "0",
+            "type": "integer"
+          }
+        },
+        {
+          "name": "q",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "",
+            "type": "string"
+          }
+        },
+        {
+          "name": "library",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "",
+            "type": "string"
+          }
+        },
+        {
+          "name": "view",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "full",
+            "type": "string"
+          }
+        },
+        {
+          "name": "mode",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "POL",
+            "type": "string"
+          }
+        },
+        {
+          "name": "status",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "ALL",
+            "type": "string"
+          }
+        },
+        {
+          "name": "entity_type",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "ALL",
+            "type": "string"
+          }
+        },
+        {
+          "name": "fiscal_period",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "ALL",
+            "type": "string"
+          }
+        },
+        {
+          "name": "parent_id",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "ALL",
+            "type": "string"
+          }
+        },
+        {
+          "name": "owner",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "ALL",
+            "type": "string"
+          }
+        }
+      ],
+      "request_body": null,
+      "responses": {
+        "400": {
+          "content": {}
+        },
+        "200": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_funds.json#/rest_funds"
+              }
+            },
+            "application/xml": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_funds.json#/rest_funds"
+              }
+            }
+          }
+        },
+        "500": {
+          "content": {}
+        }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
+      }
+    },
+    "POST /almaws/v1/acq/funds": {
+      "method": "POST",
+      "path": "/almaws/v1/acq/funds",
+      "parameters": [
+        {
+          "name": "rules_level",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "fund",
+            "type": "string"
+          }
+        }
+      ],
+      "request_body": {
+        "description": "This method creates a Fund object. See [here](/alma/apis/docs/xsd/rest_fund.xsd?tags=POST)",
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_fund-post.json#/rest_fund-post"
+            }
+          },
+          "application/xml": {
+            "schema": {
+              "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_fund-post.json#/rest_fund-post"
+            }
+          }
+        }
+      },
+      "responses": {
+        "400": {
+          "content": {}
+        },
+        "200": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_fund.json#/rest_fund"
+              }
+            },
+            "application/xml": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_fund.json#/rest_fund"
+              }
+            }
+          }
+        },
+        "500": {
+          "content": {}
+        }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
+      }
+    },
+    "GET /almaws/v1/acq/funds/{fund_id}/transactions": {
+      "method": "GET",
+      "path": "/almaws/v1/acq/funds/{fund_id}/transactions",
+      "parameters": [
+        {
+          "name": "fund_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "10",
+            "type": "integer"
+          }
+        },
+        {
+          "name": "offset",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "0",
+            "type": "integer"
+          }
+        },
+        {
+          "name": "q",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "",
+            "type": "string"
+          }
+        },
+        {
+          "name": "filter",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "ALL",
+            "type": "string"
+          }
+        }
+      ],
+      "request_body": null,
+      "responses": {
+        "400": {
+          "content": {}
+        },
+        "200": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_fund_transactions.json#/rest_fund_transactions"
+              }
+            },
+            "application/xml": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_fund_transactions.json#/rest_fund_transactions"
+              }
+            }
+          }
+        },
+        "500": {
+          "content": {}
+        }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
+      }
+    },
+    "POST /almaws/v1/acq/funds/{fund_id}/transactions": {
+      "method": "POST",
+      "path": "/almaws/v1/acq/funds/{fund_id}/transactions",
+      "parameters": [
+        {
+          "name": "fund_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "request_body": {
+        "description": "This method takes an Transaction object. See [here](/alma/apis/docs/xsd/rest_fund_transaction.xsd?tags=POST)",
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_fund_transaction-post.json#/rest_fund_transaction-post"
+            }
+          },
+          "application/xml": {
+            "schema": {
+              "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_fund_transaction-post.json#/rest_fund_transaction-post"
+            }
+          }
+        }
+      },
+      "responses": {
+        "400": {
+          "content": {}
+        },
+        "200": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_fund_transaction.json#/rest_fund_transaction"
+              }
+            },
+            "application/xml": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_fund_transaction.json#/rest_fund_transaction"
+              }
+            }
+          }
+        },
+        "500": {
+          "content": {}
+        }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
+      }
+    },
+    "DELETE /almaws/v1/acq/funds/{fund_id}": {
+      "method": "DELETE",
+      "path": "/almaws/v1/acq/funds/{fund_id}",
+      "parameters": [
+        {
+          "name": "fund_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "request_body": null,
+      "responses": {
+        "400": {
+          "content": {}
+        },
+        "204": {
+          "content": {}
+        },
+        "500": {
+          "content": {}
+        }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
+      }
+    },
+    "GET /almaws/v1/acq/funds/{fund_id}": {
+      "method": "GET",
+      "path": "/almaws/v1/acq/funds/{fund_id}",
+      "parameters": [
+        {
+          "name": "fund_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "view",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "full",
+            "type": "string"
+          }
+        }
+      ],
+      "request_body": null,
+      "responses": {
+        "400": {
+          "content": {}
+        },
+        "200": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_fund.json#/rest_fund"
+              }
+            },
+            "application/xml": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_fund.json#/rest_fund"
+              }
+            }
+          }
+        },
+        "500": {
+          "content": {}
+        }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
+      }
+    },
+    "POST /almaws/v1/acq/funds/{fund_id}": {
+      "method": "POST",
+      "path": "/almaws/v1/acq/funds/{fund_id}",
+      "parameters": [
+        {
+          "name": "fund_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "op",
+          "in": "query",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "request_body": null,
+      "responses": {
+        "400": {
+          "content": {}
+        },
+        "200": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_fund.json#/rest_fund"
+              }
+            },
+            "application/xml": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_fund.json#/rest_fund"
+              }
+            }
+          }
+        },
+        "500": {
+          "content": {}
+        }
+      },
+      "documented_op_values": [
+        "activate",
+        "deactivate"
+      ],
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
+      }
+    },
+    "PUT /almaws/v1/acq/funds/{fund_id}": {
+      "method": "PUT",
+      "path": "/almaws/v1/acq/funds/{fund_id}",
+      "parameters": [
+        {
+          "name": "fund_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "rules_level",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "fund",
+            "type": "string"
+          }
+        }
+      ],
+      "request_body": {
+        "description": "This method creates a Fund object. See [here](/alma/apis/docs/xsd/rest_fund.xsd?tags=PUT)",
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_fund-put.json#/rest_fund-put"
+            }
+          },
+          "application/xml": {
+            "schema": {
+              "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_fund-put.json#/rest_fund-put"
+            }
+          }
+        }
+      },
+      "responses": {
+        "400": {
+          "content": {}
+        },
+        "200": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_fund.json#/rest_fund"
+              }
+            },
+            "application/xml": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_fund.json#/rest_fund"
+              }
+            }
+          }
+        },
+        "500": {
+          "content": {}
+        }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
+      }
+    },
+    "POST /almaws/v1/acq/invoices": {
+      "method": "POST",
+      "path": "/almaws/v1/acq/invoices",
+      "parameters": [],
+      "request_body": {
+        "description": "This method takes an invoice object. See [here](/alma/apis/docs/xsd/rest_invoice.xsd?tags=POST)",
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_invoice-post.json#/rest_invoice-post"
+            }
+          },
+          "application/xml": {
+            "schema": {
+              "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_invoice-post.json#/rest_invoice-post"
+            }
+          }
+        }
+      },
+      "responses": {
+        "400": {
+          "content": {}
+        },
+        "200": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_invoice.json#/rest_invoice"
+              }
+            },
+            "application/xml": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_invoice.json#/rest_invoice"
+              }
+            }
+          }
+        },
+        "500": {
+          "content": {}
+        }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
+      }
+    },
+    "GET /almaws/v1/acq/invoices/": {
+      "method": "GET",
+      "path": "/almaws/v1/acq/invoices/",
+      "parameters": [
+        {
+          "name": "q",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "all",
+            "type": "string"
+          }
+        },
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "10",
+            "type": "integer"
+          }
+        },
+        {
+          "name": "offset",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "0",
+            "type": "integer"
+          }
+        },
+        {
+          "name": "view",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "",
+            "type": "string"
+          }
+        },
+        {
+          "name": "expand",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "none",
+            "type": "string"
+          }
+        },
+        {
+          "name": "base_status",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "",
+            "type": "string"
+          }
+        },
+        {
+          "name": "invoice_workflow_status",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "",
+            "type": "string"
+          }
+        },
+        {
+          "name": "owner",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "",
+            "type": "string"
+          }
+        },
+        {
+          "name": "creation_form",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "",
+            "type": "string"
+          }
+        }
+      ],
+      "request_body": null,
+      "responses": {
+        "400": {
+          "content": {}
+        },
+        "200": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_invoices.json#/rest_invoices"
+              }
+            },
+            "application/xml": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_invoices.json#/rest_invoices"
+              }
+            }
+          }
+        },
+        "500": {
+          "content": {}
+        }
+      },
+      "validation": {
+        "status": "sandbox_tested_partial",
+        "last_tested_at": "2026-11-08T09:46:45+02:00",
+        "last_result": "passed_in_tested_scope",
+        "evidence_ids": [
+          "filters-on-returned-page"
+        ],
+        "tested_scope": "Vendor-code query, owner, ACTIVE and brief filters on one bounded page; not all query combinations or pages.",
+        "limits": "Other records, configurations, parameter combinations and transitions are not established.",
+        "environment": "SANDBOX",
+        "sdk_version": "0.4.5",
+        "evidence_file": "validation-evidence.json"
+      }
+    },
+    "GET /almaws/v1/acq/invoices/{invoice_id}/attachments/{attachment_id}": {
+      "method": "GET",
+      "path": "/almaws/v1/acq/invoices/{invoice_id}/attachments/{attachment_id}",
+      "parameters": [
+        {
+          "name": "invoice_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "attachment_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "expand",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "",
+            "type": "string"
+          }
+        }
+      ],
+      "request_body": null,
+      "responses": {
+        "400": {
+          "content": {}
+        },
+        "200": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_attachment.json#/rest_attachment"
+              }
+            },
+            "application/xml": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_attachment.json#/rest_attachment"
+              }
+            }
+          }
+        },
+        "500": {
+          "content": {}
+        }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
+      }
+    },
+    "GET /almaws/v1/acq/invoices/{invoice_id}": {
+      "method": "GET",
+      "path": "/almaws/v1/acq/invoices/{invoice_id}",
+      "parameters": [
+        {
+          "name": "invoice_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "view",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "",
+            "type": "string"
+          }
+        },
+        {
+          "name": "expand",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "none",
+            "type": "string"
+          }
+        }
+      ],
+      "request_body": null,
+      "responses": {
+        "400": {
+          "content": {}
+        },
+        "200": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_invoice.json#/rest_invoice"
+              }
+            },
+            "application/xml": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_invoice.json#/rest_invoice"
+              }
+            }
+          }
+        },
+        "500": {
+          "content": {}
+        }
+      },
+      "validation": {
+        "status": "sandbox_tested_partial",
+        "last_tested_at": "2026-11-08T09:46:46+02:00",
+        "last_result": "passed_in_tested_scope",
+        "evidence_ids": [
+          "nested-payment-field"
+        ],
+        "tested_scope": "One invoice detail: nested payment-status shape; no mutation or workflow transition.",
+        "limits": "Other records, configurations, parameter combinations and transitions are not established.",
+        "environment": "SANDBOX",
+        "sdk_version": "0.4.5",
+        "evidence_file": "validation-evidence.json"
+      }
+    },
+    "POST /almaws/v1/acq/invoices/{invoice_id}": {
+      "method": "POST",
+      "path": "/almaws/v1/acq/invoices/{invoice_id}",
+      "parameters": [
+        {
+          "name": "invoice_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "op",
+          "in": "query",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "create_rt_invoice",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "false",
+            "type": "boolean"
+          }
+        }
+      ],
+      "request_body": {
+        "description": "This method takes an invoice object. See [here](/alma/apis/docs/xsd/rest_invoice.xsd?tags=POST)",
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_invoice-post.json#/rest_invoice-post"
+            }
+          },
+          "application/xml": {
+            "schema": {
+              "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_invoice-post.json#/rest_invoice-post"
+            }
+          }
+        }
+      },
+      "responses": {
+        "400": {
+          "content": {}
+        },
+        "200": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_invoice.json#/rest_invoice"
+              }
+            },
+            "application/xml": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_invoice.json#/rest_invoice"
+              }
+            }
+          }
+        },
+        "500": {
+          "content": {}
+        }
+      },
+      "documented_op_values": [
+        "mark_in_erp",
+        "paid",
+        "process_invoice",
+        "rejected"
+      ],
+      "validation": {
+        "status": "sandbox_tested_partial",
+        "last_tested_at": "2026-11-08T13:53:25.499+02:00",
+        "last_result": "paid_passed_in_one_case_process_response_unknown",
+        "environment": "SANDBOX",
+        "sdk_version": "0.4.5",
+        "evidence_ids": [
+          "invoice-electronic-case-001"
+        ],
+        "evidence_file": "invoice-transition-evidence.json",
+        "tested_scope": "Operator-run paid with four voucher fields on one approved waiting-for-payment electronic-book invoice: HTTP 200 and GET verified CLOSED/PAID with supplied vouchers. Processing response unknown; later state observed.",
+        "limits": "One record/configuration only. Other ops, optional parameters, paid-open continuation, fiscal rules and production unvalidated."
+      }
+    },
+    "PUT /almaws/v1/acq/invoices/{invoice_id}": {
+      "method": "PUT",
+      "path": "/almaws/v1/acq/invoices/{invoice_id}",
+      "parameters": [
+        {
+          "name": "invoice_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "request_body": {
+        "description": "This method takes an invoice object. See [here](/alma/apis/docs/xsd/rest_invoice.xsd?tags=PUT)",
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_invoice-put.json#/rest_invoice-put"
+            }
+          },
+          "application/xml": {
+            "schema": {
+              "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_invoice-put.json#/rest_invoice-put"
+            }
+          }
+        }
+      },
+      "responses": {
+        "400": {
+          "content": {}
+        },
+        "200": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_invoice.json#/rest_invoice"
+              }
+            },
+            "application/xml": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_invoice.json#/rest_invoice"
+              }
+            }
+          }
+        },
+        "500": {
+          "content": {}
+        }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
+      }
+    },
+    "GET /almaws/v1/acq/invoices/{invoice_id}/attachments": {
+      "method": "GET",
+      "path": "/almaws/v1/acq/invoices/{invoice_id}/attachments",
+      "parameters": [
+        {
+          "name": "invoice_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "10",
+            "type": "integer"
+          }
+        },
+        {
+          "name": "offset",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "0",
+            "type": "integer"
+          }
+        }
+      ],
+      "request_body": null,
+      "responses": {
+        "400": {
+          "content": {}
+        },
+        "200": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_attachments.json#/rest_attachments"
+              }
+            },
+            "application/xml": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_attachments.json#/rest_attachments"
+              }
+            }
+          }
+        },
+        "500": {
+          "content": {}
+        }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
+      }
+    },
+    "POST /almaws/v1/acq/invoices/{invoice_id}/attachments": {
+      "method": "POST",
+      "path": "/almaws/v1/acq/invoices/{invoice_id}/attachments",
+      "parameters": [
+        {
+          "name": "invoice_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "request_body": {
+        "description": "The Attachment info to create.  See [here](/alma/apis/docs/xsd/rest_attachment.xsd?tags=POST)",
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_attachment-post.json#/rest_attachment-post"
+            }
+          },
+          "application/xml": {
+            "schema": {
+              "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_attachment-post.json#/rest_attachment-post"
+            }
+          }
+        }
+      },
+      "responses": {
+        "400": {
+          "content": {}
+        },
+        "200": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_attachment.json#/rest_attachment"
+              }
+            },
+            "application/xml": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_attachment.json#/rest_attachment"
+              }
+            }
+          }
+        },
+        "500": {
+          "content": {}
+        }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
+      }
+    },
+    "GET /almaws/v1/acq/invoices/{invoice_id}/lines": {
+      "method": "GET",
+      "path": "/almaws/v1/acq/invoices/{invoice_id}/lines",
+      "parameters": [
+        {
+          "name": "invoice_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "q",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "",
+            "type": "string"
+          }
+        },
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "10",
+            "type": "integer"
+          }
+        },
+        {
+          "name": "offset",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "0",
+            "type": "integer"
+          }
+        }
+      ],
+      "request_body": null,
+      "responses": {
+        "400": {
+          "content": {}
+        },
+        "200": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_invoice_lines.json#/rest_invoice_lines"
+              }
+            },
+            "application/xml": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_invoice_lines.json#/rest_invoice_lines"
+              }
+            }
+          }
+        },
+        "500": {
+          "content": {}
+        }
+      },
+      "validation": {
+        "status": "sandbox_tested_partial",
+        "last_tested_at": "2026-11-08T09:46:46+02:00",
+        "last_result": "passed_in_tested_scope",
+        "evidence_ids": [
+          "invoice-line-list-shape"
+        ],
+        "tested_scope": "Invoice-line list shape for one invoice and one bounded page; no line mutations.",
+        "limits": "Other records, configurations, parameter combinations and transitions are not established.",
+        "environment": "SANDBOX",
+        "sdk_version": "0.4.5",
+        "evidence_file": "validation-evidence.json"
+      }
+    },
+    "POST /almaws/v1/acq/invoices/{invoice_id}/lines": {
+      "method": "POST",
+      "path": "/almaws/v1/acq/invoices/{invoice_id}/lines",
+      "parameters": [
+        {
+          "name": "invoice_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "request_body": {
+        "description": "This method takes an invoice line object. See [here](/alma/apis/docs/xsd/rest_invoice_line.xsd?tags=POST)",
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_invoice_line-post.json#/rest_invoice_line-post"
+            }
+          },
+          "application/xml": {
+            "schema": {
+              "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_invoice_line-post.json#/rest_invoice_line-post"
+            }
+          }
+        }
+      },
+      "responses": {
+        "400": {
+          "content": {}
+        },
+        "200": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_invoice_line.json#/rest_invoice_line"
+              }
+            },
+            "application/xml": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_invoice_line.json#/rest_invoice_line"
+              }
+            }
+          }
+        },
+        "500": {
+          "content": {}
+        }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
+      }
+    },
+    "GET /almaws/v1/acq/invoices/{invoice_id}/lines/{invoice_line_id}": {
+      "method": "GET",
+      "path": "/almaws/v1/acq/invoices/{invoice_id}/lines/{invoice_line_id}",
+      "parameters": [
+        {
+          "name": "invoice_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "invoice_line_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "request_body": null,
+      "responses": {
+        "400": {
+          "content": {}
+        },
+        "200": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_invoice_line.json#/rest_invoice_line"
+              }
+            },
+            "application/xml": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_invoice_line.json#/rest_invoice_line"
+              }
+            }
+          }
+        },
+        "500": {
+          "content": {}
+        }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
+      }
+    },
+    "PUT /almaws/v1/acq/invoices/{invoice_id}/lines/{invoice_line_id}": {
+      "method": "PUT",
+      "path": "/almaws/v1/acq/invoices/{invoice_id}/lines/{invoice_line_id}",
+      "parameters": [
+        {
+          "name": "invoice_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "invoice_line_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "request_body": {
+        "description": "This method takes an invoice line object. See [here](/alma/apis/docs/xsd/rest_invoice_line.xsd?tags=PUT)",
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_invoice_line-put.json#/rest_invoice_line-put"
+            }
+          },
+          "application/xml": {
+            "schema": {
+              "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_invoice_line-put.json#/rest_invoice_line-put"
+            }
+          }
+        }
+      },
+      "responses": {
+        "400": {
+          "content": {}
+        },
+        "200": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_invoice_line.json#/rest_invoice_line"
+              }
+            },
+            "application/xml": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_invoice_line.json#/rest_invoice_line"
+              }
+            }
+          }
+        },
+        "500": {
+          "content": {}
+        }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
+      }
+    },
+    "POST /almaws/v1/acq/licenses": {
+      "method": "POST",
+      "path": "/almaws/v1/acq/licenses",
+      "parameters": [],
+      "request_body": {
+        "description": "This method takes a License object. See [here](/alma/apis/docs/xsd/rest_license.xsd?tags=POST)",
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_license-post.json#/rest_license-post"
+            }
+          },
+          "application/xml": {
+            "schema": {
+              "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_license-post.json#/rest_license-post"
+            }
+          }
+        }
+      },
+      "responses": {
+        "400": {
+          "content": {}
+        },
+        "200": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_license.json#/rest_license"
+              }
+            },
+            "application/xml": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_license.json#/rest_license"
+              }
+            }
+          }
+        },
+        "500": {
+          "content": {}
+        }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
+      }
+    },
+    "GET /almaws/v1/acq/licenses/": {
+      "method": "GET",
+      "path": "/almaws/v1/acq/licenses/",
+      "parameters": [
+        {
+          "name": "q",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "all",
+            "type": "string"
+          }
+        },
+        {
+          "name": "status",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "ALL",
+            "type": "string"
+          }
+        },
+        {
+          "name": "type",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "LICENSE",
+            "type": "string"
+          }
+        },
+        {
+          "name": "review_status",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "ALL",
+            "type": "string"
+          }
+        },
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "10",
+            "type": "integer"
+          }
+        },
+        {
+          "name": "offset",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "0",
+            "type": "integer"
+          }
+        },
+        {
+          "name": "expand",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "none",
+            "type": "string"
+          }
+        },
+        {
+          "name": "create_date_from",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "",
+            "type": "string"
+          }
+        },
+        {
+          "name": "create_date_to",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "",
+            "type": "string"
+          }
+        },
+        {
+          "name": "modify_date_from",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "",
+            "type": "string"
+          }
+        },
+        {
+          "name": "modify_date_to",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "",
+            "type": "string"
+          }
+        }
+      ],
+      "request_body": null,
+      "responses": {
+        "400": {
+          "content": {}
+        },
+        "200": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_licenses.json#/rest_licenses"
+              }
+            },
+            "application/xml": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_licenses.json#/rest_licenses"
+              }
+            }
+          }
+        },
+        "500": {
+          "content": {}
+        }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
+      }
+    },
+    "DELETE /almaws/v1/acq/licenses/{license_code}": {
+      "method": "DELETE",
+      "path": "/almaws/v1/acq/licenses/{license_code}",
+      "parameters": [
+        {
+          "name": "license_code",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "permanent_delete",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "false",
+            "type": "boolean"
+          }
+        }
+      ],
+      "request_body": null,
+      "responses": {
+        "400": {
+          "content": {}
+        },
+        "204": {
+          "content": {}
+        },
+        "500": {
+          "content": {}
+        }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
+      }
+    },
+    "GET /almaws/v1/acq/licenses/{license_code}": {
+      "method": "GET",
+      "path": "/almaws/v1/acq/licenses/{license_code}",
+      "parameters": [
+        {
+          "name": "license_code",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "expand",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "none",
+            "type": "string"
+          }
+        },
+        {
+          "name": "include_blank_terms",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "false",
+            "type": "string"
+          }
+        }
+      ],
+      "request_body": null,
+      "responses": {
+        "400": {
+          "content": {}
+        },
+        "200": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_license.json#/rest_license"
+              }
+            },
+            "application/xml": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_license.json#/rest_license"
+              }
+            }
+          }
+        },
+        "500": {
+          "content": {}
+        }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
+      }
+    },
+    "PUT /almaws/v1/acq/licenses/{license_code}": {
+      "method": "PUT",
+      "path": "/almaws/v1/acq/licenses/{license_code}",
+      "parameters": [
+        {
+          "name": "license_code",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "request_body": {
+        "description": "This method takes a License object. See [here](/alma/apis/docs/xsd/rest_license.xsd?tags=PUT)",
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_license-put.json#/rest_license-put"
+            }
+          },
+          "application/xml": {
+            "schema": {
+              "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_license-put.json#/rest_license-put"
+            }
+          }
+        }
+      },
+      "responses": {
+        "400": {
+          "content": {}
+        },
+        "200": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_license.json#/rest_license"
+              }
+            },
+            "application/xml": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_license.json#/rest_license"
+              }
+            }
+          }
+        },
+        "500": {
+          "content": {}
+        }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
+      }
+    },
+    "GET /almaws/v1/acq/licenses/{license_code}/attachments": {
+      "method": "GET",
+      "path": "/almaws/v1/acq/licenses/{license_code}/attachments",
+      "parameters": [
+        {
+          "name": "license_code",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "10",
+            "type": "integer"
+          }
+        },
+        {
+          "name": "offset",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "0",
+            "type": "integer"
+          }
+        }
+      ],
+      "request_body": null,
+      "responses": {
+        "400": {
+          "content": {}
+        },
+        "200": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_attachments.json#/rest_attachments"
+              }
+            },
+            "application/xml": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_attachments.json#/rest_attachments"
+              }
+            }
+          }
+        },
+        "500": {
+          "content": {}
+        }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
+      }
+    },
+    "POST /almaws/v1/acq/licenses/{license_code}/attachments": {
+      "method": "POST",
+      "path": "/almaws/v1/acq/licenses/{license_code}/attachments",
+      "parameters": [
+        {
+          "name": "license_code",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "request_body": {
+        "description": "The Attachment info to create. See [here](/alma/apis/docs/xsd/rest_attachment.xsd?tags=POST)",
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_attachment-post.json#/rest_attachment-post"
+            }
+          },
+          "application/xml": {
+            "schema": {
+              "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_attachment-post.json#/rest_attachment-post"
+            }
+          }
+        }
+      },
+      "responses": {
+        "400": {
+          "content": {}
+        },
+        "200": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_attachment.json#/rest_attachment"
+              }
+            },
+            "application/xml": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_attachment.json#/rest_attachment"
+              }
+            }
+          }
+        },
+        "500": {
+          "content": {}
+        }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
+      }
+    },
+    "DELETE /almaws/v1/acq/licenses/{license_code}/attachments/{attachment_id}": {
+      "method": "DELETE",
+      "path": "/almaws/v1/acq/licenses/{license_code}/attachments/{attachment_id}",
+      "parameters": [
+        {
+          "name": "license_code",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "attachment_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "request_body": null,
+      "responses": {
+        "400": {
+          "content": {}
+        },
+        "204": {
+          "content": {}
+        },
+        "500": {
+          "content": {}
+        }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
+      }
+    },
+    "GET /almaws/v1/acq/licenses/{license_code}/attachments/{attachment_id}": {
+      "method": "GET",
+      "path": "/almaws/v1/acq/licenses/{license_code}/attachments/{attachment_id}",
+      "parameters": [
+        {
+          "name": "license_code",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "attachment_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "expand",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "",
+            "type": "string"
+          }
+        }
+      ],
+      "request_body": null,
+      "responses": {
+        "400": {
+          "content": {}
+        },
+        "200": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_attachment.json#/rest_attachment"
+              }
+            },
+            "application/xml": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_attachment.json#/rest_attachment"
+              }
+            }
+          }
+        },
+        "500": {
+          "content": {}
+        }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
+      }
+    },
+    "PUT /almaws/v1/acq/licenses/{license_code}/attachments/{attachment_id}": {
+      "method": "PUT",
+      "path": "/almaws/v1/acq/licenses/{license_code}/attachments/{attachment_id}",
+      "parameters": [
+        {
+          "name": "license_code",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "attachment_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "request_body": {
+        "description": "The Attachment info to update. See [here](/alma/apis/docs/xsd/rest_attachment.xsd?tags=PUT)",
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_attachment-put.json#/rest_attachment-put"
+            }
+          },
+          "application/xml": {
+            "schema": {
+              "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_attachment-put.json#/rest_attachment-put"
+            }
+          }
+        }
+      },
+      "responses": {
+        "400": {
+          "content": {}
+        },
+        "200": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_attachment.json#/rest_attachment"
+              }
+            },
+            "application/xml": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_attachment.json#/rest_attachment"
+              }
+            }
+          }
+        },
+        "500": {
+          "content": {}
+        }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
+      }
+    },
+    "GET /almaws/v1/acq/licenses/{license_code}/amendments": {
+      "method": "GET",
+      "path": "/almaws/v1/acq/licenses/{license_code}/amendments",
+      "parameters": [
+        {
+          "name": "license_code",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "request_body": null,
+      "responses": {
+        "400": {
+          "content": {}
+        },
+        "200": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_licenses.json#/rest_licenses"
+              }
+            },
+            "application/xml": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_licenses.json#/rest_licenses"
+              }
+            }
+          }
+        },
+        "500": {
+          "content": {}
+        }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
+      }
+    },
+    "POST /almaws/v1/acq/licenses/{license_code}/amendments": {
+      "method": "POST",
+      "path": "/almaws/v1/acq/licenses/{license_code}/amendments",
+      "parameters": [
+        {
+          "name": "license_code",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "request_body": {
+        "description": "This method takes a License object. See [here](/alma/apis/docs/xsd/rest_license.xsd?tags=POST)",
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_license-post.json#/rest_license-post"
+            }
+          },
+          "application/xml": {
+            "schema": {
+              "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_license-post.json#/rest_license-post"
+            }
+          }
+        }
+      },
+      "responses": {
+        "400": {
+          "content": {}
+        },
+        "200": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_license.json#/rest_license"
+              }
+            },
+            "application/xml": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_license.json#/rest_license"
+              }
+            }
+          }
+        },
+        "500": {
+          "content": {}
+        }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
+      }
+    },
+    "DELETE /almaws/v1/acq/licenses/{license_code}/amendments/{amendment_code}": {
+      "method": "DELETE",
+      "path": "/almaws/v1/acq/licenses/{license_code}/amendments/{amendment_code}",
+      "parameters": [
+        {
+          "name": "license_code",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "amendment_code",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "request_body": null,
+      "responses": {
+        "400": {
+          "content": {}
+        },
+        "204": {
+          "content": {}
+        },
+        "500": {
+          "content": {}
+        }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
+      }
+    },
+    "GET /almaws/v1/acq/licenses/{license_code}/amendments/{amendment_code}": {
+      "method": "GET",
+      "path": "/almaws/v1/acq/licenses/{license_code}/amendments/{amendment_code}",
+      "parameters": [
+        {
+          "name": "license_code",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "amendment_code",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "request_body": null,
+      "responses": {
+        "400": {
+          "content": {}
+        },
+        "200": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_licenses.json#/rest_licenses"
+              }
+            },
+            "application/xml": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_licenses.json#/rest_licenses"
+              }
+            }
+          }
+        },
+        "500": {
+          "content": {}
+        }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
+      }
+    },
+    "PUT /almaws/v1/acq/licenses/{license_code}/amendments/{amendment_code}": {
+      "method": "PUT",
+      "path": "/almaws/v1/acq/licenses/{license_code}/amendments/{amendment_code}",
+      "parameters": [
+        {
+          "name": "license_code",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "amendment_code",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "request_body": {
+        "description": "This method takes a License object. See [here](/alma/apis/docs/xsd/rest_license.xsd?tags=PUT)",
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_license-put.json#/rest_license-put"
+            }
+          },
+          "application/xml": {
+            "schema": {
+              "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_license-put.json#/rest_license-put"
+            }
+          }
+        }
+      },
+      "responses": {
+        "400": {
+          "content": {}
+        },
+        "200": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_license.json#/rest_license"
+              }
+            },
+            "application/xml": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_license.json#/rest_license"
+              }
+            }
+          }
+        },
+        "500": {
+          "content": {}
+        }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
+      }
+    },
+    "GET /almaws/v1/acq/po-lines": {
+      "method": "GET",
+      "path": "/almaws/v1/acq/po-lines",
+      "parameters": [
+        {
+          "name": "q",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "",
+            "type": "string"
+          }
+        },
+        {
+          "name": "status",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "ALL",
+            "type": "string"
+          }
+        },
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "10",
+            "type": "integer"
+          }
+        },
+        {
+          "name": "offset",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "0",
+            "type": "integer"
+          }
+        },
+        {
+          "name": "order_by",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "title",
+            "type": "string"
+          }
+        },
+        {
+          "name": "direction",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "desc",
+            "type": "string"
+          }
+        },
+        {
+          "name": "acquisition_method",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "ALL",
+            "type": "string"
+          }
+        },
+        {
+          "name": "expand",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "",
+            "type": "string"
+          }
+        },
+        {
+          "name": "library",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "",
+            "type": "string"
+          }
+        },
+        {
+          "name": "min_expected_arrival_date",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "",
+            "type": "string"
+          }
+        },
+        {
+          "name": "max_expected_arrival_date",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "",
+            "type": "string"
+          }
+        }
+      ],
+      "request_body": null,
+      "responses": {
+        "400": {
+          "content": {}
+        },
+        "200": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_po_lines.json#/rest_po_lines"
+              }
+            },
+            "application/xml": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_po_lines.json#/rest_po_lines"
+              }
+            }
+          }
+        },
+        "500": {
+          "content": {}
+        }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
+      }
+    },
+    "POST /almaws/v1/acq/po-lines": {
+      "method": "POST",
+      "path": "/almaws/v1/acq/po-lines",
+      "parameters": [
+        {
+          "name": "profile_code",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "",
+            "type": "string"
+          }
+        },
+        {
+          "name": "requires_manual_review",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "false",
+            "type": "string"
+          }
+        }
+      ],
+      "request_body": {
+        "description": "This method creates a PO Line object. See [here](/alma/apis/docs/xsd/rest_po_line.xsd?tags=POST)",
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_po_line-post.json#/rest_po_line-post"
+            }
+          },
+          "application/xml": {
+            "schema": {
+              "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_po_line-post.json#/rest_po_line-post"
+            }
+          }
+        }
+      },
+      "responses": {
+        "400": {
+          "content": {}
+        },
+        "200": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_po_line.json#/rest_po_line"
+              }
+            },
+            "application/xml": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_po_line.json#/rest_po_line"
+              }
+            }
+          }
+        },
+        "500": {
+          "content": {}
+        }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
+      }
+    },
+    "DELETE /almaws/v1/acq/po-lines/{po_line_id}": {
+      "method": "DELETE",
+      "path": "/almaws/v1/acq/po-lines/{po_line_id}",
+      "parameters": [
+        {
+          "name": "po_line_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "reason",
+          "in": "query",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "comment",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "",
+            "type": "string"
+          }
+        },
+        {
+          "name": "inform_vendor",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "false",
+            "type": "boolean"
+          }
+        },
+        {
+          "name": "override",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "false",
+            "type": "boolean"
+          }
+        },
+        {
+          "name": "bib",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "retain",
+            "type": "string"
+          }
+        }
+      ],
+      "request_body": null,
+      "responses": {
+        "400": {
+          "content": {}
+        },
+        "204": {
+          "content": {}
+        },
+        "500": {
+          "content": {}
+        }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
+      }
+    },
+    "GET /almaws/v1/acq/po-lines/{po_line_id}": {
+      "method": "GET",
+      "path": "/almaws/v1/acq/po-lines/{po_line_id}",
+      "parameters": [
+        {
+          "name": "po_line_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "request_body": null,
+      "responses": {
+        "400": {
+          "content": {}
+        },
+        "200": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_po_line.json#/rest_po_line"
+              }
+            },
+            "application/xml": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_po_line.json#/rest_po_line"
+              }
+            }
+          }
+        },
+        "500": {
+          "content": {}
+        }
+      },
+      "validation": {
+        "status": "sandbox_tested_partial",
+        "last_tested_at": "2026-11-08T09:46:46+02:00",
+        "last_result": "passed_in_tested_scope",
+        "evidence_ids": [
+          "linked-pol-classification-shape"
+        ],
+        "tested_scope": "One linked PO-line: type/material/owner/status fields present; no receiving or activation.",
+        "limits": "Other records, configurations, parameter combinations and transitions are not established.",
+        "environment": "SANDBOX",
+        "sdk_version": "0.4.5",
+        "evidence_file": "validation-evidence.json"
+      }
+    },
+    "PUT /almaws/v1/acq/po-lines/{po_line_id}": {
+      "method": "PUT",
+      "path": "/almaws/v1/acq/po-lines/{po_line_id}",
+      "parameters": [
+        {
+          "name": "po_line_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "update_inventory",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "true",
+            "type": "string"
+          }
+        },
+        {
+          "name": "redistribute_funds",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "false",
+            "type": "string"
+          }
+        }
+      ],
+      "request_body": {
+        "description": "This method creates a PO Line object. See [here](/alma/apis/docs/xsd/rest_po_line.xsd?tags=PUT)",
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_po_line-put.json#/rest_po_line-put"
+            }
+          },
+          "application/xml": {
+            "schema": {
+              "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_po_line-put.json#/rest_po_line-put"
+            }
+          }
+        }
+      },
+      "responses": {
+        "400": {
+          "content": {}
+        },
+        "200": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_po_line.json#/rest_po_line"
+              }
+            },
+            "application/xml": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_po_line.json#/rest_po_line"
+              }
+            }
+          }
+        },
+        "500": {
+          "content": {}
+        }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
+      }
+    },
+    "GET /almaws/v1/acq/po-lines/{po_line_id}/items": {
+      "method": "GET",
+      "path": "/almaws/v1/acq/po-lines/{po_line_id}/items",
+      "parameters": [
+        {
+          "name": "po_line_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "1000000",
+            "type": "integer"
+          }
+        },
+        {
+          "name": "offset",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "0",
+            "type": "integer"
+          }
+        }
+      ],
+      "request_body": null,
+      "responses": {
+        "400": {
+          "content": {}
+        },
+        "200": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_items.json#/rest_items"
+              }
+            },
+            "application/xml": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_items.json#/rest_items"
+              }
+            }
+          }
+        },
+        "500": {
+          "content": {}
+        }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
+      }
+    },
+    "POST /almaws/v1/acq/po-lines/{po_line_id}/items": {
+      "method": "POST",
+      "path": "/almaws/v1/acq/po-lines/{po_line_id}/items",
+      "parameters": [
+        {
+          "name": "po_line_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "receive_date",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "",
+            "type": "string"
+          }
+        },
+        {
+          "name": "department",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "",
+            "type": "string"
+          }
+        },
+        {
+          "name": "department_library",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "",
+            "type": "string"
+          }
+        }
+      ],
+      "request_body": {
+        "description": "The item to add. See [here](/alma/apis/docs/xsd/rest_item.xsd?tags=POST)",
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_item-post.json#/rest_item-post"
+            }
+          },
+          "application/xml": {
+            "schema": {
+              "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_item-post.json#/rest_item-post"
+            }
+          }
+        }
+      },
+      "responses": {
+        "400": {
+          "content": {}
+        },
+        "200": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_item.json#/rest_item"
+              }
+            },
+            "application/xml": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_item.json#/rest_item"
+              }
+            }
+          }
+        },
+        "500": {
+          "content": {}
+        }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
+      }
+    },
+    "POST /almaws/v1/acq/po-lines/{po_line_id}/items/{item_id}": {
+      "method": "POST",
+      "path": "/almaws/v1/acq/po-lines/{po_line_id}/items/{item_id}",
+      "parameters": [
+        {
+          "name": "po_line_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "item_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "op",
+          "in": "query",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "receive_date",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "",
+            "type": "string"
+          }
+        },
+        {
+          "name": "department",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "",
+            "type": "string"
+          }
+        },
+        {
+          "name": "department_library",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "",
+            "type": "string"
+          }
+        }
+      ],
+      "request_body": {
+        "description": "The item info for updating the item. If no update is required, an empty item object must be sent (e.g. <item />). See [here](/alma/apis/docs/xsd/rest_item.xsd?tags=POST)",
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_item-post.json#/rest_item-post"
+            }
+          },
+          "application/xml": {
+            "schema": {
+              "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_item-post.json#/rest_item-post"
+            }
+          }
+        }
+      },
+      "responses": {
+        "400": {
+          "content": {}
+        },
+        "200": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_item.json#/rest_item"
+              }
+            },
+            "application/xml": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_item.json#/rest_item"
+              }
+            }
+          }
+        },
+        "500": {
+          "content": {}
+        }
+      },
+      "documented_op_values": [
+        "receive"
+      ],
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
+      }
+    },
+    "GET /almaws/v1/acq/purchase-requests/": {
+      "method": "GET",
+      "path": "/almaws/v1/acq/purchase-requests/",
+      "parameters": [
+        {
+          "name": "format",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "",
+            "type": "string"
+          }
+        },
+        {
+          "name": "owning_library",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "",
+            "type": "string"
+          }
+        },
+        {
+          "name": "status",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "",
+            "type": "string"
+          }
+        },
+        {
+          "name": "citation_type",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "",
+            "type": "string"
+          }
+        },
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "10",
+            "type": "integer"
+          }
+        },
+        {
+          "name": "offset",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "0",
+            "type": "integer"
+          }
+        },
+        {
+          "name": "order_by",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "",
+            "type": "string"
+          }
+        },
+        {
+          "name": "direction",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "desc",
+            "type": "string"
+          }
+        }
+      ],
+      "request_body": null,
+      "responses": {
+        "400": {
+          "content": {}
+        },
+        "200": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_purchase_requests.json#/rest_purchase_requests"
+              }
+            },
+            "application/xml": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_purchase_requests.json#/rest_purchase_requests"
+              }
+            }
+          }
+        },
+        "500": {
+          "content": {}
+        }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
+      }
+    },
+    "DELETE /almaws/v1/acq/purchase-requests/{id}": {
+      "method": "DELETE",
+      "path": "/almaws/v1/acq/purchase-requests/{id}",
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "request_body": null,
+      "responses": {
+        "400": {
+          "content": {}
+        },
+        "204": {
+          "content": {}
+        },
+        "500": {
+          "content": {}
+        }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
+      }
+    },
+    "GET /almaws/v1/acq/purchase-requests/{id}": {
+      "method": "GET",
+      "path": "/almaws/v1/acq/purchase-requests/{id}",
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "request_body": null,
+      "responses": {
+        "400": {
+          "content": {}
+        },
+        "200": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_purchase_request.json#/rest_purchase_request"
+              }
+            },
+            "application/xml": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_purchase_request.json#/rest_purchase_request"
+              }
+            }
+          }
+        },
+        "500": {
+          "content": {}
+        }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
+      }
+    },
+    "POST /almaws/v1/acq/purchase-requests/{id}": {
+      "method": "POST",
+      "path": "/almaws/v1/acq/purchase-requests/{id}",
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "op",
+          "in": "query",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "request_body": {
+        "description": "The purchase request info for the operation selected.  See [here](/alma/apis/docs/xsd/rest_purchase_request.xsd?tags=POST)",
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_purchase_request-post.json#/rest_purchase_request-post"
+            }
+          },
+          "application/xml": {
+            "schema": {
+              "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_purchase_request-post.json#/rest_purchase_request-post"
+            }
+          }
+        }
+      },
+      "responses": {
+        "400": {
+          "content": {}
+        },
+        "200": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_purchase_request.json#/rest_purchase_request"
+              }
+            },
+            "application/xml": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_purchase_request.json#/rest_purchase_request"
+              }
+            }
+          }
+        },
+        "500": {
+          "content": {}
+        }
+      },
+      "documented_op_values": [
+        "approve",
+        "reject"
+      ],
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
+      }
+    },
+    "PUT /almaws/v1/acq/purchase-requests/{id}": {
+      "method": "PUT",
+      "path": "/almaws/v1/acq/purchase-requests/{id}",
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "request_body": {
+        "description": "This method takes a purchase request object. See [here](/alma/apis/docs/xsd/rest_purchase_request.xsd?tags=PUT)",
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_purchase_request-put.json#/rest_purchase_request-put"
+            }
+          },
+          "application/xml": {
+            "schema": {
+              "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_purchase_request-put.json#/rest_purchase_request-put"
+            }
+          }
+        }
+      },
+      "responses": {
+        "400": {
+          "content": {}
+        },
+        "200": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_purchase_request.json#/rest_purchase_request"
+              }
+            },
+            "application/xml": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_purchase_request.json#/rest_purchase_request"
+              }
+            }
+          }
+        },
+        "500": {
+          "content": {}
+        }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
+      }
+    },
+    "GET /almaws/v1/acq/test": {
+      "method": "GET",
+      "path": "/almaws/v1/acq/test",
+      "parameters": [],
+      "request_body": null,
+      "responses": {
+        "400": {
+          "content": {}
+        },
+        "200": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            },
+            "application/xml": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "500": {
+          "content": {}
+        }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
+      }
+    },
+    "POST /almaws/v1/acq/test": {
+      "method": "POST",
+      "path": "/almaws/v1/acq/test",
+      "parameters": [],
+      "request_body": null,
+      "responses": {
+        "400": {
+          "content": {}
+        },
+        "200": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            },
+            "application/xml": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "500": {
+          "content": {}
+        }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
+      }
+    },
+    "GET /almaws/v1/acq/vendors": {
+      "method": "GET",
+      "path": "/almaws/v1/acq/vendors",
+      "parameters": [
+        {
+          "name": "status",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "ALL",
+            "type": "string"
+          }
+        },
+        {
+          "name": "type",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "ALL",
+            "type": "string"
+          }
+        },
+        {
+          "name": "q",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "",
+            "type": "string"
+          }
+        },
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "10",
+            "type": "integer"
+          }
+        },
+        {
+          "name": "offset",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "0",
+            "type": "integer"
+          }
+        }
+      ],
+      "request_body": null,
+      "responses": {
+        "400": {
+          "content": {}
+        },
+        "200": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_vendors.json#/rest_vendors"
+              }
+            },
+            "application/xml": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_vendors.json#/rest_vendors"
+              }
+            }
+          }
+        },
+        "500": {
+          "content": {}
+        }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
+      }
+    },
+    "POST /almaws/v1/acq/vendors": {
+      "method": "POST",
+      "path": "/almaws/v1/acq/vendors",
+      "parameters": [],
+      "request_body": {
+        "description": "This method takes a Vendor object. See [here](/alma/apis/docs/xsd/rest_vendor.xsd?tags=POST)",
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_vendor-post.json#/rest_vendor-post"
+            }
+          },
+          "application/xml": {
+            "schema": {
+              "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_vendor-post.json#/rest_vendor-post"
+            }
+          }
+        }
+      },
+      "responses": {
+        "400": {
+          "content": {}
+        },
+        "200": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_vendor.json#/rest_vendor"
+              }
+            },
+            "application/xml": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_vendor.json#/rest_vendor"
+              }
+            }
+          }
+        },
+        "500": {
+          "content": {}
+        }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
+      }
+    },
+    "DELETE /almaws/v1/acq/vendors/{vendorCode}": {
+      "method": "DELETE",
+      "path": "/almaws/v1/acq/vendors/{vendorCode}",
+      "parameters": [
+        {
+          "name": "vendorCode",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "request_body": null,
+      "responses": {
+        "400": {
+          "content": {}
+        },
+        "204": {
+          "content": {}
+        },
+        "500": {
+          "content": {}
+        }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
+      }
+    },
+    "GET /almaws/v1/acq/vendors/{vendorCode}": {
+      "method": "GET",
+      "path": "/almaws/v1/acq/vendors/{vendorCode}",
+      "parameters": [
+        {
+          "name": "vendorCode",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "request_body": null,
+      "responses": {
+        "400": {
+          "content": {}
+        },
+        "200": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_vendor.json#/rest_vendor"
+              }
+            },
+            "application/xml": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_vendor.json#/rest_vendor"
+              }
+            }
+          }
+        },
+        "500": {
+          "content": {}
+        }
+      },
+      "validation": {
+        "status": "sandbox_tested_partial",
+        "last_tested_at": "2026-11-08T09:46:45+02:00",
+        "last_result": "passed_in_tested_scope",
+        "evidence_ids": [
+          "vendor-code"
+        ],
+        "tested_scope": "Exact lookup of one supplied vendor code.",
+        "limits": "Other records, configurations, parameter combinations and transitions are not established.",
+        "environment": "SANDBOX",
+        "sdk_version": "0.4.5",
+        "evidence_file": "validation-evidence.json"
+      }
+    },
+    "PUT /almaws/v1/acq/vendors/{vendorCode}": {
+      "method": "PUT",
+      "path": "/almaws/v1/acq/vendors/{vendorCode}",
+      "parameters": [
+        {
+          "name": "vendorCode",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "request_body": {
+        "description": "This method takes a Vendor object. See [here](/alma/apis/docs/xsd/rest_vendor.xsd?tags=PUT)",
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_vendor-put.json#/rest_vendor-put"
+            }
+          },
+          "application/xml": {
+            "schema": {
+              "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_vendor-put.json#/rest_vendor-put"
+            }
+          }
+        }
+      },
+      "responses": {
+        "400": {
+          "content": {}
+        },
+        "200": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_vendor.json#/rest_vendor"
+              }
+            },
+            "application/xml": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_vendor.json#/rest_vendor"
+              }
+            }
+          }
+        },
+        "500": {
+          "content": {}
+        }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
+      }
+    },
+    "GET /almaws/v1/acq/vendors/{vendorCode}/invoices": {
+      "method": "GET",
+      "path": "/almaws/v1/acq/vendors/{vendorCode}/invoices",
+      "parameters": [
+        {
+          "name": "vendorCode",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "10",
+            "type": "integer"
+          }
+        },
+        {
+          "name": "offset",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "0",
+            "type": "integer"
+          }
+        }
+      ],
+      "request_body": null,
+      "responses": {
+        "400": {
+          "content": {}
+        },
+        "200": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_invoices.json#/rest_invoices"
+              }
+            },
+            "application/xml": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_invoices.json#/rest_invoices"
+              }
+            }
+          }
+        },
+        "500": {
+          "content": {}
+        }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
+      }
+    },
+    "GET /almaws/v1/acq/vendors/{vendorCode}/po-lines": {
+      "method": "GET",
+      "path": "/almaws/v1/acq/vendors/{vendorCode}/po-lines",
+      "parameters": [
+        {
+          "name": "vendorCode",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "10",
+            "type": "integer"
+          }
+        },
+        {
+          "name": "offset",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "default": "0",
+            "type": "integer"
+          }
+        }
+      ],
+      "request_body": null,
+      "responses": {
+        "400": {
+          "content": {}
+        },
+        "200": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_po_lines.json#/rest_po_lines"
+              }
+            },
+            "application/xml": {
+              "schema": {
+                "$ref": "https://developers.exlibrisgroup.com/wp-content/uploads/alma/openapi/schemas/rest_po_lines.json#/rest_po_lines"
+              }
+            }
+          }
+        },
+        "500": {
+          "content": {}
+        }
+      },
+      "validation": {
+        "status": "not_live_tested",
+        "last_tested_at": null,
+        "last_result": null,
+        "evidence_ids": [],
+        "tested_scope": null,
+        "limits": "No live test for this operation is recorded."
+      }
+    }
+  },
+  "validation_note": "A tested operation is confirmed only within the recorded scope; date is not a guarantee of current validity."
+}
