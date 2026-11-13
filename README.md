@@ -7,6 +7,7 @@ Automated workflows for Alma ILS acquisitions operations, including Rialto vendo
 This repository provides production-ready automation scripts for:
 
 - **Rialto POL Processing**: Complete workflow for processing Purchase Order Lines from Rialto vendor invoices, including PDF extraction, item receiving, invoice payment, and POL closure verification.
+- **Invoice Closer**: Closes invoices and their order lines (process, then pay, then verify) from an Alma set or an Excel/CSV/TSV file. Validated in Sandbox for Rialto e-book invoices.
 - **Invoice Processing**: Bulk invoice processing from Excel reports and ERP-to-Alma invoice integration.
 
 ## Features
@@ -92,6 +93,22 @@ poetry run python -m workflows.rialto.workflow --tsv pols.tsv \
     --work-order-status CopyCat \
     --live
 ```
+
+### Invoice Closer
+
+Close invoices and their order lines. Dry run unless `--live`; see [docs/INVOICE_CLOSER.md](docs/INVOICE_CLOSER.md).
+
+```bash
+# Dry run on an Alma title set
+poetry run python scripts/close_invoices.py --set-id <set_id> --vendor RIALTO --owner AC1 \
+    --voucher-number "PAY-{invoice_number}"
+
+# Live, from a spreadsheet (.xlsx, .csv or .tsv)
+poetry run python scripts/close_invoices.py --file input/to_close.xlsx --vendor RIALTO --owner AC1 \
+    --voucher-number "PAY-{invoice_number}" --live
+```
+
+Writes a short report, `results.csv` and a redacted `log.jsonl` under `output/invoice_closer/`.
 
 ### Invoice Processor
 
@@ -179,6 +196,7 @@ Alma-Acquisitions-Automation/
 │       ├── bulk_processor.py        # Bulk invoice processor
 │       ├── erp_integration.py       # ERP-to-Alma integration
 │       └── __init__.py
+├── invoice_closer/                  # Invoice closer (engine, Alma access, inputs, reports)
 ├── config/                          # Configuration templates
 │   ├── rialto_pipeline_config.example.json
 │   ├── rialto_workflow_config.example.json
@@ -188,12 +206,11 @@ Alma-Acquisitions-Automation/
 │   ├── RIALTO_README.md
 │   ├── RIALTO_WORKFLOW_README.md
 │   └── ...
-├── input/                           # Example input files
-│   └── example_pols.tsv
-├── scripts/                         # Utility scripts
+├── input/                           # Runtime input folder (contents gitignored)
+├── scripts/                         # Command-line entry points
+│   ├── close_invoices.py            # Invoice closer
 │   └── smoke_project.py
 ├── tests/                           # Unit tests
-├── common/                          # Shared utilities (placeholder)
 ├── pyproject.toml                   # Poetry configuration
 └── README.md                        # This file
 ```
@@ -208,6 +225,8 @@ This project depends on `almaapitk` (AlmaAPITK) for Alma API operations:
 ## Documentation
 
 See the `docs/` directory for detailed documentation:
+- `INVOICE_CLOSER.md`: Invoice closer flow, inputs, safety rules and Sandbox evidence
+- `dashboards/invoice-closing-flow.html`: The invoice closing flow as a diagram
 - `RIALTO_README.md`: Complete Rialto workflow guide
 - `RIALTO_WORKFLOW_README.md`: TSV-based workflow reference
 - `POL-5989_TEST_SUMMARY.md`: Test validation report
