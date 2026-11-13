@@ -1,0 +1,1 @@
+- 2026-11-12 · invoice-closing-flow.html · https://claude.ai/artifact/VxsyFrVe3fRg9yUYu8JoPX · Invoice + order-line closing flow, validated vs untested (Sandbox, 8 Nov)
