@@ -74,6 +74,15 @@ def test_debug_logging_redacts_authorization_header() -> None:
     originals = [(h, h.stream) for h in stream_handlers]
     for h, _ in originals:
         h.stream = buf
+    # Since almaapitk 0.4.6 the default level is INFO, gated on the shared "almapi"
+    # parent logger; turn DEBUG on for this check so the header line is emitted.
+    parent = logging.getLogger("almapi")
+    saved_levels = [(lg, lg.level) for lg in (parent, api_logger)]
+    saved_handler_levels = [(h, h.level) for h in stream_handlers]
+    parent.setLevel(logging.DEBUG)
+    api_logger.setLevel(logging.DEBUG)
+    for h in stream_handlers:
+        h.setLevel(logging.DEBUG)
     try:
         with pytest.raises(AlmaAPIError):
             client.get(NONEXISTENT_POL_ENDPOINT)
@@ -81,6 +90,10 @@ def test_debug_logging_redacts_authorization_header() -> None:
     finally:
         for h, original_stream in originals:
             h.stream = original_stream
+        for lg, level in saved_levels:
+            lg.setLevel(level)
+        for h, level in saved_handler_levels:
+            h.setLevel(level)
 
     assert "Authorization" in captured, "debug log should contain an Authorization line"
     _assert_no_credential_material(captured, key)
