@@ -1,0 +1,179 @@
+<title>Alma Invoice Closing Flow</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Space+Grotesk:wght@500;600&display=swap">
+<style>
+/* Layout: one vertical spine of steps. Each step: action on the left, states of invoice / order line / order after it on the right, stop-branches beside it. */
+:root {
+  --bg: #f6f7f9; --surface: #ffffff; --fg: #1b2230; --muted: #5b6577; --line: #d5dae3;
+  --accent: #2f5bd3;
+  --ok: #1f7a4d; --ok-bg: #e3f3ea;
+  --warn: #9a5b00; --warn-bg: #fdf0d9;
+  --hold: #a3333d; --hold-bg: #fbe5e7;
+  --font-display: "Space Grotesk", "Segoe UI", system-ui, sans-serif;
+  --font-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #12161d; --surface: #1b212b; --fg: #e6e9ef; --muted: #9aa4b5; --line: #2e3644;
+  --accent: #7d9cf0; --ok: #6fd3a0; --ok-bg: #173327; --warn: #f0b860; --warn-bg: #3a2c12;
+  --hold: #f08a93; --hold-bg: #3d1c21; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #12161d; --surface: #1b212b; --fg: #e6e9ef; --muted: #9aa4b5; --line: #2e3644;
+  --accent: #7d9cf0; --ok: #6fd3a0; --ok-bg: #173327; --warn: #f0b860; --warn-bg: #3a2c12;
+  --hold: #f08a93; --hold-bg: #3d1c21; color-scheme: dark }
+
+body { background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 15px; line-height: 1.5; }
+.wrap { max-width: 1040px; margin: 0 auto; padding-block: 32px 48px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: grid; gap: 24px; }
+h1 { font-family: var(--font-display); font-weight: 600; font-size: 1.9rem; margin: 0; text-wrap: balance; }
+.lede { color: var(--muted); max-width: 70ch; margin: 6px 0 0; }
+code { font-family: var(--font-mono); font-size: .88em; }
+
+.legend { display: flex; flex-wrap: wrap; gap: 10px 18px; font-size: .85rem; color: var(--muted); }
+.chip { display: inline-flex; align-items: center; font-size: .7rem; font-weight: 600; white-space: nowrap;
+  letter-spacing: .05em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; }
+.chip.ok { color: var(--ok); background: var(--ok-bg); }
+.chip.warn { color: var(--warn); background: var(--warn-bg); }
+.chip.hold { color: var(--hold); background: var(--hold-bg); }
+
+.spine { display: grid; gap: 0; }
+.step { display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 0 14px; }
+.rail { display: grid; grid-template-rows: auto 1fr; justify-items: center; }
+.dot { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center;
+  font-family: var(--font-display); font-weight: 600; background: var(--accent); color: var(--bg); }
+.dot.end { background: var(--ok); }
+.dot.start { background: var(--muted); }
+.bar { width: 2px; background: var(--line); min-height: 18px; }
+.step:last-child .bar { visibility: hidden; }
+
+.body { padding-bottom: 22px; display: grid; gap: 10px; min-width: 0; }
+.head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 12px; padding-top: 4px; }
+.head h2 { font-family: var(--font-display); font-weight: 600; font-size: 1.12rem; margin: 0; }
+.head .op { font-family: var(--font-mono); font-size: .85rem; color: var(--accent); }
+.body > p { margin: 0; color: var(--muted); font-size: .9rem; max-width: 72ch; }
+
+.states { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.st { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; display: grid; gap: 2px; }
+.st .rec { font-size: .7rem; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+.st .val { font-family: var(--font-mono); font-size: .85rem; }
+.st.changed { border-color: var(--accent); }
+.st.closed { border-color: var(--ok); }
+
+.stops { display: grid; gap: 6px; }
+.stop { display: flex; gap: 10px; align-items: baseline; font-size: .88rem; padding: 6px 10px;
+  border-left: 3px solid var(--line); background: var(--surface); border-radius: 0 6px 6px 0; }
+.stop.warn { border-left-color: var(--warn); }
+.stop.hold { border-left-color: var(--hold); }
+.stop span:last-child { min-width: 0; }
+
+.notes { color: var(--muted); font-size: .85rem; max-width: 80ch; margin: 0; padding-left: 18px; display: grid; gap: 4px; }
+
+@media (max-width: 640px) {
+  .states { grid-template-columns: 1fr; }
+  .step { grid-template-columns: 34px minmax(0, 1fr); gap: 0 10px; }
+}
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>Alma invoice closing flow</h1>
+    <p class="lede">One title with an order, an order line and an invoice, taken to fully closed. Based on one Central Library / Rialto e-book invoice tested in Alma Sandbox on 8 Nov 2026 (ERP skipped, payment tracking on). Each step shows the state of all three records after it.</p>
+  </header>
+
+  <div class="legend">
+    <span><span class="chip ok">Validated</span> seen once in Sandbox</span>
+    <span><span class="chip warn">Untested</span> hypothesis only</span>
+    <span><span class="chip hold">On hold</span> stop; investigate first</span>
+  </div>
+
+  <div class="spine">
+
+    <div class="step">
+      <div class="rail"><div class="dot start">0</div><div class="bar"></div></div>
+      <div class="body">
+        <div class="head"><h2>Starting point</h2></div>
+        <div class="states">
+          <div class="st"><span class="rec">Invoice</span><span class="val">In Review · NOT_PAID</span></div>
+          <div class="st"><span class="rec">Order line</span><span class="val">Waiting for Invoice / Sent</span></div>
+          <div class="st"><span class="rec">Order (PO)</span><span class="val">open</span></div>
+        </div>
+        <div class="stops">
+          <div class="stop warn"><span class="chip warn">Untested</span><span>Invoice already PAID but still In Review: skip step 3 later, never pay twice.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="rail"><div class="dot">1</div><div class="bar"></div></div>
+      <div class="body">
+        <div class="head"><h2>Receive or activate the item</h2><span class="op">order line</span></div>
+        <p>The order line needs both: the item received (print) or activated (electronic), and the invoice processed.</p>
+        <div class="states">
+          <div class="st"><span class="rec">Invoice</span><span class="val">unchanged</span></div>
+          <div class="st changed"><span class="rec">Order line</span><span class="val">received / activated</span></div>
+          <div class="st"><span class="rec">Order (PO)</span><span class="val">open</span></div>
+        </div>
+        <div class="stops">
+          <div class="stop"><span class="chip ok">Validated</span><span>E-book: already activated, nothing to do.</span></div>
+          <div class="stop hold"><span class="chip hold">On hold</span><span>Print: staff may have shelved items without receiving them in Alma. Receiving now could affect items and loans.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="rail"><div class="dot">2</div><div class="bar"></div></div>
+      <div class="body">
+        <div class="head"><h2>Process the invoice</h2><span class="op">POST op=process_invoice</span></div>
+        <p>Moves the invoice through approval to the payment stage. Takes about 20 seconds; the reply already shows the new invoice state.</p>
+        <div class="states">
+          <div class="st changed"><span class="rec">Invoice</span><span class="val">Waiting for Payment · APPROVED · NOT_PAID</span></div>
+          <div class="st closed"><span class="rec">Order line</span><span class="val">CLOSED</span></div>
+          <div class="st"><span class="rec">Order (PO)</span><span class="val">not checked</span></div>
+        </div>
+        <div class="stops">
+          <div class="stop"><span class="chip ok">Validated</span><span>E-book, two cases (8 and 12 Nov): invoice reached Waiting for Payment and the order line closed as part of processing, before payment. On 12 Nov it was already CLOSED in the first read after the reply.</span></div>
+          <div class="stop warn"><span class="chip warn">Untested</span><span>Manual approval required: no tested API route; stop for a person.</span></div>
+          <div class="stop hold"><span class="chip hold">On hold</span><span>Invoice lands in “Waiting to be Sent” (ERP stage): conflicts with ERP being skipped. Don’t use <code>mark_in_erp</code> as a fix.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="rail"><div class="dot">3</div><div class="bar"></div></div>
+      <div class="body">
+        <div class="head"><h2>Record payment</h2><span class="op">POST op=paid</span></div>
+        <p>Records the payment in Alma with date, voucher number, amount and currency. It does not send money.</p>
+        <div class="states">
+          <div class="st closed"><span class="rec">Invoice</span><span class="val">CLOSED · PAID</span></div>
+          <div class="st closed"><span class="rec">Order line</span><span class="val">CLOSED</span></div>
+          <div class="st"><span class="rec">Order (PO)</span><span class="val">not checked</span></div>
+        </div>
+        <div class="stops">
+          <div class="stop"><span class="chip ok">Validated</span><span>Invoice closed. Four alerts stayed on it but did not block closing.</span></div>
+          <div class="stop warn"><span class="chip warn">Untested</span><span>Already PAID and Waiting for Payment: UI “Save &amp; Continue” has no known API equivalent.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="rail"><div class="dot end">✓</div><div class="bar"></div></div>
+      <div class="body">
+        <div class="head"><h2>All closed</h2><span class="chip warn">Untested for the order</span></div>
+        <p>Expected: the order closes once all its lines are closed. We have not checked the order itself.</p>
+        <div class="states">
+          <div class="st closed"><span class="rec">Invoice</span><span class="val">CLOSED · PAID</span></div>
+          <div class="st closed"><span class="rec">Order line</span><span class="val">CLOSED</span></div>
+          <div class="st"><span class="rec">Order (PO)</span><span class="val">CLOSED?</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <ul class="notes">
+    <li>Tool: <code>scripts/sandbox_invoice_desk.py</code> runs step 3 for one invoice at a time, with operator confirmation, Sandbox only. On draft PR #8 in Alma-Acquisitions-Automation.</li>
+    <li>Rialto print buying has stopped; e-book invoices are the priority.</li>
+  </ul>
+</div>
