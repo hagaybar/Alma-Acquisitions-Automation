@@ -17,6 +17,3 @@ Last updated: 2026-11-15
 - #11 (almaapitk upgrade protocol: pin → validate → main → prod) — continues via PR #17; after merge, DevSandbox cycle on masedet, then owner merges to `prod`
 - #10 (research: failure-mode audit of the run context) — not started
 
-## Other
-- Physical test, Sandbox set 43266192370004146: 5 invoices CLOSED/PAID, order lines still SENT — close them by receiving in the Alma UI (API receiving is deferred)
-- alma skills receiving warning pushed to dotfiles — run `~/dotfiles/install-skills.sh` in WSL again (sandbox skills folder is read-only)
