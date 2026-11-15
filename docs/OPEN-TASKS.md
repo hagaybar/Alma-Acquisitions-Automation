@@ -5,7 +5,7 @@ Last updated: 2026-11-15
 ## PRs
 - #17 (bump almaapitk 0.4.5 → 0.7.0) — run the full Rialto Sandbox L3 with writes, then review and merge
 - #16 (housekeeping: document the invoice closer, drop empty `common/`) — review and merge
-- #8 (draft: Acquisitions specialist + journaled Sandbox workflow wizard) — owner to decide: finish or close
+- #21 (bulk invoice processor: read nested payment status, stops paying already-paid invoices again) — review and merge; check whether masedet runs the bulk processor
 
 ## Work in progress
 - `training/invoice-closing-review` branch (acquisitions history dashboard for invoice review) — pushed, no PR; decide: open a PR or drop
