@@ -97,14 +97,23 @@ def targets_from_file(path: Path) -> List[Target]:
 
 
 def targets_from_set(gateway, set_id: str) -> List[Target]:
+    """Read an order-line (PO_LINE) set. Members are POL numbers.
+
+    Title sets are refused: a title can have several order lines, each with its own
+    invoice, so a title set reaches invoices nobody selected. Alma has no invoice set
+    type; order lines are the unit an invoice job should be selected by.
+    """
     info = gateway.get_set(set_id)
     content = ((info.get("content") or {}).get("value") or "").upper()
-    ids = gateway.get_set_member_ids(set_id)
-    kind = {"BIB_MMS": "mms"}.get(content)
-    if kind is None:
+    if content == "BIB_MMS":
+        raise ValueError(f"Set {set_id} is a title set. A title can have several order lines and "
+                         "invoices, so title sets are not accepted: build an Order lines (PO_LINE) "
+                         "set of the lines to close, or give a file of order lines or invoices")
+    if content != "PO_LINE":
         raise ValueError(f"Set {set_id} holds {content or 'unknown'} records; "
-                         "only title (BIB_MMS) sets are supported")
-    return [Target(kind, mid, f"set {set_id} member {n}") for n, mid in enumerate(ids, start=1)]
+                         "only Order lines (PO_LINE) sets are supported")
+    ids = gateway.get_set_member_ids(set_id)
+    return [Target("pol", mid, f"set {set_id} member {n}") for n, mid in enumerate(ids, start=1)]
 
 
 def load_targets(gateway, set_id: Optional[str], file: Optional[Path]) -> List[Target]:
