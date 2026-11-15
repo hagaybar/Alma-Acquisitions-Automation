@@ -52,6 +52,8 @@ class FakeAlma:
     def find_pols_by_mms(self, mms):
         return [copy.deepcopy(p) for p in self.pols.values() if p["resource_metadata"]["mms_id"]["value"] == mms]
     def get_bib_portfolios(self, mms): return copy.deepcopy(self.portfolios.get(mms, []))
+    def get_items_for_pol(self, mms, pol_no):
+        return [{"item_data": {"po_line": pol_no, "arrival_date": "2026-11-01Z"}}]
 
     # writes
     def invoice_service(self, iid, op, body):
@@ -77,9 +79,9 @@ class FakeAlma:
         return 200, copy.deepcopy(inv), 0.5
 
 
-def closer(alma, live=True, template="TEST-{invoice_number}"):
+def closer(alma, live=True, template="TEST-{invoice_number}", physical=False):
     events = []
-    cfg = E.Config(live=live, vendor="RIALTO", voucher_number_template=template, payment_date="2026-11-13",
+    cfg = E.Config(live=live, include_physical=physical, vendor="RIALTO", voucher_number_template=template, payment_date="2026-11-13",
                    settle_seconds=10, poll_interval=5, sleep=lambda s: None)
     return E.Closer(alma, cfg, lambda ev, **d: events.append((ev, d))), events
 
@@ -284,3 +286,20 @@ def test_title_with_two_order_lines_is_not_expanded():
     a.add(invoice("I8", "800"), [pol("POL-81", "800", "9977")])
     (r,), _ = run(a, [Target("mms", "9977", "row 1")])
     assert r.outcome == E.HELD and "2 order lines" in r.reason and a.writes == []
+
+
+# ---- physical one-time orders: pay only, never receive (15 Nov 2026) --------
+def test_physical_paid_with_flag_order_line_left_open():
+    a = FakeAlma()
+    a.add(invoice("I9", "900"), [pol("POL-9", "900", "9999", ptype="PRINTED_BOOK_OT", status="SENT")])
+    (r,), events = run(a, [Target("pol", "POL-9", "t")], physical=True)
+    assert [w[1] for w in a.writes] == ["process_invoice", "paid"]
+    assert r.outcome == E.CLOSED_POL_OPEN and "POL-9" in r.reason
+    assert any(ev == "physical_line" and d["received"] == 1 for ev, d in events)
+
+
+def test_physical_continuous_order_held_even_with_flag():
+    a = FakeAlma()
+    a.add(invoice("I10", "1000"), [pol("POL-10", "1000", "9910", ptype="PRINTED_JOURNAL_CO", status="SENT")])
+    (r,), _ = run(a, [Target("pol", "POL-10", "t")], physical=True)
+    assert r.outcome == E.HELD and "one-time" in r.reason and a.writes == []

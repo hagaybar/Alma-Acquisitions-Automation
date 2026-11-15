@@ -60,6 +60,7 @@ class Config:
     owner: Optional[str] = None           # e.g. AC1; None = any
     voucher_number_template: Optional[str] = None   # e.g. "PAY-{invoice_number}"
     payment_date: str = field(default_factory=lambda: date.today().isoformat())
+    include_physical: bool = False        # one-time physical orders: pay only, never receive
     settle_seconds: int = 30              # how long to watch for a delayed state change
     poll_interval: float = 5.0
     sleep: Callable[[float], None] = time.sleep
@@ -290,7 +291,10 @@ class Closer:
             if pstatus == "CANCELLED":
                 return f"{pol_no} is cancelled"
             if not ptype.startswith("E_"):
-                return f"{pol_no} is {ptype or 'unknown type'}; only electronic orders are validated"
+                problem = self._physical_check(pol_no, pol, ptype, pstatus)
+                if problem:
+                    return problem
+                continue
             if pstatus == "CLOSED":
                 continue
             mms = ((pol.get("resource_metadata") or {}).get("mms_id") or {}).get("value")
@@ -299,6 +303,20 @@ class Closer:
                      or str(((p.get("availability") or {}).get("desc") or "")).upper() == "AVAILABLE"]
             if not avail:
                 return f"{pol_no}: title has no available portfolio"
+        return None
+
+    def _physical_check(self, pol_no: str, pol: Dict, ptype: str, pstatus: Optional[str]) -> Optional[str]:
+        """Physical lines are paid, never received: receiving stays a person's job in Alma.
+        Only one-time orders (`..._OT`); continuous and standing orders must not close."""
+        if not self.cfg.include_physical:
+            return f"{pol_no} is {ptype or 'unknown type'}; physical orders need --include-physical"
+        if not ptype.endswith("_OT"):
+            return f"{pol_no} is {ptype or 'unknown type'}; only one-time physical orders are handled"
+        mms = ((pol.get("resource_metadata") or {}).get("mms_id") or {}).get("value")
+        items = self.gw.get_items_for_pol(mms, pol_no) if mms else []
+        received = [i for i in items if (i.get("item_data") or {}).get("arrival_date")]
+        self.log("physical_line", pol=pol_no, type=ptype, pol_status=pstatus,
+                 items=len(items), received=len(received))
         return None
 
     def _voucher(self, inv: Dict, w: Work):

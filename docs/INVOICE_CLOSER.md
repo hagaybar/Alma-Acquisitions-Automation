@@ -16,7 +16,9 @@ Anything else is **held** with a reason, never forced:
 - invoice already marked paid but still open (continuing it is not validated; it is never paid twice)
 - waiting for manual approval, or at the ERP stage (`Waiting to be Sent`)
 - processing left it In Review (Alma's review rules flagged something; the alerts are reported)
-- any line that is not an electronic order (`E_…` type), a charge line with no order line,
+- a physical order line, unless `--include-physical` is given; even then only one-time orders
+  (`…_OT`). Physical lines are paid, never received: receiving stays a person's job in Alma
+- any other line that is not an electronic order (`E_…` type), a charge line with no order line,
   a cancelled order line, or a title with no available portfolio
 - invoice outside `--vendor` / `--owner`
 - no voucher number available (nothing is written for that invoice)
@@ -103,5 +105,13 @@ poetry run python scripts/close_invoices.py --file input/to_close.xlsx --vendor 
   processing. A second run reported all ten as already closed. CSV, TSV and Excel inputs were
   checked in dry runs.
 
-Not validated: print orders, charge lines, multi-currency payments, invoices already paid but open,
+- 15 Nov 2026: live run with `--include-physical` on order-line set 43266192370004146 (5 Rialto
+  PRINTED_BOOK_OT lines, one-line invoices, each with one item that has an arrival date, is in place
+  and has no process type; order lines SENT). `process_invoice` answered in 0.7–5.6 s with Waiting
+  for Payment / APPROVED; `paid` closed every invoice (CLOSED/PAID). **Every order line stayed SENT**
+  after processing and after payment: an item's arrival date does not make the order line received,
+  and paying does not close a physical order line. Outcome `CLOSED_ORDER_LINE_OPEN` for all five.
+  Closing those lines needs receiving in Alma (by a person).
+
+Not validated: print orders whose items are not received, charge lines, multi-currency payments, invoices already paid but open,
 manual approval, ERP-stage invoices, and whether the order (PO) itself closes (the API cannot read it).

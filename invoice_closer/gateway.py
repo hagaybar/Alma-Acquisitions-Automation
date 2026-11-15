@@ -73,6 +73,17 @@ class Gateway:
         data = self._get(f"almaws/v1/bibs/{mms_id}/portfolios", {"limit": 100})
         return data.get("portfolio") or []
 
+    def get_items_for_pol(self, mms_id: str, pol_no: str) -> List[Dict[str, Any]]:
+        """Items of the title that belong to this order line (item_data.po_line)."""
+        items, offset = [], 0
+        while True:
+            data = self._get(f"almaws/v1/bibs/{mms_id}/holdings/ALL/items", {"limit": 100, "offset": offset})
+            batch = data.get("item") or []
+            items.extend(i for i in batch if (i.get("item_data") or {}).get("po_line") == pol_no)
+            offset += 100
+            if not batch or offset >= int(data.get("total_record_count") or 0):
+                return items
+
     def get_set(self, set_id: str) -> Dict[str, Any]:
         return self._get(f"almaws/v1/conf/sets/{set_id}")
 
