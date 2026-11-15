@@ -18,6 +18,6 @@ Last updated: 2026-11-15
 - #11 (almaapitk upgrade protocol: pin → validate → main → prod) — continues via PR #17; after merge, DevSandbox cycle on masedet, then owner merges to `prod`
 - #10 (research: failure-mode audit of the run context) — not started
 
-
 ## Other
-- Skill: unreceived-items result pushed to dotfiles — run `cd ~/dotfiles && git pull && ./install-skills.sh` in WSL
+- Skill: physical-closure findings (pay-only, PUT-close ignored, API receive) pushed to dotfiles — run `cd ~/dotfiles && git pull && ./install-skills.sh` in WSL
+- Sandbox item AC1-800063808 (POL-6400) left in transit with an acquisitions work order after the receive test — user chose to leave it
