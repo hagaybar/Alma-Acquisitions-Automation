@@ -4,6 +4,7 @@ Last updated: 2026-11-15
 
 ## PRs
 - #18 (invoice closer: select by order-line sets, refuse title sets) — review and merge
+- #19 (invoice closer: `--include-physical`, pay one-time print orders without receiving; stacked on #18) — review and merge after #18
 - #17 (bump almaapitk 0.4.5 → 0.7.0) — run the full Rialto Sandbox L3 with writes, then review and merge
 - #16 (housekeeping: document the invoice closer, drop empty `common/`) — review and merge
 - #8 (draft: Acquisitions specialist + journaled Sandbox workflow wizard) — owner to decide: finish or close
@@ -19,5 +20,5 @@ Last updated: 2026-11-15
 - #10 (research: failure-mode audit of the run context) — not started
 
 ## Other
-- Physical-book closure test: Sandbox order-line set 43266192370004146 (5 RIALTO print POLs, items received) — closer holds print orders; extend it before a live run
+- Physical test, Sandbox set 43266192370004146: 5 invoices CLOSED/PAID, order lines still SENT — decide how to close them (receive in the Alma UI?)
 - alma skills set-type fix pushed to dotfiles — run `~/dotfiles/install-skills.sh` in WSL (sandbox skills folder is read-only)
