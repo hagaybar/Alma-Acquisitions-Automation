@@ -40,6 +40,9 @@ def parse_args(argv=None):
     p.add_argument("--owner", help="only touch invoices of this owner code, e.g. AC1")
     p.add_argument("--voucher-number", dest="voucher_template",
                    help='voucher number template, e.g. "PAY-{invoice_number}"')
+    p.add_argument("--include-physical", action="store_true",
+                   help="also close one-time physical orders (pays only; never receives items). "
+                        "Not yet validated: Sandbox only until reviewed")
     p.add_argument("--payment-date", help="YYYY-MM-DD (default: today)")
     p.add_argument("--settle-seconds", type=int, default=30,
                    help="how long to watch for a delayed state change after a write")
@@ -58,12 +61,13 @@ def main(argv=None) -> int:
     run_dir = a.out / f"{datetime.now():%Y%m%d_%H%M%S}_{a.env.lower()}_{'live' if a.live else 'dry'}"
     log = RunLog(run_dir)
     cfg = Config(live=a.live, vendor=a.vendor, owner=a.owner, voucher_number_template=a.voucher_template,
-                 settle_seconds=a.settle_seconds)
+                 settle_seconds=a.settle_seconds, include_physical=a.include_physical)
     if a.payment_date:
         cfg.payment_date = a.payment_date
     source = f"set {a.set_id}" if a.set_id else f"file {a.file.name}"
     log("run_start", env=a.env, live=a.live, source=source, vendor=a.vendor, owner=a.owner,
-        voucher_template=a.voucher_template, payment_date=cfg.payment_date)
+        voucher_template=a.voucher_template, payment_date=cfg.payment_date,
+        include_physical=a.include_physical)
     try:
         gw = Gateway(a.env)
         targets = load_targets(gw, a.set_id, a.file)
