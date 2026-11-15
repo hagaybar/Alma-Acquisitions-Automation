@@ -3,6 +3,7 @@
 Last updated: 2026-11-15
 
 ## PRs
+- #22 (closer docs: unreceived print items do not block pay-only closure, Sandbox evidence) — review and merge
 - #17 (bump almaapitk 0.4.5 → 0.7.0) — run the full Rialto Sandbox L3 with writes, then review and merge
 - #16 (housekeeping: document the invoice closer, drop empty `common/`) — review and merge
 - #21 (bulk invoice processor: read nested payment status, stops paying already-paid invoices again) — review and merge; check whether masedet runs the bulk processor
@@ -17,3 +18,6 @@ Last updated: 2026-11-15
 - #11 (almaapitk upgrade protocol: pin → validate → main → prod) — continues via PR #17; after merge, DevSandbox cycle on masedet, then owner merges to `prod`
 - #10 (research: failure-mode audit of the run context) — not started
 
+
+## Other
+- Skill: unreceived-items result pushed to dotfiles — run `cd ~/dotfiles && git pull && ./install-skills.sh` in WSL
