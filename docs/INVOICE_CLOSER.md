@@ -113,5 +113,14 @@ poetry run python scripts/close_invoices.py --file input/to_close.xlsx --vendor 
   and paying does not close a physical order line. Outcome `CLOSED_ORDER_LINE_OPEN` for all five.
   Closing those lines needs receiving in Alma (by a person).
 
-Not validated: print orders whose items are not received, charge lines, multi-currency payments, invoices already paid but open,
+- 15 Nov 2026, **items not received**: live run with `--include-physical` on order-line set
+  43266194870004146. It held 5 Rialto PRINTED_BOOK_OT lines with one-line invoices; invoice, order
+  line, location and items were all AC1. No item had an arrival date and no copy had a receive date;
+  3 items were in acquisition (ACQ), 2 were in place without receiving. `process_invoice` returned
+  Waiting for Payment / APPROVED in 0.7–1.2 s, despite NOT_READY_LINES and the other three usual
+  alerts. `paid` then closed every invoice (CLOSED/PAID). Order lines stayed SENT, and the items
+  were unchanged (no arrival date, same process type). In Sandbox, unreceived items do not block
+  processing or payment of a one-time print invoice.
+
+Not validated: charge lines, multi-currency payments, invoices already paid but open,
 manual approval, ERP-stage invoices, and whether the order (PO) itself closes (the API cannot read it).
