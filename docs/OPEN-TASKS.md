@@ -20,5 +20,5 @@ Last updated: 2026-11-15
 - #10 (research: failure-mode audit of the run context) — not started
 
 ## Other
-- Physical test, Sandbox set 43266192370004146: 5 invoices CLOSED/PAID, order lines still SENT — decide how to close them (receive in the Alma UI?)
-- alma skills set-type fix pushed to dotfiles — run `~/dotfiles/install-skills.sh` in WSL (sandbox skills folder is read-only)
+- Physical test, Sandbox set 43266192370004146: 5 invoices CLOSED/PAID, order lines still SENT — close them by receiving in the Alma UI (API receiving is deferred)
+- alma skills receiving warning pushed to dotfiles — run `~/dotfiles/install-skills.sh` in WSL again (sandbox skills folder is read-only)
