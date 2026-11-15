@@ -241,3 +241,46 @@ def test_redaction():
            "who": "dana@example.org", "authorization": "apikey l7xx", "invoice": "100"}
     out = json.dumps(redact(rec))
     assert "l7xxabcdef" not in out and "Dana" not in out and "example.org" not in out and '"100"' in out
+
+
+# ---- selection by order line (15 Nov 2026) ---------------------------------
+class FakeSets:
+    def __init__(self, content, ids):
+        self.content, self.ids = content, ids
+    def get_set(self, sid): return {"content": {"value": self.content}}
+    def get_set_member_ids(self, sid): return list(self.ids)
+
+
+def test_pol_set_gives_pol_targets():
+    from invoice_closer.inputs import targets_from_set
+    ts = targets_from_set(FakeSets("PO_LINE", ["POL-1", "POL-2"]), "S1")
+    assert [(t.kind, t.value) for t in ts] == [("pol", "POL-1"), ("pol", "POL-2")]
+
+
+@pytest.mark.parametrize("content", ["BIB_MMS", "ITEM", ""])
+def test_non_pol_sets_refused(content):
+    from invoice_closer.inputs import targets_from_set
+    with pytest.raises(ValueError, match="PO_LINE"):
+        targets_from_set(FakeSets(content, ["9911"]), "S1")
+
+
+def test_invoice_with_unselected_order_line_is_held():
+    a = FakeAlma()
+    a.add(invoice("I6", "600"), [pol("POL-61", "600", "9961"), pol("POL-62", "600", "9962")])
+    (r,), _ = run(a, [Target("pol", "POL-61", "set member 1")])
+    assert r.outcome == E.HELD and "POL-62" in r.reason and a.writes == []
+
+
+def test_invoice_named_directly_covers_all_its_lines():
+    a = FakeAlma()
+    a.add(invoice("I6", "600"), [pol("POL-61", "600", "9961"), pol("POL-62", "600", "9962")])
+    (r,), _ = run(a, [Target("invoice_number", "600", "row 1")])
+    assert r.outcome == E.CLOSED
+
+
+def test_title_with_two_order_lines_is_not_expanded():
+    a = FakeAlma()
+    a.add(invoice("I7", "700"), [pol("POL-71", "700", "9977")])
+    a.add(invoice("I8", "800"), [pol("POL-81", "800", "9977")])
+    (r,), _ = run(a, [Target("mms", "9977", "row 1")])
+    assert r.outcome == E.HELD and "2 order lines" in r.reason and a.writes == []

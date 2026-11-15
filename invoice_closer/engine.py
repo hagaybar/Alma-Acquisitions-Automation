@@ -85,6 +85,8 @@ class Work:
     invoice_number: str
     sources: List[str] = field(default_factory=list)
     voucher: Dict[str, str] = field(default_factory=dict)
+    selected_pols: Set[str] = field(default_factory=set)   # order lines the input named
+    whole_invoice: bool = False                              # the input named the invoice itself
 
 
 class Closer:
@@ -96,9 +98,13 @@ class Closer:
         work: Dict[str, Work] = {}
         unresolved: List[Result] = []
 
-        def add(inv_id, inv_no, t: Target):
+        def add(inv_id, inv_no, t: Target, pol_no: Optional[str] = None):
             w = work.setdefault(inv_id, Work(inv_id, inv_no))
             w.sources.append(f"{t.kind}:{t.value} ({t.source})")
+            if pol_no:
+                w.selected_pols.add(pol_no)
+            else:
+                w.whole_invoice = True
             if t.voucher and not w.voucher:
                 w.voucher = dict(t.voucher)
 
@@ -130,6 +136,11 @@ class Closer:
                 if not pols:
                     fail(t, "no order line found" if t.kind == "mms" else "order line cancelled")
                     continue
+                if t.kind == "mms" and len(pols) > 1:
+                    # A title is not a unit of work: don't guess which order line was meant.
+                    fail(t, f"title has {len(pols)} order lines "
+                            f"({', '.join(p.get('number') or '?' for p in pols)}); name the order line")
+                    continue
                 linked = 0
                 for p in pols:
                     inv = self._invoice_for_pol(p)
@@ -137,7 +148,7 @@ class Closer:
                         self.log("pol_without_invoice", target=t.value, pol=p.get("number"),
                                  pol_status=_v(p, "status"))
                         continue
-                    add(str(inv["id"]), str(inv.get("number")), t)
+                    add(str(inv["id"]), str(inv.get("number")), t, p.get("number"))
                     linked += 1
                 if not linked:
                     fail(t, "order line has no invoice")
@@ -206,6 +217,14 @@ class Closer:
             open_lines = [p for p, s in r.order_lines_after.items() if s != "CLOSED"]
             r.reason = f"order lines still open: {', '.join(open_lines)}" if open_lines else ""
             return
+
+        if not w.whole_invoice:
+            # Closing an invoice processes every line on it. When the input named order
+            # lines, don't touch lines it didn't name.
+            extra = sorted(set(r.order_lines) - w.selected_pols)
+            if extra:
+                return self._hold(r, f"invoice also covers order lines not in the input: "
+                                     f"{', '.join(extra)}; add them or name the invoice itself")
 
         problem = self._eligibility(w.invoice_id)
         if problem:
