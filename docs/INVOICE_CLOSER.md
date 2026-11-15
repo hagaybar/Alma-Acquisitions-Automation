@@ -113,5 +113,5 @@ poetry run python scripts/close_invoices.py --file input/to_close.xlsx --vendor 
   and paying does not close a physical order line. Outcome `CLOSED_ORDER_LINE_OPEN` for all five.
   Closing those lines needs receiving in Alma (by a person).
 
-Not validated: charge lines, multi-currency payments, invoices already paid but open,
+Not validated: print orders whose items are not received, charge lines, multi-currency payments, invoices already paid but open,
 manual approval, ERP-stage invoices, and whether the order (PO) itself closes (the API cannot read it).
