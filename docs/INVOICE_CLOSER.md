@@ -91,6 +91,17 @@ poetry run python scripts/close_invoices.py --file input/to_close.xlsx --vendor 
 
 - 8 Nov 2026: one e-book invoice processed and paid by hand (`docs/INVOICE_CLOSURE_RESULTS.md` on the
   `training/acquisitions-api-expert` branch).
+- 8 Nov 2026 findings from the prototype (PR #8, closed; history kept under git tag
+  `archive/acq-wizard-prototype`):
+  - The `process_invoice` reply was lost after ~15 s, but a later read showed Waiting for
+    Payment / APPROVED. A lost reply is not a failed write: read back, never resend.
+  - The e-book order line went CLOSED at processing, before payment.
+  - Four alerts (DIFFERENT_VENDOR_ACCOUNT, DIFF_PRICE_THAN_POLINE, EDI_INVOICE_OF_EXTERNAL_SYSTEM,
+    NOT_READY_LINES) stayed on the invoice after CLOSED/PAID. The JSON lists them under a flat
+    `alert` key (singular), not the documented `alerts` container.
+  - A closed invoice can return `invoice_workflow_status = {}`.
+  - A print invoice already marked PAID but still In Review was found and deliberately not
+    touched. Continuing paid-but-open invoices is still unvalidated, and the closer holds them.
 - 12 Nov 2026: invoice 2410609 (e-book): `process_invoice` returned HTTP 200 in 21 s with the new
   state; the order line was already CLOSED on the first read; `paid` closed the invoice.
 - 12 Nov 2026: invoice 2409757 (print, item not received, invoice price 35.29 vs order 39.95):
