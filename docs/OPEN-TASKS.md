@@ -3,7 +3,7 @@
 Last updated: 2026-11-18
 
 ## PRs
-- #26 (invoice closer Stage 1: batch runner, pre-analysis, bulk download, staff summary; draft) — find why Sandbox invoices stay In Review after processing, then finish Stage 1 and review
+- #26 (invoice closer Stage 1: batch runner, pre-analysis, bulk download, fund guard, Analytics input; draft) — Sunday 22 Nov: follow docs/plans/2026-11-22-invoice-closer-next-steps.md on the PR branch
 - #21 (bulk invoice processor: read nested payment status, stops paying already-paid invoices again) — review and merge; check whether masedet runs the bulk processor
 
 ## Work in progress
