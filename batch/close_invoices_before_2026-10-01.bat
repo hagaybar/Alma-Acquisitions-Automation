@@ -18,18 +18,19 @@ REM  SANDBOX or PRODUCTION
 set "ENV=SANDBOX"
 REM  DRY or LIVE
 set "MODE=DRY"
-REM  Excel export of the Alma set (one row per invoice; column invoice_number)
-set "INPUT_FILE=D:\Scripts\Data\invoice_closer\input\TODO.xlsx"
+REM  Excel export of the Alma set, relative to this clone (column invoice_number)
+set "INPUT_FILE=tests\invoice_closer\input\TODO.xlsx"
 REM  Hard cutoff, enforced per invoice in code: invoice date must be earlier
 set "DATE_BEFORE=2026-10-01"
-REM  Scope (leave empty for any). TODO: confirm
-set "VENDOR=TODO"
-set "OWNER=TODO"
-REM  Payment record written by op=paid. TODO: confirm format and date
-set "VOUCHER_TEMPLATE=TODO-{invoice_number}"
+REM  Scope: vendor code and owner library code (AC1 = Sourasky Central Library)
+set "VENDOR=RIALTO"
+set "OWNER=AC1"
+REM  Payment record written by op=paid. Not a real payment: it only moves the
+REM  invoice to Closed. Empty PAYMENT_DATE = the day the job runs.
+set "VOUCHER_TEMPLATE=AUTO-PAY-{invoice_number}"
 set "PAYMENT_DATE="
-REM  Where reports and logs go (one sub-folder per run). TODO: agree in step 1e
-set "OUT_DIR=D:\Scripts\Data\invoice_closer\output"
+REM  Reports and logs, one sub-folder per run, relative to this clone
+set "OUT_DIR=tests\invoice_closer\output"
 REM ---------------------------------------------------------------------------
 
 cd /d "%~dp0.."
