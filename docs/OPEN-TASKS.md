@@ -3,14 +3,13 @@
 Last updated: 2026-11-18
 
 ## PRs
-- #17 (bump almaapitk 0.4.5 → 0.7.0) — closer L3 with Sandbox writes done; merge, then one DevSandbox cycle on masedet
 - #21 (bulk invoice processor: read nested payment status, stops paying already-paid invoices again) — review and merge; check whether masedet runs the bulk processor
 
 ## Work in progress
 - `training/invoice-closing-review` branch (acquisitions history dashboard for invoice review) — pushed, no PR; decide: open a PR or drop
 
 ## Issues
-- #11 (almaapitk upgrade protocol: pin → validate → main → prod) — continues via PR #17; after merge, DevSandbox cycle on masedet, then owner merges to `prod`
+- #11 (almaapitk upgrade protocol) — 0.7.0 is on `main`; after one clean DevSandbox run on masedet, owner merges `main` → `prod`
 - #10 (research: failure-mode audit of the run context) — not started
 
 ## Other
