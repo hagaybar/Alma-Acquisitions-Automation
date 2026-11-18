@@ -15,6 +15,6 @@ Alma Acquisitions Automation - Tools and workflows for automating Ex Libris Alma
 ## Key Directories
 
 - `workflows/` - Workflow implementations (rialto, invoices)
-- `src/` - Core library code (Alma API clients, utilities)
+- `invoice_closer/` + `scripts/close_invoices.py` - Invoice closer (see `docs/INVOICE_CLOSER.md`); dry run by default
 - `docs/` - Documentation and guides
 - `config/` - Configuration templates (actual configs are gitignored)
