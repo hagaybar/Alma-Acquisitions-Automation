@@ -16,7 +16,9 @@ Anything else is **held** with a reason, never forced:
 - invoice already marked paid but still open (continuing it is not validated; it is never paid twice)
 - waiting for manual approval, or at the ERP stage (`Waiting to be Sent`)
 - processing left it In Review (Alma's review rules flagged something; the alerts are reported)
-- any line that is not an electronic order (`E_…` type), a charge line with no order line,
+- a physical order line, unless `--include-physical` is given; even then only one-time orders
+  (`…_OT`). Physical lines are paid, never received: receiving stays a person's job in Alma
+- any other line that is not an electronic order (`E_…` type), a charge line with no order line,
   a cancelled order line, or a title with no available portfolio
 - invoice outside `--vendor` / `--owner`
 - no voucher number available (nothing is written for that invoice)
@@ -38,8 +40,16 @@ Anything else is **held** with a reason, never forced:
 
 Exactly one of:
 
-- `--set-id <id>`: an Alma set of titles (`BIB_MMS`).
+- `--set-id <id>`: an Alma **Order lines** (`PO_LINE`) set. Members are POL numbers.
+  Title (`BIB_MMS`) sets are refused: a title can have several order lines, each with its own
+  invoice, so a title set reaches invoices nobody selected. Alma has no invoice set type.
 - `--file <path>`: `.xlsx` (first sheet), `.csv` or `.tsv`.
+
+**Selection rules.** Closing an invoice processes every line on it, so when the input names
+order lines (a set, or `pol` / `mms_id` rows), an invoice that also covers an order line *not* in
+the input is held. Naming the invoice itself (`invoice_number` / `invoice_id`) covers all its
+lines. A title row (`mms_id`) is accepted only if the title has exactly one order line; otherwise
+it is held and you name the order line.
 
 A file may have a header row. The first recognised identifier column is used:
 `mms_id`, `pol` / `po_line`, `invoice_number`, `invoice_id` (case and spacing ignored).
@@ -68,8 +78,8 @@ write was refused or its outcome is unknown, or an error occurred; 2 when the ru
 ## Examples
 
 ```bash
-# Dry run on a set
-poetry run python scripts/close_invoices.py --set-id 43266180120004146 --vendor RIALTO --owner AC1 \
+# Dry run on an order-line set
+poetry run python scripts/close_invoices.py --set-id <PO_LINE set id> --vendor RIALTO --owner AC1 \
     --voucher-number "SBX-TEST-{invoice_number}"
 
 # Live, from a spreadsheet
@@ -86,7 +96,8 @@ poetry run python scripts/close_invoices.py --file input/to_close.xlsx --vendor 
 - 12 Nov 2026: invoice 2409757 (print, item not received, invoice price 35.29 vs order 39.95):
   `process_invoice` returned HTTP 200 in 0.9 s and the invoice stayed In Review. No error is returned
   in that case, which is why the program reads back and holds.
-- 13 Nov 2026: live run on set 43266180120004146 (10 Rialto e-book titles, one-line invoices):
+- 13 Nov 2026: live run on title set 43266180120004146 (10 Rialto e-book titles, one order line
+  and one-line invoice each; title sets have since been replaced by order-line sets):
   10 of 10 closed. `process_invoice` answered in 2.3–3.4 s (one took 39.7 s), each reply already
   showing Waiting for Payment; every order line was CLOSED on the read right after processing;
   `paid` answered in under 1 s and closed each invoice. One of the ten carried the
@@ -94,5 +105,22 @@ poetry run python scripts/close_invoices.py --file input/to_close.xlsx --vendor 
   processing. A second run reported all ten as already closed. CSV, TSV and Excel inputs were
   checked in dry runs.
 
-Not validated: print orders, charge lines, multi-currency payments, invoices already paid but open,
+- 15 Nov 2026: live run with `--include-physical` on order-line set 43266192370004146 (5 Rialto
+  PRINTED_BOOK_OT lines, one-line invoices, each with one item that has an arrival date, is in place
+  and has no process type; order lines SENT). `process_invoice` answered in 0.7–5.6 s with Waiting
+  for Payment / APPROVED; `paid` closed every invoice (CLOSED/PAID). **Every order line stayed SENT**
+  after processing and after payment: an item's arrival date does not make the order line received,
+  and paying does not close a physical order line. Outcome `CLOSED_ORDER_LINE_OPEN` for all five.
+  Closing those lines needs receiving in Alma (by a person).
+
+- 15 Nov 2026, **items not received**: live run with `--include-physical` on order-line set
+  43266194870004146. It held 5 Rialto PRINTED_BOOK_OT lines with one-line invoices; invoice, order
+  line, location and items were all AC1. No item had an arrival date and no copy had a receive date;
+  3 items were in acquisition (ACQ), 2 were in place without receiving. `process_invoice` returned
+  Waiting for Payment / APPROVED in 0.7–1.2 s, despite NOT_READY_LINES and the other three usual
+  alerts. `paid` then closed every invoice (CLOSED/PAID). Order lines stayed SENT, and the items
+  were unchanged (no arrival date, same process type). In Sandbox, unreceived items do not block
+  processing or payment of a one-time print invoice.
+
+Not validated: charge lines, multi-currency payments, invoices already paid but open,
 manual approval, ERP-stage invoices, and whether the order (PO) itself closes (the API cannot read it).

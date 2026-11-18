@@ -60,6 +60,7 @@ class Config:
     owner: Optional[str] = None           # e.g. AC1; None = any
     voucher_number_template: Optional[str] = None   # e.g. "PAY-{invoice_number}"
     payment_date: str = field(default_factory=lambda: date.today().isoformat())
+    include_physical: bool = False        # one-time physical orders: pay only, never receive
     settle_seconds: int = 30              # how long to watch for a delayed state change
     poll_interval: float = 5.0
     sleep: Callable[[float], None] = time.sleep
@@ -85,6 +86,8 @@ class Work:
     invoice_number: str
     sources: List[str] = field(default_factory=list)
     voucher: Dict[str, str] = field(default_factory=dict)
+    selected_pols: Set[str] = field(default_factory=set)   # order lines the input named
+    whole_invoice: bool = False                              # the input named the invoice itself
 
 
 class Closer:
@@ -96,9 +99,13 @@ class Closer:
         work: Dict[str, Work] = {}
         unresolved: List[Result] = []
 
-        def add(inv_id, inv_no, t: Target):
+        def add(inv_id, inv_no, t: Target, pol_no: Optional[str] = None):
             w = work.setdefault(inv_id, Work(inv_id, inv_no))
             w.sources.append(f"{t.kind}:{t.value} ({t.source})")
+            if pol_no:
+                w.selected_pols.add(pol_no)
+            else:
+                w.whole_invoice = True
             if t.voucher and not w.voucher:
                 w.voucher = dict(t.voucher)
 
@@ -130,6 +137,11 @@ class Closer:
                 if not pols:
                     fail(t, "no order line found" if t.kind == "mms" else "order line cancelled")
                     continue
+                if t.kind == "mms" and len(pols) > 1:
+                    # A title is not a unit of work: don't guess which order line was meant.
+                    fail(t, f"title has {len(pols)} order lines "
+                            f"({', '.join(p.get('number') or '?' for p in pols)}); name the order line")
+                    continue
                 linked = 0
                 for p in pols:
                     inv = self._invoice_for_pol(p)
@@ -137,7 +149,7 @@ class Closer:
                         self.log("pol_without_invoice", target=t.value, pol=p.get("number"),
                                  pol_status=_v(p, "status"))
                         continue
-                    add(str(inv["id"]), str(inv.get("number")), t)
+                    add(str(inv["id"]), str(inv.get("number")), t, p.get("number"))
                     linked += 1
                 if not linked:
                     fail(t, "order line has no invoice")
@@ -207,6 +219,14 @@ class Closer:
             r.reason = f"order lines still open: {', '.join(open_lines)}" if open_lines else ""
             return
 
+        if not w.whole_invoice:
+            # Closing an invoice processes every line on it. When the input named order
+            # lines, don't touch lines it didn't name.
+            extra = sorted(set(r.order_lines) - w.selected_pols)
+            if extra:
+                return self._hold(r, f"invoice also covers order lines not in the input: "
+                                     f"{', '.join(extra)}; add them or name the invoice itself")
+
         problem = self._eligibility(w.invoice_id)
         if problem:
             return self._hold(r, problem)
@@ -271,7 +291,10 @@ class Closer:
             if pstatus == "CANCELLED":
                 return f"{pol_no} is cancelled"
             if not ptype.startswith("E_"):
-                return f"{pol_no} is {ptype or 'unknown type'}; only electronic orders are validated"
+                problem = self._physical_check(pol_no, pol, ptype, pstatus)
+                if problem:
+                    return problem
+                continue
             if pstatus == "CLOSED":
                 continue
             mms = ((pol.get("resource_metadata") or {}).get("mms_id") or {}).get("value")
@@ -280,6 +303,20 @@ class Closer:
                      or str(((p.get("availability") or {}).get("desc") or "")).upper() == "AVAILABLE"]
             if not avail:
                 return f"{pol_no}: title has no available portfolio"
+        return None
+
+    def _physical_check(self, pol_no: str, pol: Dict, ptype: str, pstatus: Optional[str]) -> Optional[str]:
+        """Physical lines are paid, never received: receiving stays a person's job in Alma.
+        Only one-time orders (`..._OT`); continuous and standing orders must not close."""
+        if not self.cfg.include_physical:
+            return f"{pol_no} is {ptype or 'unknown type'}; physical orders need --include-physical"
+        if not ptype.endswith("_OT"):
+            return f"{pol_no} is {ptype or 'unknown type'}; only one-time physical orders are handled"
+        mms = ((pol.get("resource_metadata") or {}).get("mms_id") or {}).get("value")
+        items = self.gw.get_items_for_pol(mms, pol_no) if mms else []
+        received = [i for i in items if (i.get("item_data") or {}).get("arrival_date")]
+        self.log("physical_line", pol=pol_no, type=ptype, pol_status=pstatus,
+                 items=len(items), received=len(received))
         return None
 
     def _voucher(self, inv: Dict, w: Work):

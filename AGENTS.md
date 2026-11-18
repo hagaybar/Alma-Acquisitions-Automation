@@ -1,7 +1,7 @@
 # Repository Guidelines
 
 ## Project Structure & Module Organization
-Core automation code lives in `workflows/`: `workflows/rialto/` handles PDF-to-POL processing, and `workflows/invoices/` handles bulk invoice and ERP integration flows. Shared helpers belong in `common/`. Configuration templates live in `config/` and should be copied to non-example JSON files for local runs. Windows entrypoints are in `batch/`, longer-form documentation is in `docs/`, utility scripts are in `scripts/`, and tests are in `tests/`. Runtime folders such as `input/`, `output/`, `processed/`, `failed/`, and `logs/` are operational artifacts, not source.
+Core automation code lives in `workflows/`: `workflows/rialto/` handles PDF-to-POL processing, and `workflows/invoices/` handles bulk invoice and ERP integration flows. The invoice closer lives in `invoice_closer/` with its entry point `scripts/close_invoices.py`. Configuration templates live in `config/` and should be copied to non-example JSON files for local runs. Windows entrypoints are in `batch/`, longer-form documentation is in `docs/`, utility scripts are in `scripts/`, and tests are in `tests/`. Runtime folders such as `input/`, `output/`, `processed/`, `failed/`, and `logs/` are operational artifacts, not source.
 
 ## Build, Test, and Development Commands
 Use Poetry with Python 3.12.

@@ -4,11 +4,11 @@
 Dry run by default: reads everything and reports what it would do.
 
 Examples:
-  poetry run python scripts/close_invoices.py --set-id 43266180120004146 --vendor RIALTO
+  poetry run python scripts/close_invoices.py --set-id <PO_LINE set id> --vendor RIALTO
   poetry run python scripts/close_invoices.py --file input/to_close.xlsx --vendor RIALTO \
       --voucher-number "PAY-{invoice_number}" --live
 
-Input: exactly one of --set-id (title set) or --file (.xlsx, .csv, .tsv). See
+Input: exactly one of --set-id (Order lines / PO_LINE set) or --file (.xlsx, .csv, .tsv). See
 docs/INVOICE_CLOSER.md for file columns. Production requires --production-approved,
 given only after a reviewed dry run.
 """
@@ -30,7 +30,7 @@ from invoice_closer.reporting import RunLog, short_report, write_results_csv  # 
 def parse_args(argv=None):
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     src = p.add_mutually_exclusive_group(required=True)
-    src.add_argument("--set-id", help="Alma set of titles (BIB_MMS)")
+    src.add_argument("--set-id", help="Alma Order lines (PO_LINE) set; title sets are refused")
     src.add_argument("--file", type=Path, help=".xlsx, .csv or .tsv file")
     p.add_argument("--env", choices=["SANDBOX", "PRODUCTION"], default="SANDBOX")
     p.add_argument("--live", action="store_true", help="send the writes (default: dry run)")
@@ -40,6 +40,9 @@ def parse_args(argv=None):
     p.add_argument("--owner", help="only touch invoices of this owner code, e.g. AC1")
     p.add_argument("--voucher-number", dest="voucher_template",
                    help='voucher number template, e.g. "PAY-{invoice_number}"')
+    p.add_argument("--include-physical", action="store_true",
+                   help="also close one-time physical orders (pays only; never receives items). "
+                        "Not yet validated: Sandbox only until reviewed")
     p.add_argument("--payment-date", help="YYYY-MM-DD (default: today)")
     p.add_argument("--settle-seconds", type=int, default=30,
                    help="how long to watch for a delayed state change after a write")
@@ -58,12 +61,13 @@ def main(argv=None) -> int:
     run_dir = a.out / f"{datetime.now():%Y%m%d_%H%M%S}_{a.env.lower()}_{'live' if a.live else 'dry'}"
     log = RunLog(run_dir)
     cfg = Config(live=a.live, vendor=a.vendor, owner=a.owner, voucher_number_template=a.voucher_template,
-                 settle_seconds=a.settle_seconds)
+                 settle_seconds=a.settle_seconds, include_physical=a.include_physical)
     if a.payment_date:
         cfg.payment_date = a.payment_date
     source = f"set {a.set_id}" if a.set_id else f"file {a.file.name}"
     log("run_start", env=a.env, live=a.live, source=source, vendor=a.vendor, owner=a.owner,
-        voucher_template=a.voucher_template, payment_date=cfg.payment_date)
+        voucher_template=a.voucher_template, payment_date=cfg.payment_date,
+        include_physical=a.include_physical)
     try:
         gw = Gateway(a.env)
         targets = load_targets(gw, a.set_id, a.file)

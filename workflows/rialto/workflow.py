@@ -97,43 +97,51 @@ class RialtoWorkflowProcessor:
             Invoice ID if found, None otherwise
         """
         try:
-            # Search for recent invoices (limit to 100 most recent)
-            # Note: This could be optimized with specific vendor or date filters
+            # Search by order line. invoice_status~ is not an Alma search field and
+            # is silently ignored (it returned the whole invoice list), so the old
+            # query scanned an arbitrary first 100 invoices (issue #12).
             search_results = self.acq.search_invoices(
-                query="invoice_status~WAITING_TO_BE_SENT OR invoice_status~APPROVED OR invoice_status~ACTIVE",
+                query=f"pol_number~{pol_number}",
                 limit=100
             )
 
-            invoices = search_results.get('invoice', [])
+            invoices = search_results.get('invoice', []) or []
             if not invoices:
-                print(f"  No recent invoices found in system")
+                print(f"  No invoice found for {pol_number}")
                 return None
 
-            # Check each invoice's lines for reference to this POL
-            print(f"  Checking {len(invoices)} recent invoices...")
+            print(f"  Checking {len(invoices)} invoice(s) found for {pol_number}...")
 
+            # Confirm the match through the invoice lines; prefer an invoice that is
+            # not closed if the order line appears on more than one.
+            matches = []
             for invoice in invoices:
                 invoice_id = invoice.get('id')
                 if not invoice_id:
                     continue
-
                 try:
-                    # Get invoice lines
                     lines = self.acq.get_invoice_lines(invoice_id)
-
-                    # Check if any line references this POL
-                    for line in lines:
-                        line_pol = line.get('po_line')
-                        if line_pol == pol_number:
-                            print(f"  Found match in invoice {invoice_id}")
-                            return invoice_id
-
                 except Exception as e:
-                    # Skip invoices we can't access
+                    print(f"  Could not read lines of invoice {invoice_id}: {e}")
                     continue
+                if any(line.get('po_line') == pol_number for line in lines):
+                    matches.append(invoice)
 
-            print(f"  No invoice found with lines referencing {pol_number}")
-            return None
+            if not matches:
+                print(f"  No invoice found with lines referencing {pol_number}")
+                return None
+
+            def _is_closed(inv):
+                status = inv.get('invoice_status')
+                value = status.get('value') if isinstance(status, dict) else status
+                return value == 'CLOSED'
+
+            open_matches = [inv for inv in matches if not _is_closed(inv)]
+            chosen = (open_matches or matches)[0]
+            if len(matches) > 1:
+                print(f"  {pol_number} is on {len(matches)} invoices; using {chosen.get('id')}")
+            print(f"  Found match in invoice {chosen.get('id')}")
+            return chosen.get('id')
 
         except Exception as e:
             print(f"  Error searching for invoice: {e}")

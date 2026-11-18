@@ -52,6 +52,8 @@ class FakeAlma:
     def find_pols_by_mms(self, mms):
         return [copy.deepcopy(p) for p in self.pols.values() if p["resource_metadata"]["mms_id"]["value"] == mms]
     def get_bib_portfolios(self, mms): return copy.deepcopy(self.portfolios.get(mms, []))
+    def get_items_for_pol(self, mms, pol_no):
+        return [{"item_data": {"po_line": pol_no, "arrival_date": "2026-11-01Z"}}]
 
     # writes
     def invoice_service(self, iid, op, body):
@@ -77,9 +79,9 @@ class FakeAlma:
         return 200, copy.deepcopy(inv), 0.5
 
 
-def closer(alma, live=True, template="TEST-{invoice_number}"):
+def closer(alma, live=True, template="TEST-{invoice_number}", physical=False):
     events = []
-    cfg = E.Config(live=live, vendor="RIALTO", voucher_number_template=template, payment_date="2026-11-13",
+    cfg = E.Config(live=live, include_physical=physical, vendor="RIALTO", voucher_number_template=template, payment_date="2026-11-13",
                    settle_seconds=10, poll_interval=5, sleep=lambda s: None)
     return E.Closer(alma, cfg, lambda ev, **d: events.append((ev, d))), events
 
@@ -241,3 +243,63 @@ def test_redaction():
            "who": "dana@example.org", "authorization": "apikey l7xx", "invoice": "100"}
     out = json.dumps(redact(rec))
     assert "l7xxabcdef" not in out and "Dana" not in out and "example.org" not in out and '"100"' in out
+
+
+# ---- selection by order line (15 Nov 2026) ---------------------------------
+class FakeSets:
+    def __init__(self, content, ids):
+        self.content, self.ids = content, ids
+    def get_set(self, sid): return {"content": {"value": self.content}}
+    def get_set_member_ids(self, sid): return list(self.ids)
+
+
+def test_pol_set_gives_pol_targets():
+    from invoice_closer.inputs import targets_from_set
+    ts = targets_from_set(FakeSets("PO_LINE", ["POL-1", "POL-2"]), "S1")
+    assert [(t.kind, t.value) for t in ts] == [("pol", "POL-1"), ("pol", "POL-2")]
+
+
+@pytest.mark.parametrize("content", ["BIB_MMS", "ITEM", ""])
+def test_non_pol_sets_refused(content):
+    from invoice_closer.inputs import targets_from_set
+    with pytest.raises(ValueError, match="PO_LINE"):
+        targets_from_set(FakeSets(content, ["9911"]), "S1")
+
+
+def test_invoice_with_unselected_order_line_is_held():
+    a = FakeAlma()
+    a.add(invoice("I6", "600"), [pol("POL-61", "600", "9961"), pol("POL-62", "600", "9962")])
+    (r,), _ = run(a, [Target("pol", "POL-61", "set member 1")])
+    assert r.outcome == E.HELD and "POL-62" in r.reason and a.writes == []
+
+
+def test_invoice_named_directly_covers_all_its_lines():
+    a = FakeAlma()
+    a.add(invoice("I6", "600"), [pol("POL-61", "600", "9961"), pol("POL-62", "600", "9962")])
+    (r,), _ = run(a, [Target("invoice_number", "600", "row 1")])
+    assert r.outcome == E.CLOSED
+
+
+def test_title_with_two_order_lines_is_not_expanded():
+    a = FakeAlma()
+    a.add(invoice("I7", "700"), [pol("POL-71", "700", "9977")])
+    a.add(invoice("I8", "800"), [pol("POL-81", "800", "9977")])
+    (r,), _ = run(a, [Target("mms", "9977", "row 1")])
+    assert r.outcome == E.HELD and "2 order lines" in r.reason and a.writes == []
+
+
+# ---- physical one-time orders: pay only, never receive (15 Nov 2026) --------
+def test_physical_paid_with_flag_order_line_left_open():
+    a = FakeAlma()
+    a.add(invoice("I9", "900"), [pol("POL-9", "900", "9999", ptype="PRINTED_BOOK_OT", status="SENT")])
+    (r,), events = run(a, [Target("pol", "POL-9", "t")], physical=True)
+    assert [w[1] for w in a.writes] == ["process_invoice", "paid"]
+    assert r.outcome == E.CLOSED_POL_OPEN and "POL-9" in r.reason
+    assert any(ev == "physical_line" and d["received"] == 1 for ev, d in events)
+
+
+def test_physical_continuous_order_held_even_with_flag():
+    a = FakeAlma()
+    a.add(invoice("I10", "1000"), [pol("POL-10", "1000", "9910", ptype="PRINTED_JOURNAL_CO", status="SENT")])
+    (r,), _ = run(a, [Target("pol", "POL-10", "t")], physical=True)
+    assert r.outcome == E.HELD and "one-time" in r.reason and a.writes == []
