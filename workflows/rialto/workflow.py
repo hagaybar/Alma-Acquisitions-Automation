@@ -40,6 +40,10 @@ from pathlib import Path
 
 from almaapitk import AlmaAPIClient, AlmaAPIError, Acquisitions, BibliographicRecords
 
+# Invoice workflow values (API). "Ready to be Paid" is the UI's "Waiting for Payment".
+WF_REVIEW, WF_PAYMENT = "InReview", "Ready to be Paid"
+APPROVED_STATES = {"APPROVED", "NOT_REQUIRED"}
+
 
 # Default configuration (validated in POL-5989 test)
 DEFAULT_CONFIG = {
@@ -146,6 +150,69 @@ class RialtoWorkflowProcessor:
         except Exception as e:
             print(f"  Error searching for invoice: {e}")
             return None
+
+    def _invoice_state(self, invoice_id: str) -> Dict[str, Optional[str]]:
+        """Read an invoice's status, workflow, approval and payment values."""
+        inv = self.acq.get_invoice(invoice_id)
+
+        def v(obj, key):
+            val = (obj or {}).get(key)
+            return val.get('value') if isinstance(val, dict) else val
+
+        return {
+            'status': v(inv, 'invoice_status'),
+            'workflow': v(inv, 'invoice_workflow_status'),
+            'approval': v(inv, 'invoice_approval_status'),
+            'payment': v(inv.get('payment'), 'payment_status'),
+        }
+
+    def _pay_invoice(self, invoice_id: str) -> Dict[str, Any]:
+        """
+        Process (if In Review) and pay an invoice, following the flow the invoice
+        closer validated in Sandbox (issue #14):
+
+        - In Review, not paid: process_invoice, read back; continue only if it is now
+          Waiting for Payment (API "Ready to be Paid") and approved.
+        - Waiting for Payment, approved, not paid: pay.
+        - Anything else (paid, manual approval, ERP stage, unknown): no write; held.
+
+        invoice_status is only ACTIVE/CLOSED; the workflow stage lives in
+        invoice_workflow_status.
+        """
+        st = self._invoice_state(invoice_id)
+        print(f"  Invoice state: {st}")
+        held = lambda reason: {'status': 'held', 'invoice_id': invoice_id, 'reason': reason, 'state': st}
+
+        if st['payment'] != 'NOT_PAID':
+            print(f"⚠️  Invoice payment status is {st['payment']} - not paying")
+            return {'status': 'skipped', 'reason': 'already_paid', 'payment_status': st['payment']}
+        if st['status'] != 'ACTIVE':
+            return held(f"invoice status {st['status']}")
+
+        if st['workflow'] == WF_REVIEW:
+            print(f"  Invoice In Review - processing first...")
+            self.acq.approve_invoice(invoice_id)  # POST ?op=process_invoice
+            before = st
+            st = self._invoice_state(invoice_id)
+            print(f"  After processing: {st}")
+            if st['workflow'] != WF_PAYMENT or st['approval'] not in APPROVED_STATES:
+                print(f"⚠️  Processed, but not ready to pay - held for a person")
+                result = held("processed but not ready to pay (Alma review rules or manual approval)")
+                result['previous_state'] = before
+                return result
+        elif st['workflow'] != WF_PAYMENT:
+            print(f"⚠️  Invoice workflow {st['workflow']} - not part of the validated flow; held")
+            return held(f"workflow status {st['workflow']}")
+        elif st['approval'] not in APPROVED_STATES:
+            return held(f"waiting for payment but approval is {st['approval']}")
+
+        if st['payment'] != 'NOT_PAID':
+            return {'status': 'skipped', 'reason': 'already_paid', 'payment_status': st['payment']}
+
+        self.acq.mark_invoice_paid(invoice_id)
+        after = self._invoice_state(invoice_id)
+        print(f"✓ Invoice marked as paid: {after}")
+        return {'status': 'success', 'invoice_id': invoice_id, 'previous_state': st, 'final_state': after}
 
     def read_pols_from_tsv(self, tsv_file: str) -> List[str]:
         """
@@ -302,22 +369,18 @@ class RialtoWorkflowProcessor:
             # Extract invoice ID via invoice lines
             print(f"Checking for linked invoice...")
 
-            # First try direct invoice_reference field
-            invoice_id = pol_data.get('invoice_reference')
+            # Find the invoice through its lines. The POL's invoice_reference holds the
+            # vendor's invoice number, not an Alma invoice ID, so it is never used as
+            # one (issue #13).
+            if pol_data.get('invoice_reference'):
+                print(f"  POL invoice_reference: {pol_data.get('invoice_reference')} (invoice number, not an ID)")
+            print(f"  Searching for invoice via invoice lines...")
+            invoice_id = self._find_invoice_for_pol(pol_number)
 
-            # If not found, search via invoice lines (more reliable method)
             if invoice_id:
-                print(f"✓ Invoice ID (from POL invoice_reference): {invoice_id}")
+                print(f"✓ Invoice ID (via invoice lines search): {invoice_id}")
             else:
-                print(f"  No direct invoice_reference in POL")
-                print(f"  Searching for invoice via invoice lines...")
-
-                invoice_id = self._find_invoice_for_pol(pol_number)
-
-                if invoice_id:
-                    print(f"✓ Invoice ID (via invoice lines search): {invoice_id}")
-                else:
-                    print(f"⚠️  No invoice found - workflow will skip payment step")
+                print(f"⚠️  No invoice found - workflow will skip payment step")
 
             # Get PO identifier (from POL number or vendor_reference)
             po_identifier = pol_data.get('vendor_reference') or pol_number
@@ -427,43 +490,10 @@ class RialtoWorkflowProcessor:
                     result['steps']['pay_invoice'] = {'status': 'dry_run'}
                 else:
                     try:
-                        # Check invoice status before payment
-                        invoice_data = self.acq.get_invoice(identifiers['invoice_id'])
-                        invoice_status = invoice_data.get('invoice_status', {}).get('value', 'UNKNOWN')
-                        payment_status = invoice_data.get('payment', {}).get('payment_status', {}).get('value', 'UNKNOWN')
-
-                        print(f"  Invoice status: {invoice_status}")
-                        print(f"  Payment status: {payment_status}")
-
-                        # Check if already paid
-                        if payment_status in ['PAID', 'FULLY_PAID']:
-                            print(f"⚠️  Invoice already paid ({payment_status})")
-                            result['steps']['pay_invoice'] = {
-                                'status': 'skipped',
-                                'reason': 'already_paid',
-                                'payment_status': payment_status
-                            }
-                        else:
-                            # Check if invoice needs approval before payment
-                            if invoice_status == 'WAITING_TO_BE_SENT':
-                                print(f"  Invoice in 'WAITING_TO_BE_SENT' status - approving first...")
-                                try:
-                                    self.acq.approve_invoice(identifiers['invoice_id'])
-                                    print(f"  ✓ Invoice approved (WAITING_TO_BE_SENT → APPROVED)")
-                                except Exception as e:
-                                    print(f"  ⚠️  Warning: Could not approve invoice: {e}")
-                                    print(f"  Continuing with payment attempt...")
-
-                            # Pay invoice
-                            self.acq.mark_invoice_paid(identifiers['invoice_id'])
-
-                            print(f"✓ Invoice marked as paid")
-                            result['steps']['pay_invoice'] = {
-                                'status': 'success',
-                                'invoice_id': identifiers['invoice_id'],
-                                'previous_invoice_status': invoice_status,
-                                'previous_payment_status': payment_status
-                            }
+                        pay = self._pay_invoice(identifiers['invoice_id'])
+                        result['steps']['pay_invoice'] = pay
+                        if pay['status'] == 'held':
+                            result['errors'].append(f"Invoice held: {pay['reason']}")
 
                     except Exception as e:
                         print(f"✗ ERROR paying invoice: {e}")
