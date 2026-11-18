@@ -68,5 +68,15 @@ apart from unused exception variables.
 - L3 (SANDBOX, reads only): invoice closer dry runs on set 43266180120004146 (10 already closed) and
   on a print + closed invoice file (held / already closed) behave as on 0.4.5; Rialto workflow
   `--dry-run` on one print POL completed (verify: success).
-- **Left for the owner:** the issue's full L3 (Rialto create → receive → invoice with writes) and the
-  DevSandbox cycle on masedet after merge.
+- 18 Nov 2026, after merging current `main` (invoice closer, PR #23 Rialto lookup fix): L2 48 passed.
+- L3 (SANDBOX, **with writes**), invoice closer on 0.7.0:
+  - invoice 2405081 (print, In Review), `--include-physical --live`: `process_invoice` sent and
+    answered; Alma kept it In Review (DIFFERENT_VENDOR_ACCOUNT, DIFF_PRICE_THAN_POLINE, NOT_READY_LINES,
+    EDI alerts); the closer held it, as designed.
+  - invoice 2266653 (print, Waiting for Payment), `--include-physical --live`: `paid` sent once;
+    invoice CLOSED/PAID; POL-2788 stays SENT (`CLOSED_ORDER_LINE_OPEN`), as documented for physical
+    lines.
+- Rialto full L3 with writes: **not run**. A dry run on POL-4836 showed the workflow takes the invoice
+  from the POL's `invoice_reference` (an invoice number, not an Alma ID: issue #13), so a live run
+  would fail at the payment step on any almaapitk version. Needs #13 (and #14) fixed first.
+- **Left:** Rialto L3 after #13/#14; the DevSandbox cycle on masedet after merge.
