@@ -113,7 +113,9 @@ def targets_from_set(gateway, set_id: str) -> List[Target]:
         raise ValueError(f"Set {set_id} holds {content or 'unknown'} records; "
                          "only Order lines (PO_LINE) sets are supported")
     ids = gateway.get_set_member_ids(set_id)
-    return [Target("pol", mid, f"set {set_id} member {n}") for n, mid in enumerate(ids, start=1)]
+    # A member of a deleted order line comes back as text, e.g. "PO line 1325... was deleted".
+    return [Target("pol" if POL_RE.match(mid) else "not_pol", mid, f"set {set_id} member {n}")
+            for n, mid in enumerate(ids, start=1)]
 
 
 def load_targets(gateway, set_id: Optional[str], file: Optional[Path]) -> List[Target]:

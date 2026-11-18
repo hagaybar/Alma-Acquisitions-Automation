@@ -22,9 +22,10 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 from invoice_closer.engine import Closer, Config  # noqa: E402
+from invoice_closer.bulk import BulkGateway  # noqa: E402
 from invoice_closer.gateway import Gateway  # noqa: E402
 from invoice_closer.inputs import load_targets  # noqa: E402
-from invoice_closer.reporting import RunLog, short_report, write_results_csv  # noqa: E402
+from invoice_closer.reporting import RunLog, run_context, short_report, staff_summary, write_results_csv  # noqa: E402
 
 
 def parse_args(argv=None):
@@ -49,6 +50,9 @@ def parse_args(argv=None):
     p.add_argument("--payment-date", help="YYYY-MM-DD (default: today)")
     p.add_argument("--settle-seconds", type=int, default=30,
                    help="how long to watch for a delayed state change after a write")
+    p.add_argument("--limit", type=int, metavar="N",
+                   help="handle only the first N invoices (e.g. a small first live run); "
+                        "the rest are listed as not attempted")
     p.add_argument("--out", type=Path, default=ROOT / "output" / "invoice_closer")
     return p.parse_args(argv)
 
@@ -70,6 +74,7 @@ def main(argv=None) -> int:
             return 2
     run_dir = a.out / f"{datetime.now():%Y%m%d_%H%M%S}_{a.env.lower()}_{'live' if a.live else 'dry'}"
     log = RunLog(run_dir)
+    log("run_context", **run_context(sys.argv if argv is None else argv))
     cfg = Config(live=a.live, vendor=a.vendor, owner=a.owner,
                  invoice_date_before=a.invoice_date_before, voucher_number_template=a.voucher_template,
                  settle_seconds=a.settle_seconds, include_physical=a.include_physical)
@@ -78,28 +83,44 @@ def main(argv=None) -> int:
     source = f"set {a.set_id}" if a.set_id else f"file {a.file.name}"
     log("run_start", env=a.env, live=a.live, source=source, vendor=a.vendor, owner=a.owner,
         invoice_date_before=a.invoice_date_before, voucher_template=a.voucher_template, payment_date=cfg.payment_date,
-        include_physical=a.include_physical)
+        include_physical=a.include_physical, limit=a.limit)
     try:
         gw = Gateway(a.env)
-        targets = load_targets(gw, a.set_id, a.file)
-        log("targets", count=len(targets), sample=[f"{t.kind}:{t.value}" for t in targets[:20]])
-        closer = Closer(gw, cfg, log)
-        work, results = closer.resolve(targets)
-        for w in work:
+        # Resolve the input against a bulk download of the vendor's invoices and order
+        # lines (a few dozen calls). Each invoice is then handled with fresh reads from Alma.
+        lookup = BulkGateway(gw, a.vendor, log).load() if a.vendor else gw
+        targets = load_targets(lookup, a.set_id, a.file)
+        log("targets", count=len(targets), targets=[f"{t.kind}:{t.value} ({t.source})" for t in targets])
+        work, results = Closer(lookup, cfg, log).resolve(targets)
+        # Live: fresh reads around every write. Dry: the bulk view is enough.
+        closer = Closer(gw if a.live else lookup, cfg, log)
+        if a.limit is not None and len(work) > a.limit:
+            skipped = work[a.limit:]
+            work = work[:a.limit]
+            log("limit", limit=a.limit, not_attempted=[w.invoice_number for w in skipped])
+            source += f", first {a.limit} of {len(work) + len(skipped)} invoices"
+        for n, w in enumerate(work, 1):
+            if n % 100 == 0:
+                log("progress", stage="close invoices", done=n, total=len(work))
             results.append(closer.run_one(w))
     except Exception as ex:
-        log("run_failed", error=f"{type(ex).__name__}: {str(ex)[:300]}")
+        import traceback
+        log("run_failed", error=f"{type(ex).__name__}: {str(ex)[:2000]}", traceback=traceback.format_exc())
         print(f"Run failed: {type(ex).__name__}: {ex}\nLog: {log.path}")
         log.close()
         return 2
     write_results_csv(run_dir / "results.csv", results)
     report = short_report(results, env=a.env, live=a.live, source=source, out_dir=run_dir)
     (run_dir / "report.txt").write_text(report + "\n", encoding="utf-8")
-    log("run_end", outcomes={r.invoice_number or "?": r.outcome for r in results})
+    staff = staff_summary(results, env=a.env, mode="LIVE" if a.live else "DRY", source=source,
+                          cutoff=a.invoice_date_before, out_dir=run_dir)
+    (run_dir / "summary_for_staff.txt").write_text(staff + "\n", encoding="utf-8-sig")
+    bad = {"ERROR", "WRITE_OUTCOME_UNKNOWN", "WRITE_REJECTED"}
+    code = 1 if any(r.outcome in bad for r in results) else 0
+    log("run_end", exit_code=code, outcomes={r.invoice_number or "?": r.outcome for r in results})
     log.close()
     print(report)
-    bad = {"ERROR", "WRITE_OUTCOME_UNKNOWN", "WRITE_REJECTED"}
-    return 1 if any(r.outcome in bad for r in results) else 0
+    return code
 
 
 if __name__ == "__main__":

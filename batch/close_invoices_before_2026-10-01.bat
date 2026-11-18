@@ -9,17 +9,22 @@ REM
 REM  Runs from the clone this file sits in (DevSandbox or Prod), so the same
 REM  script serves both. Edit only the SETTINGS block.
 REM
-REM  Default is a DRY RUN: it reads Alma and reports what it would do.
+REM  MODE:
+REM    ANALYZE  read-only check of the set: possible issues, what would happen
+REM    DRY      the closer's dry run: reads Alma, reports, writes nothing
+REM    LIVE     processes and pays (asks you to type YES)
 REM  The API key is read from ALMA_SB_API_KEY / ALMA_PROD_API_KEY (environment).
 REM ==========================================================================
 
 REM ---------------------------- SETTINGS -----------------------------------
 REM  SANDBOX or PRODUCTION
 set "ENV=SANDBOX"
-REM  DRY or LIVE
-set "MODE=DRY"
-REM  Excel export of the Alma set, relative to this clone (column invoice_number)
-set "INPUT_FILE=tests\invoice_closer\input\TODO.xlsx"
+REM  ANALYZE, DRY or LIVE
+set "MODE=ANALYZE"
+REM  Alma Order lines (PO_LINE) set
+set "SET_ID=43266268450004146"
+REM  Only the first N invoices (empty = all). Use a small number for a first LIVE run.
+set "LIMIT="
 REM  Hard cutoff, enforced per invoice in code: invoice date must be earlier
 set "DATE_BEFORE=2026-10-01"
 REM  Scope: vendor code and owner library code (AC1 = Sourasky Central Library)
@@ -34,52 +39,70 @@ set "OUT_DIR=tests\invoice_closer\output"
 REM ---------------------------------------------------------------------------
 
 cd /d "%~dp0.."
+if not exist "%OUT_DIR%" mkdir "%OUT_DIR%"
+for /f %%i in ('powershell -NoProfile -Command "Get-Date -Format yyyyMMdd_HHmmss"') do set "TS=%%i"
+set "CONSOLE=%OUT_DIR%\console_%TS%_%ENV%_%MODE%.txt"
+
 echo Working directory: %CD%
-echo Environment: %ENV%   Mode: %MODE%
-echo Input: %INPUT_FILE%
+echo Environment: %ENV%   Mode: %MODE%   Set: %SET_ID%   Limit: %LIMIT%
 echo Invoice date before: %DATE_BEFORE%
 echo Output: %OUT_DIR%
+echo Console copy: %CONSOLE%
 echo.
 
-if not exist "%INPUT_FILE%" (
-    echo ERROR: input file not found: %INPUT_FILE%
-    goto :end
-)
+set "FILTERS=--set-id %SET_ID% --env %ENV% --include-physical --invoice-date-before %DATE_BEFORE% --out "%OUT_DIR%""
+if not "%VENDOR%"=="" set "FILTERS=%FILTERS% --vendor %VENDOR%"
+if not "%OWNER%"=="" set "FILTERS=%FILTERS% --owner %OWNER%"
 
-set "ARGS=--file "%INPUT_FILE%" --env %ENV% --include-physical --invoice-date-before %DATE_BEFORE% --out "%OUT_DIR%""
-if not "%VENDOR%"=="" set "ARGS=%ARGS% --vendor %VENDOR%"
-if not "%OWNER%"=="" set "ARGS=%ARGS% --owner %OWNER%"
-if not "%VOUCHER_TEMPLATE%"=="" set "ARGS=%ARGS% --voucher-number "%VOUCHER_TEMPLATE%""
+if /i "%MODE%"=="ANALYZE" goto :analyze
+if /i "%MODE%"=="DRY" goto :dry
+if /i "%MODE%"=="LIVE" goto :live
+echo ERROR: MODE must be ANALYZE, DRY or LIVE.
+goto :end
+
+:analyze
+echo PRE-ANALYSIS - read only, nothing will be written. This can take a few hours for a large set.
+call :run scripts\analyze_set.py %FILTERS%
+goto :end
+
+:dry
+set "ARGS=%FILTERS% --voucher-number "%VOUCHER_TEMPLATE%""
 if not "%PAYMENT_DATE%"=="" set "ARGS=%ARGS% --payment-date %PAYMENT_DATE%"
-
-if /i "%MODE%"=="LIVE" (
-    echo ******************************************************************
-    echo  LIVE MODE: this will process and pay invoices in %ENV%.
-    echo ******************************************************************
-    set /p "CONFIRM=Type YES to continue: "
-    call :live
-    goto :end
-)
-
+if not "%LIMIT%"=="" set "ARGS=%ARGS% --limit %LIMIT%"
 echo DRY RUN - nothing will be written.
-echo.
-poetry run python scripts\close_invoices.py %ARGS%
+call :run scripts\close_invoices.py %ARGS%
 goto :end
 
 :live
+set "ARGS=%FILTERS% --voucher-number "%VOUCHER_TEMPLATE%" --live"
+if not "%PAYMENT_DATE%"=="" set "ARGS=%ARGS% --payment-date %PAYMENT_DATE%"
+if not "%LIMIT%"=="" set "ARGS=%ARGS% --limit %LIMIT%"
+if /i "%ENV%"=="PRODUCTION" set "ARGS=%ARGS% --production-approved"
+echo ******************************************************************
+echo  LIVE MODE: this will process and pay invoices in %ENV%.
+if "%LIMIT%"=="" (echo  ALL invoices in the set.) else (echo  Only the first %LIMIT% invoices.)
+echo ******************************************************************
+set /p "CONFIRM=Type YES to continue: "
 if not "%CONFIRM%"=="YES" (
     echo Aborted.
-    goto :eof
+    goto :end
 )
-if /i "%ENV%"=="PRODUCTION" (
-    poetry run python scripts\close_invoices.py %ARGS% --live --production-approved
-) else (
-    poetry run python scripts\close_invoices.py %ARGS% --live
-)
-goto :eof
+call :run scripts\close_invoices.py %ARGS%
+goto :end
+
+:run
+REM Everything the program prints (including errors) goes to the console copy too.
+echo Started %DATE% %TIME% > "%CONSOLE%"
+echo Command: poetry run python %* >> "%CONSOLE%"
+poetry run python %* >> "%CONSOLE%" 2>&1
+set "RC=%ERRORLEVEL%"
+echo Finished %DATE% %TIME%, exit code %RC% >> "%CONSOLE%"
+type "%CONSOLE%"
+exit /b %RC%
 
 :end
 echo.
 echo Exit code: %ERRORLEVEL%   (0 = clean, 1 = a write failed or is unknown, 2 = did not start)
+echo The plain-language summary is summary_for_staff.txt in the newest run folder.
 pause
 endlocal

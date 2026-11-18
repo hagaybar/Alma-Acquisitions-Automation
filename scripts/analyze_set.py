@@ -19,10 +19,11 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 from invoice_closer.analysis import ReadOnlyGateway, analyze, summary, write_csv  # noqa: E402
+from invoice_closer.bulk import BulkGateway  # noqa: E402
 from invoice_closer.engine import Config  # noqa: E402
 from invoice_closer.gateway import Gateway  # noqa: E402
 from invoice_closer.inputs import load_targets  # noqa: E402
-from invoice_closer.reporting import RunLog  # noqa: E402
+from invoice_closer.reporting import RunLog, run_context, staff_summary  # noqa: E402
 
 
 def parse_args(argv=None):
@@ -52,26 +53,34 @@ def main(argv=None) -> int:
             return 2
     run_dir = a.out / f"{datetime.now():%Y%m%d_%H%M%S}_{a.env.lower()}_analysis"
     log = RunLog(run_dir)
+    log("run_context", **run_context(sys.argv if argv is None else argv))
     cfg = Config(live=False, vendor=a.vendor, owner=a.owner, invoice_date_before=a.invoice_date_before,
                  voucher_number_template=a.voucher_template, include_physical=a.include_physical)
     source = f"set {a.set_id}" if a.set_id else f"file {a.file.name}"
     log("analysis_start", env=a.env, source=source, vendor=a.vendor, owner=a.owner,
         invoice_date_before=a.invoice_date_before, include_physical=a.include_physical)
     try:
-        gw = ReadOnlyGateway(Gateway(a.env))
+        real = Gateway(a.env)
+        # One vendor's invoices and order lines load in bulk (a few dozen calls) instead of
+        # ~10 calls per order line. Without --vendor, records are read one at a time.
+        gw = ReadOnlyGateway(BulkGateway(real, a.vendor, log).load() if a.vendor else real)
         if a.set_id:
             meta = gw.get_set(a.set_id)
             source += f" ({meta.get('name')}, {meta.get('number_of_members', {}).get('value', '?')} members)"
         targets = load_targets(gw, a.set_id, a.file)
         rows, results = analyze(gw, targets, cfg, log)
     except Exception as ex:
-        log("analysis_failed", error=f"{type(ex).__name__}: {str(ex)[:300]}")
+        import traceback
+        log("analysis_failed", error=f"{type(ex).__name__}: {str(ex)[:2000]}", traceback=traceback.format_exc())
         print(f"Analysis failed: {type(ex).__name__}: {ex}\nLog: {log.path}")
         log.close()
         return 2
     write_csv(run_dir / "analysis.csv", rows)
     text = summary(rows, results, env=a.env, source=source, cfg=cfg, out_dir=run_dir)
     (run_dir / "summary.txt").write_text(text + "\n", encoding="utf-8")
+    staff = staff_summary(results, env=a.env, mode="ANALYSIS", source=source,
+                          cutoff=a.invoice_date_before, out_dir=run_dir)
+    (run_dir / "summary_for_staff.txt").write_text(staff + "\n", encoding="utf-8-sig")
     log("analysis_end", records=len(rows))
     log.close()
     print(text)

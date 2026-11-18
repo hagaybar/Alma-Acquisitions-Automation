@@ -21,8 +21,8 @@ from .inputs import Target
 
 ISSUES = {
     "NO_INVOICE": "order line has no invoice the closer can find",
-    "INVOICE_ONLY_BY_SEARCH": "no invoice_reference on the order line, but an invoice lists it "
-                              "(the closer will not find it)",
+    "NOT_AN_ORDER_LINE": "set member is not an order line (e.g. deleted)",
+    "SEVERAL_INVOICES": "order line is on more than one invoice (held)",
     "DATE_ON_OR_AFTER_CUTOFF": "invoice dated on or after the cutoff (held)",
     "NO_INVOICE_DATE": "invoice has no invoice date (held)",
     "PHYSICAL": "print/physical order: paid only, order line stays open until received",
@@ -74,16 +74,16 @@ class ReadOnlyGateway:
         return cached
 
     def find_invoices_by_pol(self, pol_no: str) -> List[Dict]:
-        """Invoices whose lines reference this order line (q=pol_number~, then exact check)."""
+        """Invoices whose lines reference this order line."""
         key = ("find_invoices_by_pol", pol_no)
         if key not in self._cache:
-            data = self._gw._get("almaws/v1/acq/invoices", {"q": f"pol_number~{pol_no}", "limit": 100})
-            found = []
-            for inv in data.get("invoice") or []:
-                lines = self.get_invoice_lines(str(inv["id"]))
-                if any(_line_pol(l) == pol_no for l in lines):
-                    found.append(inv)
-            self._cache[key] = found
+            inner = getattr(self._gw, "find_invoices_by_pol", None)
+            if inner is not None:
+                self._cache[key] = inner(pol_no)
+            else:
+                data = self._gw._get("almaws/v1/acq/invoices", {"q": f"pol_number~{pol_no}", "limit": 100})
+                self._cache[key] = [inv for inv in data.get("invoice") or []
+                                    if any(_line_pol(l) == pol_no for l in self.get_invoice_lines(str(inv["id"])))]
         return self._cache[key]
 
 
@@ -98,7 +98,11 @@ def analyze(gw, targets: List[Target], cfg: Config, log):
     dry = replace(cfg, live=False)
     closer = Closer(ro, dry, log)
     work, unresolved = closer.resolve(targets)
-    results = [closer.run_one(w) for w in work]
+    results = []
+    for n, w in enumerate(work, 1):
+        if n % 100 == 0:
+            log("progress", stage="check invoices", done=n, total=len(work))
+        results.append(closer.run_one(w))
 
     by_pol: Dict[str, object] = {}
     by_invoice: Dict[str, object] = {}
@@ -117,7 +121,9 @@ def analyze(gw, targets: List[Target], cfg: Config, log):
             input_pols.add(t.value)
 
     rows = []
-    for t in targets:
+    for n, t in enumerate(targets, 1):
+        if n % 100 == 0:
+            log("progress", stage="order line details", done=n, total=len(targets))
         row = {c: "" for c in COLUMNS}
         row["input"] = f"{t.kind}:{t.value}"
         issues: List[str] = []
@@ -145,9 +151,11 @@ def analyze(gw, targets: List[Target], cfg: Config, log):
             pair = by_pol.get(t.value)
             if pair is None and pstatus_ok(row):
                 found = ro.find_invoices_by_pol(t.value)
-                issues.append("INVOICE_ONLY_BY_SEARCH" if found else "NO_INVOICE")
+                issues.append("SEVERAL_INVOICES" if len(found) > 1 else "NO_INVOICE")
                 if found:
                     row["invoice_number"] = " ".join(str(i.get("number")) for i in found)
+        elif t.kind == "not_pol":
+            issues.append("NOT_AN_ORDER_LINE")
         elif t.kind in ("invoice_id", "invoice_number"):
             pair = next(((w, r) for w, r in zip(work, results)
                          if any(s.startswith(f"{t.kind}:{t.value} ") for s in w.sources)), None)

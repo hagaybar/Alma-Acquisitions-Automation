@@ -24,9 +24,11 @@ class WriteOutcomeUnknown(Exception):
 class WriteRejected(Exception):
     """Alma answered the write with a 4xx: the request was refused, nothing changed."""
 
-    def __init__(self, status: int, alma_code: str, message: str):
-        super().__init__(f"HTTP {status} {alma_code}: {message}")
+    def __init__(self, status: int, alma_code: str, message: str, tracking_id: str = ""):
+        super().__init__(f"HTTP {status} {alma_code}: {message}"
+                         + (f" (Alma tracking ID {tracking_id})" if tracking_id else ""))
         self.status, self.alma_code, self.message = status, alma_code, message
+        self.tracking_id = tracking_id
 
 
 class Gateway:
@@ -47,6 +49,18 @@ class Gateway:
     def find_invoices_by_number(self, number: str) -> List[Dict[str, Any]]:
         data = self._get("almaws/v1/acq/invoices", {"q": f"invoice_number~{number}", "limit": 100})
         return [i for i in (data.get("invoice") or []) if str(i.get("number")) == str(number)]
+
+    def find_invoices_by_pol(self, pol_no: str) -> List[Dict[str, Any]]:
+        """Invoices with a line on this order line (q=pol_number~, exact check on the lines)."""
+        data = self._get("almaws/v1/acq/invoices", {"q": f"pol_number~{pol_no}", "limit": 100})
+        out = []
+        for inv in data.get("invoice") or []:
+            for line in self.get_invoice_lines(str(inv["id"])):
+                ref = line.get("po_line")
+                if (ref.get("value") if isinstance(ref, dict) else ref) == pol_no:
+                    out.append(inv)
+                    break
+        return out
 
     def get_invoice_lines(self, invoice_id: str) -> List[Dict[str, Any]]:
         lines, offset = [], 0
@@ -109,10 +123,13 @@ class Gateway:
             status = getattr(ex, "status_code", None)
             if status is not None and int(status) < 500:
                 # Alma refused the request: nothing changed. Report its code.
-                raise WriteRejected(int(status), getattr(ex, "alma_code", ""), str(ex)[:300]) from ex
+                raise WriteRejected(int(status), getattr(ex, "alma_code", "") or "", str(ex)[:1000],
+                                    getattr(ex, "tracking_id", "") or "") from ex
             # 5xx or anything else: the write may or may not have been applied.
+            tracking = getattr(ex, "tracking_id", "") or ""
             raise WriteOutcomeUnknown(f"{type(ex).__name__} (HTTP {status}) after "
-                                      f"{time.monotonic() - t0:.1f}s") from ex
+                                      f"{time.monotonic() - t0:.1f}s: {str(ex)[:500]}"
+                                      + (f" (Alma tracking ID {tracking})" if tracking else "")) from ex
         try:
             payload = resp.json()
         except ValueError:
