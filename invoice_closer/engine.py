@@ -47,6 +47,17 @@ def state_of(inv: Dict) -> Dict[str, Optional[str]]:
     }
 
 
+def lines_without_fund(lines: List[Dict]) -> List[str]:
+    """Invoice line numbers with no fund distribution.
+
+    Sandbox, 18 Nov 2026: invoices whose line had no fund stayed In Review after
+    process_invoice (6 of 6). Paying one without processing closed it with no fund
+    expenditure, and Alma then refuses to add a fund to a closed invoice's line
+    (HTTP 400, 403877). So such an invoice is never processed or paid.
+    """
+    return [str(l.get("number", "?")) for l in lines if not l.get("fund_distribution")]
+
+
 def alerts_of(inv: Dict) -> List[str]:
     raw = inv.get("alert") or (inv.get("alerts") or {}).get("alert") or []
     if isinstance(raw, dict):
@@ -325,6 +336,10 @@ class Closer:
         lines = self.gw.get_invoice_lines(invoice_id)
         if not lines:
             return "invoice has no lines"
+        no_fund = lines_without_fund(lines)
+        if no_fund:
+            return (f"invoice line(s) {', '.join(no_fund)} have no fund; add a fund in Alma "
+                    "(an invoice paid without a fund cannot be corrected afterwards)")
         for line in lines:
             ref = line.get("po_line")
             pol_no = ref.get("value") if isinstance(ref, dict) else ref
@@ -438,6 +453,11 @@ class Closer:
         fresh = state_of(self.gw.get_invoice(w.invoice_id))
         if fresh["payment"] != "NOT_PAID" or fresh["status"] == "CLOSED":
             return self._hold(r, f"state changed before payment: {fresh}")
+        # Fund guard: re-read the lines; never pay an invoice with a line that has no fund.
+        no_fund = lines_without_fund(self.gw.get_invoice_lines(w.invoice_id))
+        self.log("fund_check", invoice=r.invoice_number, lines_without_fund=no_fund)
+        if no_fund:
+            return self._hold(r, f"invoice line(s) {', '.join(no_fund)} have no fund; not paid")
         self.log("write_request", invoice=r.invoice_number, method="POST",
                  path=f"/almaws/v1/acq/invoices/{w.invoice_id}", params={"op": "paid"}, body=voucher)
         r.actions.append("paid")

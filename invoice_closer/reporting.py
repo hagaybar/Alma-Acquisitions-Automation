@@ -95,6 +95,8 @@ def run_context(argv) -> dict:
 # ---- summary for staff (plain language, shareable) -------------------------
 # (pattern in the technical reason, plain explanation, what someone should do)
 HELD_PLAIN = [
+    (r"have no fund", "An invoice line has no fund",
+     "Add the fund to the invoice line in Alma; the next run will close it."),
     (r"not an order line: .*deleted", "The order line was deleted in Alma", "Nothing: remove it from the set."),
     (r"on \d+ (open )?invoices", "The order line appears on more than one invoice",
      "Check which invoice should be closed."),

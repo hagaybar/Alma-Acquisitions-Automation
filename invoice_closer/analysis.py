@@ -34,6 +34,7 @@ ISSUES = {
     "MANUAL_APPROVAL": "invoice waiting for manual approval (held)",
     "ERP_STAGE": "invoice at ERP stage, Waiting to be Sent (held)",
     "OTHER_LINES_NOT_IN_SET": "invoice also covers order lines not in the input (held)",
+    "NO_FUND": "an invoice line has no fund (held: add a fund in Alma)",
     "PRICE_ALERT": "invoice price differs from the order line (DIFF_PRICE_THAN_POLINE)",
     "SCOPE": "vendor or owner outside the requested scope (held)",
 }
@@ -191,6 +192,8 @@ def analyze(gw, targets: List[Target], cfg: Config, log):
                 issues.append("ERP_STAGE")
             if outside:
                 issues.append("OTHER_LINES_NOT_IN_SET")
+            if any(not l.get("fund_distribution") for l in ro.get_invoice_lines(w.invoice_id)):
+                issues.append("NO_FUND")
             if "DIFF_PRICE_THAN_POLINE" in alerts:
                 issues.append("PRICE_ALERT")
             if (cfg.vendor and row["vendor"] != cfg.vendor) or (cfg.owner and row["owner"] != cfg.owner):

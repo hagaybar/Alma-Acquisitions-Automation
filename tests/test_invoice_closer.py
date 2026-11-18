@@ -35,9 +35,11 @@ class FakeAlma:
         self.invoices, self.lines, self.pols, self.portfolios = {}, {}, {}, {}
         self.writes, self.stuck, self.fail_next = [], set(), None
 
-    def add(self, inv, pols, available=True):
+    def add(self, inv, pols, available=True, fund=True):
         self.invoices[inv["id"]] = inv
-        self.lines[inv["id"]] = [{"number": str(n + 1), "po_line": p["number"]} for n, p in enumerate(pols)]
+        fd = [{"percent": 100.0, "fund_code": {"value": "AAC_FUND"}}] if fund else []
+        self.lines[inv["id"]] = [{"number": str(n + 1), "po_line": p["number"], "fund_distribution": list(fd)}
+                                 for n, p in enumerate(pols)]
         for p in pols:
             self.pols[p["number"]] = p
             mms = p["resource_metadata"]["mms_id"]["value"]
@@ -331,3 +333,24 @@ def test_date_cutoff_holds_on_or_after_or_undated(inv_date):
     a.add(invoice("I1", "100", invoice_date=inv_date), [pol("POL-1", "100", "9911")])
     (r,), _ = run(a, [Target("invoice_id", "I1", "t")], date_before="2026-10-01")
     assert r.outcome == E.HELD and "date" in r.reason and a.writes == []
+
+
+def test_line_without_fund_is_held_before_any_write():
+    a = FakeAlma()
+    a.add(invoice("I1", "100"), [pol("POL-1", "100", "9911")], fund=False)
+    (r,), _ = run(a, [Target("invoice_id", "I1", "t")])
+    assert r.outcome == E.HELD and "no fund" in r.reason and a.writes == []
+
+
+def test_fund_removed_after_processing_blocks_payment():
+    a = FakeAlma()
+    a.add(invoice("I1", "100"), [pol("POL-1", "100", "9911")])
+    real = a.invoice_service
+    def process_then_drop_fund(iid, op, body):
+        out = real(iid, op, body)
+        if op == "process_invoice":
+            a.lines[iid][0]["fund_distribution"] = []
+        return out
+    a.invoice_service = process_then_drop_fund
+    (r,), _ = run(a, [Target("invoice_id", "I1", "t")])
+    assert [w[1] for w in a.writes] == ["process_invoice"] and r.outcome == E.HELD and "no fund" in r.reason

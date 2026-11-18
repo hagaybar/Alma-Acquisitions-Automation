@@ -14,6 +14,13 @@ REM    ANALYZE  read-only check of the set: possible issues, what would happen
 REM    DRY      the closer's dry run: reads Alma, reports, writes nothing
 REM    LIVE     processes and pays (asks you to type YES)
 REM  The API key is read from ALMA_SB_API_KEY / ALMA_PROD_API_KEY (environment).
+REM
+REM  BEFORE YOU RUN (operator):
+REM    1. The selection must exclude invoice lines with NO FUND (print and e-book).
+REM       An invoice paid without a fund cannot be given one afterwards.
+REM    2. Run MODE=ANALYZE first and read summary_for_staff.txt.
+REM    3. First LIVE run: set LIMIT to a small number (e.g. 5) and check the logs.
+REM  See docs\INVOICE_CLOSER.md, "Operator instructions".
 REM ==========================================================================
 
 REM ---------------------------- SETTINGS -----------------------------------

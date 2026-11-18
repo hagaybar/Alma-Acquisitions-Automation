@@ -191,6 +191,9 @@ def steps(r, a) -> str:
         raise Stop("invoice vendor or library outside scope")
     if not idate or idate >= CUTOFF:
         raise Stop(f"invoice date {idate or 'missing'} not before {CUTOFF}")
+    no_fund = [str(l.get("number")) for l in lines if not l.get("fund_distribution")]
+    if no_fund:
+        raise Stop(f"invoice line(s) {no_fund} have no fund; add a fund in Alma first")
     if line_pols != [a.pol]:
         raise Stop(f"invoice lines are {line_pols}, expected only {a.pol}")
     if st["status"] != "ACTIVE" or st["payment"] != "NOT_PAID":
@@ -221,6 +224,11 @@ def steps(r, a) -> str:
         fresh = state(r.read("invoice (before pay)", r.gw.get_invoice, iid))   # double-payment guard
         if fresh["payment"] != "NOT_PAID" or fresh["status"] == "CLOSED":
             raise Stop(f"state changed before paying: {fresh}")
+        no_fund = [str(l.get("number")) for l in r.read("invoice lines (fund check)", r.gw.get_invoice_lines, iid)
+                   if not l.get("fund_distribution")]
+        r.log("fund_check", lines_without_fund=no_fund)
+        if no_fund:
+            raise Stop(f"invoice line(s) {no_fund} have no fund; not paid")
         r.say(f"5. Pay (op=paid) {voucher['payment']}")
         r.write(iid, "paid", voucher)
         inv, st = r.settle(iid, lambda s: s["status"] == "CLOSED")
