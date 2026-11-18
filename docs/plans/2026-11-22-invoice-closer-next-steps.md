@@ -17,6 +17,7 @@ Sandbox, then run it on masedet DevSandbox. Production comes after, in a separat
     to add the fund ("can't be edited in an invoice line of a closed invoice").
   - The closer holds such invoices and never pays them. The report must leave them out as well.
 - Alerts (price difference, vendor account, etc.) do not block and are ignored for now.
+- The e-book portfolio check is off (decided 18 Nov): no per-title calls. Use `--check-portfolios` to turn it on.
 
 ## Step 1: build the Analytics report (you)
 
@@ -102,7 +103,6 @@ First live run limited (e.g. 5), then the rest.
 
 ## Open questions to settle on Sunday
 
-- Should the live run skip the e-book portfolio check, as the pre-analysis does?
 - Sandbox invoice 2412944 was paid without a fund in a test. Fix it in the Alma interface, or leave it?
 - The Analytics report's exact column names (Claude adjusts the reader if needed).
 

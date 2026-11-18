@@ -50,6 +50,9 @@ def parse_args(argv=None):
     p.add_argument("--payment-date", help="YYYY-MM-DD (default: today)")
     p.add_argument("--settle-seconds", type=int, default=30,
                    help="how long to watch for a delayed state change after a write")
+    p.add_argument("--check-portfolios", action="store_true",
+                   help="also require an available portfolio for e-book lines (one call per title; "
+                        "off by default, owner decision 18 Nov 2026)")
     p.add_argument("--limit", type=int, metavar="N",
                    help="handle only the first N invoices (e.g. a small first live run); "
                         "the rest are listed as not attempted")
@@ -80,13 +83,14 @@ def main(argv=None) -> int:
     log("run_context", **run_context(sys.argv if argv is None else argv))
     cfg = Config(live=a.live, vendor=a.vendor, owner=a.owner,
                  invoice_date_before=a.invoice_date_before, voucher_number_template=a.voucher_template,
-                 settle_seconds=a.settle_seconds, include_physical=a.include_physical)
+                 settle_seconds=a.settle_seconds, include_physical=a.include_physical,
+                 check_portfolios=a.check_portfolios, check_items=False)
     if a.payment_date:
         cfg.payment_date = a.payment_date
     source = f"set {a.set_id}" if a.set_id else f"file {a.file.name}"
     log("run_start", env=a.env, live=a.live, source=source, vendor=a.vendor, owner=a.owner,
         invoice_date_before=a.invoice_date_before, voucher_template=a.voucher_template, payment_date=cfg.payment_date,
-        include_physical=a.include_physical, limit=a.limit)
+        include_physical=a.include_physical, limit=a.limit, check_portfolios=a.check_portfolios)
     try:
         gw = Gateway(a.env)
         # Resolve the input against a bulk download of the vendor's invoices and order

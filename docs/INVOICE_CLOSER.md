@@ -20,7 +20,9 @@ Anything else is **held** with a reason, never forced:
 - a physical order line, unless `--include-physical` is given; even then only one-time orders
   (`…_OT`). Physical lines are paid, never received: receiving stays a person's job in Alma
 - any other line that is not an electronic order (`E_…` type), a charge line with no order line,
-  a cancelled order line, or a title with no available portfolio
+  or a cancelled order line
+- with `--check-portfolios` only: an e-book title with no available portfolio. Off by default
+  (owner decision, 18 Nov 2026): one call per title, and portfolios are mostly active
 - invoice outside `--vendor` / `--owner`
 - with `--invoice-date-before YYYY-MM-DD`: an invoice whose invoice date is on or after the cutoff,
   or that has no invoice date. Enforced per invoice in code, whatever the set or file contains
