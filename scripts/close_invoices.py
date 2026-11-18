@@ -54,6 +54,9 @@ def parse_args(argv=None):
                    help="handle only the first N invoices (e.g. a small first live run); "
                         "the rest are listed as not attempted")
     p.add_argument("--out", type=Path, default=ROOT / "output" / "invoice_closer")
+    p.add_argument("--cache-minutes", type=float, default=60,
+                   help="reuse the vendor download saved under OUT/cache if younger than this "
+                        "(0 = always download)" + ("; never used with --live" if True else ""))
     return p.parse_args(argv)
 
 
@@ -88,7 +91,8 @@ def main(argv=None) -> int:
         gw = Gateway(a.env)
         # Resolve the input against a bulk download of the vendor's invoices and order
         # lines (a few dozen calls). Each invoice is then handled with fresh reads from Alma.
-        lookup = BulkGateway(gw, a.vendor, log).load() if a.vendor else gw
+        cache = None if a.live else a.out / "cache" / f"bulk_{a.env.lower()}_{a.vendor}.json"
+        lookup = BulkGateway(gw, a.vendor, log).load(cache, a.cache_minutes) if a.vendor else gw
         targets = load_targets(lookup, a.set_id, a.file)
         log("targets", count=len(targets), targets=[f"{t.kind}:{t.value} ({t.source})" for t in targets])
         work, results = Closer(lookup, cfg, log).resolve(targets)

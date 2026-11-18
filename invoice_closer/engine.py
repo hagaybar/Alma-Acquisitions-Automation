@@ -63,6 +63,8 @@ class Config:
     voucher_number_template: Optional[str] = None   # e.g. "PAY-{invoice_number}"
     payment_date: str = field(default_factory=lambda: date.today().isoformat())
     include_physical: bool = False        # one-time physical orders: pay only, never receive
+    check_portfolios: bool = True         # e-book lines: title must have an available portfolio
+    check_items: bool = True              # physical lines: log how many items were received
     settle_seconds: int = 30              # how long to watch for a delayed state change
     poll_interval: float = 5.0
     sleep: Callable[[float], None] = time.sleep
@@ -334,7 +336,7 @@ class Closer:
                 if problem:
                     return problem
                 continue
-            if pstatus == "CLOSED":
+            if pstatus == "CLOSED" or not self.cfg.check_portfolios:
                 continue
             mms = ((pol.get("resource_metadata") or {}).get("mms_id") or {}).get("value")
             ports = self.gw.get_bib_portfolios(mms) if mms else []
@@ -352,6 +354,8 @@ class Closer:
             return f"{pol_no} is {ptype or 'unknown type'}; physical orders need --include-physical"
         if not ptype.endswith("_OT"):
             return f"{pol_no} is {ptype or 'unknown type'}; only one-time physical orders are handled"
+        if not self.cfg.check_items:
+            return None
         mms = ((pol.get("resource_metadata") or {}).get("mms_id") or {}).get("value")
         items = self.gw.get_items_for_pol(mms, pol_no) if mms else []
         received = [i for i in items if (i.get("item_data") or {}).get("arrival_date")]

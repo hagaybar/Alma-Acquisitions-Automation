@@ -109,3 +109,17 @@ def test_bulk_gateway_matches_record_by_record():
         assert plain[p]["predicted_outcome"] == fast[p]["predicted_outcome"]
         assert plain[p]["issues"] == fast[p]["issues"]
     assert a.writes == []
+
+
+def test_bulk_cache_round_trip(tmp_path):
+    from invoice_closer.bulk import BulkGateway
+    a = PagedAlma()
+    a.add(invoice("I1", "100"), [pol("POL-1", "100", "9911")])
+    cache = tmp_path / "cache" / "bulk.json"
+    first = BulkGateway(a, "RIALTO").load(cache)
+    assert cache.exists() and first.calls > 0
+    second = BulkGateway(a, "RIALTO").load(cache)
+    assert second.calls == 0 and set(second.invoices) == {"I1"}
+    assert [i["id"] for i in second.find_invoices_by_pol("POL-1")] == ["I1"]
+    third = BulkGateway(a, "RIALTO").load(cache, max_age_minutes=0)   # stale: download again
+    assert third.calls > 0

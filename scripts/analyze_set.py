@@ -39,6 +39,9 @@ def parse_args(argv=None):
     p.add_argument("--voucher-number", dest="voucher_template", default="ANALYSIS-{invoice_number}",
                    help="only used to mirror the closer's checks; nothing is paid")
     p.add_argument("--out", type=Path, default=ROOT / "output" / "invoice_closer")
+    p.add_argument("--cache-minutes", type=float, default=60,
+                   help="reuse the vendor download saved under OUT/cache if younger than this "
+                        "(0 = always download)" + ("; never used with --live" if False else ""))
     return p.parse_args(argv)
 
 
@@ -55,7 +58,10 @@ def main(argv=None) -> int:
     log = RunLog(run_dir)
     log("run_context", **run_context(sys.argv if argv is None else argv))
     cfg = Config(live=False, vendor=a.vendor, owner=a.owner, invoice_date_before=a.invoice_date_before,
-                 voucher_number_template=a.voucher_template, include_physical=a.include_physical)
+                 voucher_number_template=a.voucher_template, include_physical=a.include_physical,
+                 # Pre-analysis skips the per-title checks (one call each): e-book portfolio
+                 # availability and print item receipt. The real run still checks portfolios.
+                 check_portfolios=False, check_items=False)
     source = f"set {a.set_id}" if a.set_id else f"file {a.file.name}"
     log("analysis_start", env=a.env, source=source, vendor=a.vendor, owner=a.owner,
         invoice_date_before=a.invoice_date_before, include_physical=a.include_physical)
@@ -63,7 +69,8 @@ def main(argv=None) -> int:
         real = Gateway(a.env)
         # One vendor's invoices and order lines load in bulk (a few dozen calls) instead of
         # ~10 calls per order line. Without --vendor, records are read one at a time.
-        gw = ReadOnlyGateway(BulkGateway(real, a.vendor, log).load() if a.vendor else real)
+        gw = ReadOnlyGateway(BulkGateway(real, a.vendor, log).load(
+            a.out / "cache" / f"bulk_{a.env.lower()}_{a.vendor}.json", a.cache_minutes) if a.vendor else real)
         if a.set_id:
             meta = gw.get_set(a.set_id)
             source += f" ({meta.get('name')}, {meta.get('number_of_members', {}).get('value', '?')} members)"

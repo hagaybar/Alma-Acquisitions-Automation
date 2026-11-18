@@ -13,7 +13,10 @@ scripts/close_invoices.py, which resolves with this view and acts with the plain
 Brief order-line records from the list endpoint lack invoice_reference; invoices are
 found through their lines instead (find_invoices_by_pol).
 """
+import json
+import time
 from collections import defaultdict
+from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional
 
 
@@ -57,7 +60,44 @@ class BulkGateway:
             if not batch or offset >= total:
                 return
 
-    def load(self) -> "BulkGateway":
+    def load(self, cache: Optional[Path] = None, max_age_minutes: float = 60) -> "BulkGateway":
+        """Download, or reuse `cache` if it exists and is younger than max_age_minutes.
+        A fresh download is saved to `cache`. Only for reads before writes: a live run
+        must not act on cached state."""
+        if cache and cache.exists():
+            age = (time.time() - cache.stat().st_mtime) / 60
+            if age <= max_age_minutes:
+                data = json.loads(cache.read_text(encoding="utf-8"))
+                if data.get("vendor") == self.vendor:
+                    for inv in data["invoices"]:
+                        self._add_invoice(inv, data["lines"][str(inv["id"])])
+                    self.pols = data["pols"]
+                    self.log("bulk_from_cache", file=str(cache), age_minutes=round(age, 1),
+                             invoices=len(self.invoices), order_lines=len(self.pols))
+                    return self
+            self.log("bulk_cache_stale", file=str(cache), age_minutes=round(age, 1))
+        self._download()
+        if cache:
+            cache.parent.mkdir(parents=True, exist_ok=True)
+            tmp = cache.with_suffix(".tmp")
+            tmp.write_text(json.dumps({"vendor": self.vendor, "saved": time.strftime("%Y-%m-%dT%H:%M:%S"),
+                                       "invoices": list(self.invoices.values()), "lines": self.lines,
+                                       "pols": self.pols}, ensure_ascii=False), encoding="utf-8")
+            tmp.replace(cache)
+            self.log("bulk_cache_saved", file=str(cache))
+        return self
+
+    def _add_invoice(self, inv: Dict, lines: List[Dict]) -> None:
+        iid = str(inv["id"])
+        self.invoices[iid] = inv
+        self.lines[iid] = lines
+        self.by_number[str(inv.get("number"))].append(iid)
+        for line in lines:
+            p = _line_pol(line)
+            if p:
+                self.by_pol[p].append(iid)
+
+    def _download(self) -> None:
         q = f"vendor_code~{self.vendor}"
         for inv in self._pages("almaws/v1/acq/invoices", {"q": q, "view": "full"}, "invoice",
                                "download invoices"):
@@ -69,20 +109,13 @@ class BulkGateway:
             if expected is not None and int(expected) != len(lines):
                 lines = self._gw.get_invoice_lines(iid)   # list view cut the lines short
                 self.calls += 1
-            self.invoices[iid] = inv
-            self.lines[iid] = lines
-            self.by_number[str(inv.get("number"))].append(iid)
-            for line in lines:
-                p = _line_pol(line)
-                if p:
-                    self.by_pol[p].append(iid)
+            self._add_invoice(inv, lines)
         for pol in self._pages("almaws/v1/acq/po-lines", {"q": q, "status": "ALL_WITH_CLOSED"},
                                "po_line", "download order lines"):
             if _v(pol, "vendor") == self.vendor:
                 self.pols[str(pol.get("number"))] = pol
         self.log("bulk_loaded", vendor=self.vendor, invoices=len(self.invoices),
                  order_lines=len(self.pols), api_calls=self.calls)
-        return self
 
     # ---- the Gateway read interface ---------------------------------------
     def get_invoice(self, invoice_id: str) -> Dict:
