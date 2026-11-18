@@ -256,10 +256,10 @@ class FakeSets:
     def get_set_member_ids(self, sid, expected=None): return list(self.ids)
 
 
-def test_logical_set_refused():
+def test_logical_set_with_correct_members_accepted():
     from invoice_closer.inputs import targets_from_set
-    with pytest.raises(ValueError, match="logical"):
-        targets_from_set(FakeSets("PO_LINE", ["POL-1"], stype="LOGICAL"), "S1")
+    ts = targets_from_set(FakeSets("PO_LINE", ["POL-1"], stype="LOGICAL"), "S1")
+    assert [t.value for t in ts] == ["POL-1"]
 
 
 def test_member_count_mismatch_refused():
