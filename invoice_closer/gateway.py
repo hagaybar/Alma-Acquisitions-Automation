@@ -101,10 +101,14 @@ class Gateway:
     def get_set(self, set_id: str) -> Dict[str, Any]:
         return self._get(f"almaws/v1/conf/sets/{set_id}")
 
-    def get_set_member_ids(self, set_id: str) -> List[str]:
+    def get_set_member_ids(self, set_id: str, expected: Optional[int] = None) -> List[str]:
         ids, offset = [], 0
         while True:
             data = self._get(f"almaws/v1/conf/sets/{set_id}/members", {"limit": 100, "offset": offset})
+            total = int(data.get("total_record_count") or 0)
+            if expected is not None and total != expected:
+                # Don't page through a member list that disagrees with the set (logical sets).
+                raise ValueError(f"set {set_id}: member list reports {total} members, set says {expected}")
             batch = data.get("member") or []
             ids.extend(str(m["id"]) for m in batch)
             offset += 100

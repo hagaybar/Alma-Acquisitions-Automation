@@ -112,7 +112,16 @@ def targets_from_set(gateway, set_id: str) -> List[Target]:
     if content != "PO_LINE":
         raise ValueError(f"Set {set_id} holds {content or 'unknown'} records; "
                          "only Order lines (PO_LINE) sets are supported")
-    ids = gateway.get_set_member_ids(set_id)
+    stype = ((info.get("type") or {}).get("value") or "").upper()
+    if stype == "LOGICAL":
+        raise ValueError(f"Set {set_id} is a logical set. Alma's API lists a logical order-line set's "
+                         "members wrongly (Sandbox, 18 Nov 2026: 5.3 million mostly deleted entries for "
+                         "a 3,356-line set). Itemize the set in Alma and give the itemized set's ID")
+    expected = int(((info.get("number_of_members") or {}).get("value")) or 0)
+    ids = gateway.get_set_member_ids(set_id, expected)
+    if len(ids) != expected:
+        raise ValueError(f"Set {set_id} says it has {expected} members, but the member list gave "
+                         f"{len(ids)}; not running on an unclear selection")
     # A member of a deleted order line comes back as text, e.g. "PO line 1325... was deleted".
     return [Target("pol" if POL_RE.match(mid) else "not_pol", mid, f"set {set_id} member {n}")
             for n, mid in enumerate(ids, start=1)]

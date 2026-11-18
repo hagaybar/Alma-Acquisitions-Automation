@@ -247,10 +247,25 @@ def test_redaction():
 
 # ---- selection by order line (15 Nov 2026) ---------------------------------
 class FakeSets:
-    def __init__(self, content, ids):
-        self.content, self.ids = content, ids
-    def get_set(self, sid): return {"content": {"value": self.content}}
-    def get_set_member_ids(self, sid): return list(self.ids)
+    def __init__(self, content, ids, stype="ITEMIZED", count=None):
+        self.content, self.ids, self.stype = content, ids, stype
+        self.count = len(ids) if count is None else count
+    def get_set(self, sid):
+        return {"content": {"value": self.content}, "type": {"value": self.stype},
+                "number_of_members": {"value": self.count}}
+    def get_set_member_ids(self, sid, expected=None): return list(self.ids)
+
+
+def test_logical_set_refused():
+    from invoice_closer.inputs import targets_from_set
+    with pytest.raises(ValueError, match="logical"):
+        targets_from_set(FakeSets("PO_LINE", ["POL-1"], stype="LOGICAL"), "S1")
+
+
+def test_member_count_mismatch_refused():
+    from invoice_closer.inputs import targets_from_set
+    with pytest.raises(ValueError, match="says it has 5 members"):
+        targets_from_set(FakeSets("PO_LINE", ["POL-1"], count=5), "S1")
 
 
 def test_pol_set_gives_pol_targets():
