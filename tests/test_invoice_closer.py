@@ -354,3 +354,17 @@ def test_fund_removed_after_processing_blocks_payment():
     a.invoice_service = process_then_drop_fund
     (r,), _ = run(a, [Target("invoice_id", "I1", "t")])
     assert [w[1] for w in a.writes] == ["process_invoice"] and r.outcome == E.HELD and "no fund" in r.reason
+
+
+def test_analytics_export_prefers_invoice_number_and_reads_utf16(tmp_path):
+    f = tmp_path / "report.tsv"
+    f.write_text("PO Line Reference\tInvoice Number\tFund Code\nPOL-1\t100\tAAC_FUND\nPOL-2\t200\tAAC_FUND\n",
+                 encoding="utf-16")
+    ts = targets_from_file(f)
+    assert [(t.kind, t.value) for t in ts] == [("invoice_number", "100"), ("invoice_number", "200")]
+
+
+def test_analytics_export_pol_only(tmp_path):
+    f = tmp_path / "report.csv"
+    f.write_text("PO Line Reference,Title\nPOL-7,x\n", encoding="utf-8")
+    assert [(t.kind, t.value) for t in targets_from_file(f)] == [("pol", "POL-7")]

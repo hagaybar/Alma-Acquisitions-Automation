@@ -17,7 +17,13 @@ HEADER_KINDS = {
     "pol": "pol", "pol_number": "pol", "po_line": "pol", "po_line_number": "pol", "poline": "pol",
     "invoice_number": "invoice_number", "invoice_no": "invoice_number", "invoice": "invoice_number",
     "invoice_id": "invoice_id",
+    # Alma Analytics (Acquisitions subject area) column names, normalised
+    "po_line_reference": "pol", "po_line_number_reference": "pol",
+    "invoice_number_invoice": "invoice_number", "invoice_invoice_number": "invoice_number",
 }
+# With several identifier columns (an Analytics export has both), name the invoice:
+# closing an invoice processes all its lines, so the invoice is the unit of work.
+KIND_PRIORITY = ["invoice_id", "invoice_number", "pol", "mms"]
 VOUCHER_HEADERS = {"voucher_number", "voucher_amount", "voucher_currency", "voucher_date"}
 
 POL_RE = re.compile(r"^POL-\d+$", re.I)
@@ -67,8 +73,12 @@ def _rows_from_file(path: Path) -> List[List[str]]:
         return [[_clean(c) for c in row] for row in ws.iter_rows(values_only=True)]
     if suffix in (".csv", ".tsv", ".txt"):
         delim = "\t" if suffix in (".tsv", ".txt") else ","
-        with path.open(newline="", encoding="utf-8-sig") as fh:
-            return [[_clean(c) for c in row] for row in csv.reader(fh, delimiter=delim)]
+        raw = path.read_bytes()
+        # Analytics tab-delimited exports are UTF-16 with a BOM; others are UTF-8.
+        enc = "utf-16" if raw[:2] in (b"\xff\xfe", b"\xfe\xff") else "utf-8-sig"
+        import io
+        text = raw.decode(enc)
+        return [[_clean(c) for c in row] for row in csv.reader(io.StringIO(text, newline=""), delimiter=delim)]
     raise ValueError(f"Unsupported file type {suffix!r}: use .xlsx, .csv or .tsv")
 
 
@@ -81,7 +91,7 @@ def targets_from_file(path: Path) -> List[Target]:
     voucher_cols = {h: i for i, h in enumerate(header) if h in VOUCHER_HEADERS}
     targets: List[Target] = []
     if id_cols:
-        col, kind = id_cols[0]   # first recognised identifier column wins
+        col, kind = min(id_cols, key=lambda ck: KIND_PRIORITY.index(ck[1]))
         for n, row in enumerate(rows[1:], start=2):
             value = row[col] if col < len(row) else ""
             if not value:

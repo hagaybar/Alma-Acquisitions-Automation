@@ -28,8 +28,10 @@ REM  SANDBOX or PRODUCTION
 set "ENV=SANDBOX"
 REM  ANALYZE, DRY or LIVE
 set "MODE=ANALYZE"
-REM  Alma Order lines (PO_LINE) set
-set "SET_ID=43266268450004146"
+REM  Input: an Analytics export (INPUT_FILE, .xlsx/.csv/.tsv, relative to this clone)
+REM  OR an Alma Order lines (PO_LINE) set (SET_ID). If INPUT_FILE is set, it is used.
+set "INPUT_FILE="
+set "SET_ID=43266268550004146"
 REM  Only the first N invoices (empty = all). Use a small number for a first LIVE run.
 set "LIMIT="
 REM  Hard cutoff, enforced per invoice in code: invoice date must be earlier
@@ -51,13 +53,15 @@ for /f %%i in ('powershell -NoProfile -Command "Get-Date -Format yyyyMMdd_HHmmss
 set "CONSOLE=%OUT_DIR%\console_%TS%_%ENV%_%MODE%.txt"
 
 echo Working directory: %CD%
-echo Environment: %ENV%   Mode: %MODE%   Set: %SET_ID%   Limit: %LIMIT%
+echo Environment: %ENV%   Mode: %MODE%   Set: %SET_ID%   File: %INPUT_FILE%   Limit: %LIMIT%
 echo Invoice date before: %DATE_BEFORE%
 echo Output: %OUT_DIR%
 echo Console copy: %CONSOLE%
 echo.
 
-set "FILTERS=--set-id %SET_ID% --env %ENV% --include-physical --invoice-date-before %DATE_BEFORE% --out "%OUT_DIR%""
+set "SOURCE=--set-id %SET_ID%"
+if not "%INPUT_FILE%"=="" set "SOURCE=--file "%INPUT_FILE%""
+set "FILTERS=%SOURCE% --env %ENV% --include-physical --invoice-date-before %DATE_BEFORE% --out "%OUT_DIR%""
 if not "%VENDOR%"=="" set "FILTERS=%FILTERS% --vendor %VENDOR%"
 if not "%OWNER%"=="" set "FILTERS=%FILTERS% --owner %OWNER%"
 
