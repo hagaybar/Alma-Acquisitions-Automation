@@ -13,8 +13,8 @@ from invoice_closer.redact import redact
 
 
 def invoice(iid, number, wf="InReview", appr="PENDING", pay="NOT_PAID", status="ACTIVE",
-            vendor="RIALTO", owner="AC1", total=29.99, alerts=()):
-    return {"id": iid, "number": number, "invoice_status": {"value": status},
+            vendor="RIALTO", owner="AC1", total=29.99, alerts=(), invoice_date="2026-09-15Z"):
+    return {"id": iid, "invoice_date": invoice_date, "number": number, "invoice_status": {"value": status},
             "invoice_workflow_status": {"value": wf} if wf else {},
             "invoice_approval_status": {"value": appr}, "payment": {"payment_status": {"value": pay}},
             "vendor": {"value": vendor}, "owner": {"value": owner}, "total_amount": total,
@@ -79,9 +79,9 @@ class FakeAlma:
         return 200, copy.deepcopy(inv), 0.5
 
 
-def closer(alma, live=True, template="TEST-{invoice_number}", physical=False):
+def closer(alma, live=True, template="TEST-{invoice_number}", physical=False, date_before=None):
     events = []
-    cfg = E.Config(live=live, include_physical=physical, vendor="RIALTO", voucher_number_template=template, payment_date="2026-11-13",
+    cfg = E.Config(live=live, include_physical=physical, invoice_date_before=date_before, vendor="RIALTO", voucher_number_template=template, payment_date="2026-11-13",
                    settle_seconds=10, poll_interval=5, sleep=lambda s: None)
     return E.Closer(alma, cfg, lambda ev, **d: events.append((ev, d))), events
 
@@ -303,3 +303,16 @@ def test_physical_continuous_order_held_even_with_flag():
     a.add(invoice("I10", "1000"), [pol("POL-10", "1000", "9910", ptype="PRINTED_JOURNAL_CO", status="SENT")])
     (r,), _ = run(a, [Target("pol", "POL-10", "t")], physical=True)
     assert r.outcome == E.HELD and "one-time" in r.reason and a.writes == []
+
+
+def test_date_cutoff_closes_earlier_invoice(alma):
+    (r,), _ = run(alma, [Target("invoice_id", "I1", "t")], date_before="2026-10-01")
+    assert r.outcome == E.CLOSED
+
+
+@pytest.mark.parametrize("inv_date", ["2026-10-01Z", "2026-11-02Z", None])
+def test_date_cutoff_holds_on_or_after_or_undated(inv_date):
+    a = FakeAlma()
+    a.add(invoice("I1", "100", invoice_date=inv_date), [pol("POL-1", "100", "9911")])
+    (r,), _ = run(a, [Target("invoice_id", "I1", "t")], date_before="2026-10-01")
+    assert r.outcome == E.HELD and "date" in r.reason and a.writes == []
