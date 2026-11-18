@@ -21,6 +21,8 @@ Anything else is **held** with a reason, never forced:
 - any other line that is not an electronic order (`E_…` type), a charge line with no order line,
   a cancelled order line, or a title with no available portfolio
 - invoice outside `--vendor` / `--owner`
+- with `--invoice-date-before YYYY-MM-DD`: an invoice whose invoice date is on or after the cutoff,
+  or that has no invoice date. Enforced per invoice in code, whatever the set or file contains
 - no voucher number available (nothing is written for that invoice)
 
 ## Safety rules built in

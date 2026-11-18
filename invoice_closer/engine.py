@@ -58,6 +58,7 @@ class Config:
     live: bool = False
     vendor: Optional[str] = None          # e.g. RIALTO; None = any
     owner: Optional[str] = None           # e.g. AC1; None = any
+    invoice_date_before: Optional[str] = None  # YYYY-MM-DD; only invoices dated earlier; None = any
     voucher_number_template: Optional[str] = None   # e.g. "PAY-{invoice_number}"
     payment_date: str = field(default_factory=lambda: date.today().isoformat())
     include_physical: bool = False        # one-time physical orders: pay only, never receive
@@ -208,6 +209,14 @@ class Closer:
             return self._hold(r, f"vendor {_v(inv, 'vendor')} is outside the requested scope")
         if self.cfg.owner and _v(inv, "owner") != self.cfg.owner:
             return self._hold(r, f"owner {_v(inv, 'owner')} is outside the requested scope")
+        if self.cfg.invoice_date_before:
+            # Alma returns dates as "YYYY-MM-DDZ".
+            inv_date = (inv.get("invoice_date") or "")[:10]
+            if not inv_date:
+                return self._hold(r, "invoice has no invoice date; cannot apply the date cutoff")
+            if inv_date >= self.cfg.invoice_date_before:
+                return self._hold(r, f"invoice date {inv_date} is not before the cutoff "
+                                     f"{self.cfg.invoice_date_before}")
 
         r.order_lines = [p for p in self._line_pols(w.invoice_id) if p]
 

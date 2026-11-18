@@ -38,6 +38,9 @@ def parse_args(argv=None):
                    help="required with --env PRODUCTION --live, after a reviewed dry run")
     p.add_argument("--vendor", help="only touch invoices of this vendor code, e.g. RIALTO")
     p.add_argument("--owner", help="only touch invoices of this owner code, e.g. AC1")
+    p.add_argument("--invoice-date-before", metavar="YYYY-MM-DD",
+                   help="only touch invoices whose invoice date is before this date; "
+                        "later or undated invoices are held")
     p.add_argument("--voucher-number", dest="voucher_template",
                    help='voucher number template, e.g. "PAY-{invoice_number}"')
     p.add_argument("--include-physical", action="store_true",
@@ -58,15 +61,23 @@ def main(argv=None) -> int:
     if a.env == "PRODUCTION" and a.live and not a.production_approved:
         print("Refusing: production writes need --production-approved after a reviewed dry run.")
         return 2
+    if a.invoice_date_before:
+        try:
+            # Normalise (e.g. 2026-1-1 -> 2026-01-01): the cutoff is compared as text.
+            a.invoice_date_before = datetime.strptime(a.invoice_date_before, "%Y-%m-%d").date().isoformat()
+        except ValueError:
+            print("Refusing: --invoice-date-before must be YYYY-MM-DD.")
+            return 2
     run_dir = a.out / f"{datetime.now():%Y%m%d_%H%M%S}_{a.env.lower()}_{'live' if a.live else 'dry'}"
     log = RunLog(run_dir)
-    cfg = Config(live=a.live, vendor=a.vendor, owner=a.owner, voucher_number_template=a.voucher_template,
+    cfg = Config(live=a.live, vendor=a.vendor, owner=a.owner,
+                 invoice_date_before=a.invoice_date_before, voucher_number_template=a.voucher_template,
                  settle_seconds=a.settle_seconds, include_physical=a.include_physical)
     if a.payment_date:
         cfg.payment_date = a.payment_date
     source = f"set {a.set_id}" if a.set_id else f"file {a.file.name}"
     log("run_start", env=a.env, live=a.live, source=source, vendor=a.vendor, owner=a.owner,
-        voucher_template=a.voucher_template, payment_date=cfg.payment_date,
+        invoice_date_before=a.invoice_date_before, voucher_template=a.voucher_template, payment_date=cfg.payment_date,
         include_physical=a.include_physical)
     try:
         gw = Gateway(a.env)
