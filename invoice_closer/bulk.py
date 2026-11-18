@@ -62,8 +62,8 @@ class BulkGateway:
 
     def load(self, cache: Optional[Path] = None, max_age_minutes: float = 60) -> "BulkGateway":
         """Download, or reuse `cache` if it exists and is younger than max_age_minutes.
-        A fresh download is saved to `cache`. Only for reads before writes: a live run
-        must not act on cached state."""
+        A fresh download is saved to `cache`. It maps input to invoices; a live run must
+        still read each open invoice fresh before writing (scripts/close_invoices.py does)."""
         if cache and cache.exists():
             age = (time.time() - cache.stat().st_mtime) / 60
             if age <= max_age_minutes:
