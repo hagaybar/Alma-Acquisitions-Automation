@@ -1,11 +1,9 @@
 # Open tasks
 
-Last updated: 2026-11-15
+Last updated: 2026-11-18
 
 ## PRs
-- #22 (closer docs: unreceived print items do not block pay-only closure, Sandbox evidence) — review and merge
 - #17 (bump almaapitk 0.4.5 → 0.7.0) — run the full Rialto Sandbox L3 with writes, then review and merge
-- #16 (housekeeping: document the invoice closer, drop empty `common/`) — review and merge
 - #21 (bulk invoice processor: read nested payment status, stops paying already-paid invoices again) — review and merge; check whether masedet runs the bulk processor
 
 ## Work in progress
