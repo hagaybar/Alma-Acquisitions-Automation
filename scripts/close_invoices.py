@@ -21,7 +21,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from invoice_closer.engine import Closer, Config  # noqa: E402
+from invoice_closer.engine import WOULD_PAY, WOULD_PROCESS, Closer, Config, _v  # noqa: E402
 from invoice_closer.bulk import BulkGateway  # noqa: E402
 from invoice_closer.gateway import Gateway  # noqa: E402
 from invoice_closer.inputs import load_targets  # noqa: E402
@@ -98,15 +98,25 @@ def main(argv=None) -> int:
         work, results = Closer(lookup, cfg, log).resolve(targets)
         # Live: fresh reads around every write. Dry: the bulk view is enough.
         closer = Closer(gw if a.live else lookup, cfg, log)
-        if a.limit is not None and len(work) > a.limit:
-            skipped = work[a.limit:]
-            work = work[:a.limit]
-            log("limit", limit=a.limit, not_attempted=[w.invoice_number for w in skipped])
-            source += f", first {a.limit} of {len(work) + len(skipped)} invoices"
+        # --limit counts invoices that need action; already-closed ones don't use it up.
+        # In a live run, invoices the download shows as closed are reported from it
+        # (nothing is ever written to a closed invoice); open ones are read fresh.
+        reporter = Closer(lookup, cfg, log)
+        acted, not_attempted = 0, []
         for n, w in enumerate(work, 1):
             if n % 100 == 0:
                 log("progress", stage="close invoices", done=n, total=len(work))
-            results.append(closer.run_one(w))
+            if a.limit is not None and acted >= a.limit:
+                not_attempted.append(w.invoice_number)
+                continue
+            known_closed = lookup is not gw and _v(lookup.get_invoice(w.invoice_id), "invoice_status") == "CLOSED"
+            r = (reporter if known_closed else closer).run_one(w)
+            results.append(r)
+            if r.actions or r.outcome in (WOULD_PROCESS, WOULD_PAY):
+                acted += 1
+        if not_attempted:
+            log("limit", limit=a.limit, not_attempted=not_attempted)
+            source += f"; limited to {a.limit} invoices needing action ({len(not_attempted)} not attempted)"
     except Exception as ex:
         import traceback
         log("run_failed", error=f"{type(ex).__name__}: {str(ex)[:2000]}", traceback=traceback.format_exc())

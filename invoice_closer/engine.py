@@ -179,8 +179,13 @@ class Closer:
             open_ = [i for i in candidates if _v(i, "invoice_status") != "CLOSED"]
             if len(open_) == 1:
                 return open_[0]
-            if not open_ and len(candidates) == 1:
-                return candidates[0]
+            if not open_:
+                # Every invoice for this line is closed: report the latest as already closed.
+                latest = max(candidates, key=lambda i: (i.get("invoice_date") or "", str(i.get("number"))))
+                if len(candidates) > 1:
+                    self.log("pol_several_closed_invoices", pol=number,
+                             invoices=[str(i.get("number")) for i in candidates], using=str(latest.get("number")))
+                return latest
             self._no_invoice_reason = (f"order line is on {len(open_) or len(candidates)} "
                                        f"{'open ' if open_ else ''}invoices "
                                        f"({', '.join(str(i.get('number')) for i in (open_ or candidates))}); "
