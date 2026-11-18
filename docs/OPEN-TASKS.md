@@ -3,7 +3,6 @@
 Last updated: 2026-11-18
 
 ## PRs
-- #23 (Rialto: find a POL's invoice by `pol_number`, fixes #12) — review and merge
 - #17 (bump almaapitk 0.4.5 → 0.7.0) — run the full Rialto Sandbox L3 with writes, then review and merge
 - #21 (bulk invoice processor: read nested payment status, stops paying already-paid invoices again) — review and merge; check whether masedet runs the bulk processor
 
