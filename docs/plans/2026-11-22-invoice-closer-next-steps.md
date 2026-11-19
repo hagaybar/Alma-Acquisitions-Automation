@@ -21,33 +21,44 @@ Sandbox, then run it on masedet DevSandbox. Production comes after, in a separat
 
 ## Step 1: build the Analytics report (you)
 
-Subject area: Acquisitions, at invoice-line level (Funds Expenditure, or Invoices with PO-line
-and fund columns). One row per invoice line. Field names below are descriptive; use the
-nearest Analytics names.
+Subject area: **Funds Expenditure** (the only Analytics subject area with invoices). One row
+per invoice line.
+
+**Where the fields are (checked 19 Nov against the Ex Libris page "Funds Expenditure" and our
+Analytics):** there is **no separate Invoice folder**. The invoice-level fields sit inside the
+**Invoice Line** folder, below a dashed separator line, after all the "Invoice Line-…" fields
+(UI spelling `Invoice-…`, documentation spelling `Invoice - …`). Don't confuse
+`Invoice Line-Number` (the line's position: 1, 2, 3…) with `Invoice-Number`.
 
 **Columns (in this order is easiest):**
 
-1. Invoice Number. **Required:** the closer works by invoice.
-2. PO Line Reference (e.g. `POL-4875`).
-3. Invoice Date.
-4. Vendor Code.
-5. Invoice owner / PO line owner (library).
-6. Order line type (e.g. Print Book - One Time, Electronic Book - One Time).
-7. Fund Code of the invoice line.
-8. Invoice status and payment status (to check the filters).
+1. `Invoice Line > Invoice-Number`. **Required:** the closer works by invoice.
+2. `PO Line > PO Line Reference` (e.g. `POL-4875`).
+3. `Invoice Line > Invoice-Date` (the date on the invoice, not `Invoice-Creation Date`).
+4. `PO Line > Vendor Code`.
+5. `Invoice Line > Invoice-Owner Code` (expect `AC1`); `PO Line > PO Line Owner Library Code`
+   is the order line's owner.
+6. `PO Line > Order Line Type`.
+7. `Funds > Fund Code`.
+8. `Invoice Line > Invoice-Status`, `Invoice-Payment Status` (NOT_PAID / PAID),
+   `Invoice-Approval Status`.
 
 **Filters:**
 
 - Vendor Code = RIALTO
-- Library / owner = Sourasky Central Library (AC1)
-- Invoice Date before 01/10/2026
-- Invoice status is not Closed; payment status is not Paid
-- Order line type is a one-time order (print or electronic)
+- Invoice-Owner Code = AC1
+- Invoice-Date before 01/10/2026
+- Invoice-Status is not Closed; Invoice-Payment Status = NOT_PAID
+- Order Line Type is a one-time order (print or electronic)
 - **Fund Code is not empty** (invoice line has a fund)
 
+Field names checked from the documentation; not yet confirmed that a Funds Expenditure row
+exists for an invoice line with no fund (it is built on fund transactions). If it doesn't, the
+no-fund lines drop out of the report on their own; the closer still checks funds before paying.
+
 **Export:** Excel (.xlsx) or tab-delimited. Both are read, including Analytics' UTF-16
-tab-delimited files. The closer recognises the columns "Invoice Number" and "PO Line
-Reference". When both are present it uses the invoice number.
+tab-delimited files. The closer recognises the headers `Invoice-Number` and `PO Line Reference`
+(`Invoice Line-Number` is ignored). When both are present it uses the invoice number.
 
 ### Important: the report comes from production, the test runs in the Sandbox
 
@@ -103,7 +114,8 @@ First live run limited (e.g. 5), then the rest.
 
 ## Open questions to settle on Sunday
 
-- Sandbox invoice 2412944 was paid without a fund in a test. Fix it in the Alma interface, or leave it?
+- Sandbox invoice 2412944 (paid without a fund in a test): left as is, decided 18 Nov; the February
+  Sandbox refresh replaces it.
 - The Analytics report's exact column names (Claude adjusts the reader if needed).
 
 ## Before Sunday (you, in WSL)
