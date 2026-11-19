@@ -35,9 +35,11 @@ class FakeAlma:
         self.invoices, self.lines, self.pols, self.portfolios = {}, {}, {}, {}
         self.writes, self.stuck, self.fail_next = [], set(), None
 
-    def add(self, inv, pols, available=True):
+    def add(self, inv, pols, available=True, fund=True):
         self.invoices[inv["id"]] = inv
-        self.lines[inv["id"]] = [{"number": str(n + 1), "po_line": p["number"]} for n, p in enumerate(pols)]
+        fd = [{"percent": 100.0, "fund_code": {"value": "AAC_FUND"}}] if fund else []
+        self.lines[inv["id"]] = [{"number": str(n + 1), "po_line": p["number"], "fund_distribution": list(fd)}
+                                 for n, p in enumerate(pols)]
         for p in pols:
             self.pols[p["number"]] = p
             mms = p["resource_metadata"]["mms_id"]["value"]
@@ -247,10 +249,25 @@ def test_redaction():
 
 # ---- selection by order line (15 Nov 2026) ---------------------------------
 class FakeSets:
-    def __init__(self, content, ids):
-        self.content, self.ids = content, ids
-    def get_set(self, sid): return {"content": {"value": self.content}}
-    def get_set_member_ids(self, sid): return list(self.ids)
+    def __init__(self, content, ids, stype="ITEMIZED", count=None):
+        self.content, self.ids, self.stype = content, ids, stype
+        self.count = len(ids) if count is None else count
+    def get_set(self, sid):
+        return {"content": {"value": self.content}, "type": {"value": self.stype},
+                "number_of_members": {"value": self.count}}
+    def get_set_member_ids(self, sid, expected=None): return list(self.ids)
+
+
+def test_logical_set_with_correct_members_accepted():
+    from invoice_closer.inputs import targets_from_set
+    ts = targets_from_set(FakeSets("PO_LINE", ["POL-1"], stype="LOGICAL"), "S1")
+    assert [t.value for t in ts] == ["POL-1"]
+
+
+def test_member_count_mismatch_refused():
+    from invoice_closer.inputs import targets_from_set
+    with pytest.raises(ValueError, match="says it has 5 members"):
+        targets_from_set(FakeSets("PO_LINE", ["POL-1"], count=5), "S1")
 
 
 def test_pol_set_gives_pol_targets():
@@ -316,3 +333,38 @@ def test_date_cutoff_holds_on_or_after_or_undated(inv_date):
     a.add(invoice("I1", "100", invoice_date=inv_date), [pol("POL-1", "100", "9911")])
     (r,), _ = run(a, [Target("invoice_id", "I1", "t")], date_before="2026-10-01")
     assert r.outcome == E.HELD and "date" in r.reason and a.writes == []
+
+
+def test_line_without_fund_is_held_before_any_write():
+    a = FakeAlma()
+    a.add(invoice("I1", "100"), [pol("POL-1", "100", "9911")], fund=False)
+    (r,), _ = run(a, [Target("invoice_id", "I1", "t")])
+    assert r.outcome == E.HELD and "no fund" in r.reason and a.writes == []
+
+
+def test_fund_removed_after_processing_blocks_payment():
+    a = FakeAlma()
+    a.add(invoice("I1", "100"), [pol("POL-1", "100", "9911")])
+    real = a.invoice_service
+    def process_then_drop_fund(iid, op, body):
+        out = real(iid, op, body)
+        if op == "process_invoice":
+            a.lines[iid][0]["fund_distribution"] = []
+        return out
+    a.invoice_service = process_then_drop_fund
+    (r,), _ = run(a, [Target("invoice_id", "I1", "t")])
+    assert [w[1] for w in a.writes] == ["process_invoice"] and r.outcome == E.HELD and "no fund" in r.reason
+
+
+def test_analytics_export_prefers_invoice_number_and_reads_utf16(tmp_path):
+    f = tmp_path / "report.tsv"
+    f.write_text("PO Line Reference\tInvoice Number\tFund Code\nPOL-1\t100\tAAC_FUND\nPOL-2\t200\tAAC_FUND\n",
+                 encoding="utf-16")
+    ts = targets_from_file(f)
+    assert [(t.kind, t.value) for t in ts] == [("invoice_number", "100"), ("invoice_number", "200")]
+
+
+def test_analytics_export_pol_only(tmp_path):
+    f = tmp_path / "report.csv"
+    f.write_text("PO Line Reference,Title\nPOL-7,x\n", encoding="utf-8")
+    assert [(t.kind, t.value) for t in targets_from_file(f)] == [("pol", "POL-7")]

@@ -16,10 +16,13 @@ Anything else is **held** with a reason, never forced:
 - invoice already marked paid but still open (continuing it is not validated; it is never paid twice)
 - waiting for manual approval, or at the ERP stage (`Waiting to be Sent`)
 - processing left it In Review (Alma's review rules flagged something; the alerts are reported)
+- an invoice line with no fund distribution (checked when selecting and again right before paying)
 - a physical order line, unless `--include-physical` is given; even then only one-time orders
   (`…_OT`). Physical lines are paid, never received: receiving stays a person's job in Alma
 - any other line that is not an electronic order (`E_…` type), a charge line with no order line,
-  a cancelled order line, or a title with no available portfolio
+  or a cancelled order line
+- with `--check-portfolios` only: an e-book title with no available portfolio. Off by default
+  (owner decision, 18 Nov 2026): one call per title, and portfolios are mostly active
 - invoice outside `--vendor` / `--owner`
 - with `--invoice-date-before YYYY-MM-DD`: an invoice whose invoice date is on or after the cutoff,
   or that has no invoice date. Enforced per invoice in code, whatever the set or file contains
@@ -37,6 +40,24 @@ Anything else is **held** with a reason, never forced:
 - **Re-runnable.** Closed invoices are skipped; an invoice left at Waiting for Payment is paid on the
   next run.
 - **One invoice's failure never stops the batch.**
+
+## Operator instructions: preparing the selection
+
+Build the selection (Alma set or Analytics report) with these filters, then run the
+pre-analysis (`scripts/analyze_set.py`, or MODE=ANALYZE in the batch file) before any run:
+
+1. **Every invoice line has a fund.** Exclude invoice lines with no fund distribution, for
+   print and electronic alike. Without a fund Alma will not process the invoice, and an invoice
+   paid without processing closes with **no fund expenditure** and can no longer be given a fund
+   (Alma refuses: "Fund distribution can't be edited in an invoice line of a closed invoice").
+   The closer also checks this itself and holds such invoices, but they should not be selected.
+2. Vendor RIALTO, owner AC1 (Sourasky Central Library), one-time orders only.
+3. Invoice date before the job's cutoff (this job: 2026-10-01). Also enforced in code.
+4. Use an itemized set, or check that the set's member count matches (the closer refuses a
+   mismatch; see AlmaAPITK#250).
+
+Invoices held for "no fund" are listed in `summary_for_staff.txt`: add the fund in Alma and
+they close on the next run.
 
 ## Input
 

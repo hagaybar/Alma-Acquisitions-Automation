@@ -4,6 +4,7 @@ The engine never forces a state. Each invoice ends in exactly one outcome; anyth
 outside the validated path is HELD with a reason a person can act on.
 """
 import time
+import traceback
 from dataclasses import dataclass, field
 from datetime import date
 from decimal import Decimal, InvalidOperation
@@ -46,6 +47,17 @@ def state_of(inv: Dict) -> Dict[str, Optional[str]]:
     }
 
 
+def lines_without_fund(lines: List[Dict]) -> List[str]:
+    """Invoice line numbers with no fund distribution.
+
+    Sandbox, 18 Nov 2026: invoices whose line had no fund stayed In Review after
+    process_invoice (6 of 6). Paying one without processing closed it with no fund
+    expenditure, and Alma then refuses to add a fund to a closed invoice's line
+    (HTTP 400, 403877). So such an invoice is never processed or paid.
+    """
+    return [str(l.get("number", "?")) for l in lines if not l.get("fund_distribution")]
+
+
 def alerts_of(inv: Dict) -> List[str]:
     raw = inv.get("alert") or (inv.get("alerts") or {}).get("alert") or []
     if isinstance(raw, dict):
@@ -62,6 +74,8 @@ class Config:
     voucher_number_template: Optional[str] = None   # e.g. "PAY-{invoice_number}"
     payment_date: str = field(default_factory=lambda: date.today().isoformat())
     include_physical: bool = False        # one-time physical orders: pay only, never receive
+    check_portfolios: bool = True         # e-book lines: title must have an available portfolio
+    check_items: bool = True              # physical lines: log how many items were received
     settle_seconds: int = 30              # how long to watch for a delayed state change
     poll_interval: float = 5.0
     sleep: Callable[[float], None] = time.sleep
@@ -114,8 +128,13 @@ class Closer:
             unresolved.append(Result(None, None, HELD, reason, [f"{t.kind}:{t.value} ({t.source})"]))
             self.log("resolve_failed", target=t.value, kind=t.kind, source=t.source, reason=reason)
 
-        for t in targets:
+        for n, t in enumerate(targets, 1):
+            if n % 100 == 0:
+                self.log("progress", stage="find invoices", done=n, total=len(targets))
             try:
+                if t.kind == "not_pol":
+                    fail(t, f"set member is not an order line: {t.value}")
+                    continue
                 if t.kind == "invoice_id":
                     inv = self.gw.get_invoice(t.value)
                     add(t.value, str(inv.get("number")), t)
@@ -153,13 +172,38 @@ class Closer:
                     add(str(inv["id"]), str(inv.get("number")), t, p.get("number"))
                     linked += 1
                 if not linked:
-                    fail(t, "order line has no invoice")
+                    fail(t, getattr(self, "_no_invoice_reason", "order line has no invoice"))
             except Exception as ex:   # one bad row never stops the batch
+                self.log("lookup_error", target=t.value, kind=t.kind, traceback=traceback.format_exc())
                 fail(t, f"lookup error: {type(ex).__name__}: {str(ex)[:200]}")
         self.log("resolved", invoices=len(work), unresolved=len(unresolved))
         return list(work.values()), unresolved
 
     def _invoice_for_pol(self, pol: Dict) -> Optional[Dict]:
+        """The order line's invoice, found through invoice lines; the POL's invoice_reference
+        (a vendor invoice number) is only a fallback. Sets self._no_invoice_reason on None."""
+        number = pol.get("number")
+        self._no_invoice_reason = "order line has no invoice"
+        finder = getattr(self.gw, "find_invoices_by_pol", None)
+        candidates = finder(number) if finder else []
+        if candidates:
+            open_ = [i for i in candidates if _v(i, "invoice_status") != "CLOSED"]
+            if len(open_) == 1:
+                return open_[0]
+            if not open_:
+                # Every invoice for this line is closed: report the latest as already closed.
+                latest = max(candidates, key=lambda i: (i.get("invoice_date") or "", str(i.get("number"))))
+                if len(candidates) > 1:
+                    self.log("pol_several_closed_invoices", pol=number,
+                             invoices=[str(i.get("number")) for i in candidates], using=str(latest.get("number")))
+                return latest
+            self._no_invoice_reason = (f"order line is on {len(open_) or len(candidates)} "
+                                       f"{'open ' if open_ else ''}invoices "
+                                       f"({', '.join(str(i.get('number')) for i in (open_ or candidates))}); "
+                                       "name the invoice")
+            self.log("pol_ambiguous_invoices", pol=number,
+                     invoices=[str(i.get("number")) for i in candidates])
+            return None
         ref = pol.get("invoice_reference")
         if not ref:
             return None
@@ -169,7 +213,6 @@ class Closer:
             candidates = [i for i in candidates if _v(i, "vendor") == vendor] or candidates
         if len(candidates) == 1:
             return candidates[0]
-        number = pol.get("number")
         linked = [i for i in candidates if number in self._line_pols(str(i["id"]))]
         return linked[0] if len(linked) == 1 else None
 
@@ -183,14 +226,17 @@ class Closer:
     # ---- stage 2: per-invoice decision ------------------------------------
     def run_one(self, w: Work) -> Result:
         r = Result(w.invoice_id, w.invoice_number, ERROR, sources=list(w.sources))
+        t0 = time.monotonic()
         try:
             self._run(w, r)
         except Exception as ex:
             r.outcome, r.reason = ERROR, f"{type(ex).__name__}: {str(ex)[:300]}"
-            self.log("invoice_error", invoice=w.invoice_number, error=r.reason)
+            self.log("invoice_error", invoice=w.invoice_number, invoice_id=w.invoice_id,
+                     error=str(ex)[:2000], traceback=traceback.format_exc())
         self.log("outcome", invoice=w.invoice_number, invoice_id=w.invoice_id, outcome=r.outcome,
-                 reason=r.reason, before=r.before, after=r.after,
-                 order_lines_after=r.order_lines_after, actions=r.actions)
+                 reason=r.reason, before=r.before, after=r.after, order_lines=r.order_lines,
+                 order_lines_after=r.order_lines_after, actions=r.actions, sources=r.sources,
+                 seconds=round(time.monotonic() - t0, 1))
         return r
 
     def _hold(self, r: Result, reason: str):
@@ -201,8 +247,8 @@ class Closer:
         st = state_of(inv)
         r.before = dict(st, alerts=alerts_of(inv))
         r.invoice_number = str(inv.get("number"))
-        self.log("invoice_read", invoice=r.invoice_number, state=r.before,
-                 owner=_v(inv, "owner"), vendor=_v(inv, "vendor"),
+        self.log("invoice_read", invoice=r.invoice_number, invoice_id=w.invoice_id, state=r.before,
+                 owner=_v(inv, "owner"), vendor=_v(inv, "vendor"), invoice_date=inv.get("invoice_date"),
                  total=inv.get("total_amount"), currency=_v(inv, "currency"))
 
         if self.cfg.vendor and _v(inv, "vendor") != self.cfg.vendor:
@@ -290,6 +336,10 @@ class Closer:
         lines = self.gw.get_invoice_lines(invoice_id)
         if not lines:
             return "invoice has no lines"
+        no_fund = lines_without_fund(lines)
+        if no_fund:
+            return (f"invoice line(s) {', '.join(no_fund)} have no fund; add a fund in Alma "
+                    "(an invoice paid without a fund cannot be corrected afterwards)")
         for line in lines:
             ref = line.get("po_line")
             pol_no = ref.get("value") if isinstance(ref, dict) else ref
@@ -297,6 +347,8 @@ class Closer:
                 return f"line {line.get('number', '?')} has no order line (charge line); not validated"
             pol = self.gw.get_pol(pol_no)
             ptype, pstatus = _v(pol, "type") or "", _v(pol, "status")
+            self.log("line_check", invoice_id=invoice_id, line=line.get("number"), pol=pol_no,
+                     type=ptype, pol_status=pstatus)
             if pstatus == "CANCELLED":
                 return f"{pol_no} is cancelled"
             if not ptype.startswith("E_"):
@@ -304,12 +356,13 @@ class Closer:
                 if problem:
                     return problem
                 continue
-            if pstatus == "CLOSED":
+            if pstatus == "CLOSED" or not self.cfg.check_portfolios:
                 continue
             mms = ((pol.get("resource_metadata") or {}).get("mms_id") or {}).get("value")
             ports = self.gw.get_bib_portfolios(mms) if mms else []
             avail = [p for p in ports if str(_v(p, "availability")).upper() in AVAILABLE
                      or str(((p.get("availability") or {}).get("desc") or "")).upper() == "AVAILABLE"]
+            self.log("portfolio_check", pol=pol_no, mms_id=mms, portfolios=len(ports), available=len(avail))
             if not avail:
                 return f"{pol_no}: title has no available portfolio"
         return None
@@ -321,6 +374,8 @@ class Closer:
             return f"{pol_no} is {ptype or 'unknown type'}; physical orders need --include-physical"
         if not ptype.endswith("_OT"):
             return f"{pol_no} is {ptype or 'unknown type'}; only one-time physical orders are handled"
+        if not self.cfg.check_items:
+            return None
         mms = ((pol.get("resource_metadata") or {}).get("mms_id") or {}).get("value")
         items = self.gw.get_items_for_pol(mms, pol_no) if mms else []
         received = [i for i in items if (i.get("item_data") or {}).get("arrival_date")]
@@ -377,7 +432,8 @@ class Closer:
                      seconds=secs, reply_state=state_of(body), reply_alerts=alerts_of(body))
         except WriteRejected as ex:
             r.outcome, r.reason = WRITE_REJECTED, f"process_invoice refused: {ex}"
-            self.log("write_rejected", invoice=r.invoice_number, op="process_invoice", error=str(ex))
+            self.log("write_rejected", invoice=r.invoice_number, op="process_invoice", error=str(ex),
+                     http=ex.status, alma_code=ex.alma_code, tracking_id=ex.tracking_id)
             return None
         except WriteOutcomeUnknown as ex:
             self.log("write_unknown", invoice=r.invoice_number, op="process_invoice", error=str(ex))
@@ -397,6 +453,11 @@ class Closer:
         fresh = state_of(self.gw.get_invoice(w.invoice_id))
         if fresh["payment"] != "NOT_PAID" or fresh["status"] == "CLOSED":
             return self._hold(r, f"state changed before payment: {fresh}")
+        # Fund guard: re-read the lines; never pay an invoice with a line that has no fund.
+        no_fund = lines_without_fund(self.gw.get_invoice_lines(w.invoice_id))
+        self.log("fund_check", invoice=r.invoice_number, lines_without_fund=no_fund)
+        if no_fund:
+            return self._hold(r, f"invoice line(s) {', '.join(no_fund)} have no fund; not paid")
         self.log("write_request", invoice=r.invoice_number, method="POST",
                  path=f"/almaws/v1/acq/invoices/{w.invoice_id}", params={"op": "paid"}, body=voucher)
         r.actions.append("paid")
@@ -407,7 +468,8 @@ class Closer:
                      reply_state=state_of(body))
         except WriteRejected as ex:
             r.outcome, r.reason = WRITE_REJECTED, f"paid refused: {ex}"
-            self.log("write_rejected", invoice=r.invoice_number, op="paid", error=str(ex))
+            self.log("write_rejected", invoice=r.invoice_number, op="paid", error=str(ex),
+                     http=ex.status, alma_code=ex.alma_code, tracking_id=ex.tracking_id)
             return
         except WriteOutcomeUnknown as ex:
             self.log("write_unknown", invoice=r.invoice_number, op="paid", error=str(ex))
