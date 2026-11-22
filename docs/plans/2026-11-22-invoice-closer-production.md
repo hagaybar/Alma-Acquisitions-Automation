@@ -33,6 +33,8 @@ explicit OK after reviewing the step before it.
   payment to the fund on the invoice line. Which fiscal period's AAC_FUND it lands in has not been
   checked. Confirm this is acceptable for reporting before the full run (step 6), or check it on
   the first 5 (step 5).
+  Owner, 22 Nov: undecided, being checked; leaning towards charging all to the current fiscal
+  year, since Alma funds are not used here to track or monitor spending.
 
 ## Where to run it
 
