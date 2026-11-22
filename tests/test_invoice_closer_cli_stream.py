@@ -52,3 +52,13 @@ def test_small_subset_skips_bulk_unless_fresh_cache(tmp_path):
     cache.write_text(json.dumps({"vendor": "RIALTO", "invoices": [], "lines": {}, "pols": {}}))
     got = lookup_gateway(gw, "RIALTO", lambda *a, **k: None, cache, 60, 5)
     assert isinstance(got, BulkGateway)
+
+
+def test_invoice_not_found_is_explained_and_grouped():
+    from invoice_closer.analysis import _reason_kind
+    from invoice_closer.reporting import HELD_PLAIN
+    import re
+    reason = "0 invoices match number 63670375"
+    plain = next(p for pat, p, _ in HELD_PLAIN if re.search(pat, reason, re.I))
+    assert plain == "Invoice not found in Alma"
+    assert _reason_kind(reason) == _reason_kind("0 invoices match number 99")

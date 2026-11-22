@@ -278,6 +278,7 @@ def _unique_invoices(rows):
 def _reason_kind(reason: str) -> str:
     """Group held reasons: strip record numbers and dates so like counts with like."""
     s = re.sub(r"POL-\d+", "POL-…", reason or "")
+    s = re.sub(r"match number \S+", "match number …", s)
     s = re.sub(r"\d{4}-\d{2}-\d{2}", "<date>", s)
     s = re.sub(r"alerts: .*", "alerts: …", s)
     return s[:120]

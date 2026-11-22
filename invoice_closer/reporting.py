@@ -144,6 +144,9 @@ HELD_PLAIN = [
     (r"ERP stage", "At the finance (ERP) stage", "Nothing: the finance process continues."),
     (r"not in the input", "The invoice also covers order lines that were not in the set",
      "Add those order lines to the set, or close the invoice by hand."),
+    (r"^0 invoices match number", "Invoice not found in Alma",
+     "Sandbox: expected for invoices created after the last Sandbox refresh. "
+     "Production: check the invoice number in the report."),
     (r"no invoice|has no invoice", "No invoice found for the order line", "Check the order line in Alma."),
     (r"cancelled", "The order line is cancelled", "Check the invoice in Alma."),
     (r"only one-time", "Standing or continuous order", "Nothing: these are not closed by this job."),
