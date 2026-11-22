@@ -109,6 +109,7 @@ def test_ebook_full_close(alma):
     assert alma.writes[1][2] == {"payment": {"voucher_date": "2026-11-13", "voucher_number": "TEST-100",
                                              "voucher_amount": "29.99", "voucher_currency": {"value": "USD"}}}
     assert r.order_lines_after == {"POL-1": "CLOSED"}
+    assert r.reason == "e-book order line closed: POL-1"
 
 
 def test_dry_run_sends_nothing(alma):
@@ -313,6 +314,7 @@ def test_physical_paid_with_flag_order_line_left_open():
     assert [w[1] for w in a.writes] == ["process_invoice", "paid"]
     # A print order line stays open by design (never received): that is a clean close.
     assert r.outcome == E.CLOSED and "POL-9" in r.reason and "as expected" in r.reason
+    assert "closed:" not in r.reason
     assert any(ev == "physical_line" and d["received"] == 1 for ev, d in events)
 
 
