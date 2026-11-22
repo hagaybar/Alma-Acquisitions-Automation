@@ -107,8 +107,13 @@ Then, read-only from the sandbox, Claude checks each of the 5 in production Alma
 state, voucher, fund on each line, order line status, and the fiscal period the expenditure
 went to. If any invoice ended at the ERP stage or held, stop and decide before step 6.
 
-If the 5 include no e-book invoice, run `LIMIT=5` again with `FIRST` set past the first e-book row
-so that at least one e-book closes in production before the full run.
+To include an e-book, use `FIRST` instead of `LIMIT`: `FIRST=N` stops after the first N input rows;
+it does not skip rows. Set N to the row of the first e-book invoice (leave `LIMIT` empty). On 22 Nov
+this was `FIRST=13` (12 print + 1 e-book), then `FIRST=17` (4 more e-books; rows 1–13 were reported
+as already closed).
+
+**Done 22 Nov 2026:** full run paid 1,259 of 1,271 invoices; 12 held (a line's fund share was not
+100%); 6 e-book order lines stayed SENT after payment. See `docs/OPEN-TASKS.md`.
 
 **The owner gives an explicit OK for step 6.**
 
