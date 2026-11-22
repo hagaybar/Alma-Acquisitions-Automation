@@ -10,7 +10,7 @@ from typing import List
 from .redact import redact
 
 PLAIN = {
-    "CLOSED": "closed (invoice paid and closed, order lines closed)",
+    "CLOSED": "closed (invoice paid and closed; e-book order lines closed)",
     "CLOSED_ORDER_LINE_OPEN": "invoice closed, but an e-book order line is still open",
     "ALREADY_CLOSED": "already closed before this run",
     "DRY_RUN_WOULD_PROCESS_AND_PAY": "dry run: would process, then pay",
