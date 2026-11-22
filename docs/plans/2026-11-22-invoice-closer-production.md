@@ -29,12 +29,13 @@ explicit OK after reviewing the step before it.
   will show which way AC1 goes.
 - AAC_FUND: one fund per fiscal period, each with an allocation of 10⁹ or more and overexpenditure
   not in question. Paying about 80,000 USD will not hit a fund limit.
-- **Open, for the acquisitions team:** the invoices date from 2023 to 2026. Alma charges each
-  payment to the fund on the invoice line. Which fiscal period's AAC_FUND it lands in has not been
-  checked. Confirm this is acceptable for reporting before the full run (step 6), or check it on
-  the first 5 (step 5).
-  Owner, 22 Nov: undecided, being checked; leaning towards charging all to the current fiscal
-  year, since Alma funds are not used here to track or monitor spending.
+- **Fiscal period (decided 22 Nov 2026):** the job does not choose a fiscal period. The API calls
+  carry no fund or period, and the invoice line names only the fund code. Alma charges the period
+  that belongs to the invoice. Sandbox evidence: six print invoices dated 25 Oct 2024, paid on
+  22 Nov 2026, were each charged to AAC_FUND 01/10/2024–30/09/2025, not the current year.
+  **Decision (owner):** keep the fund attached to each invoice line unchanged and let Alma charge
+  its period, in Sandbox and production. So payments for 2023–2026 invoices land in their own
+  years' AAC_FUND (Alma funds are not used here to track or monitor spending).
 
 ## Where to run it
 
@@ -103,7 +104,7 @@ The numbers must match step 3. **The owner reviews and gives an explicit OK for 
 Same with `MODE=LIVE`, `LIMIT=5`. The batch file adds `--production-approved` and asks for YES.
 
 Then, read-only from the sandbox, Claude checks each of the 5 in production Alma against the log:
-state, voucher, fund on each line, order line status, and which fiscal period the expenditure
+state, voucher, fund on each line, order line status, and the fiscal period the expenditure
 went to. If any invoice ended at the ERP stage or held, stop and decide before step 6.
 
 If the 5 include no e-book invoice, run `LIMIT=5` again with `FIRST` set past the first e-book row
