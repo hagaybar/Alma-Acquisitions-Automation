@@ -19,7 +19,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 from invoice_closer.analysis import ReadOnlyGateway, analyze, summary, write_csv  # noqa: E402
-from invoice_closer.bulk import BulkGateway  # noqa: E402
+from invoice_closer.bulk import lookup_gateway, take_first  # noqa: E402
 from invoice_closer.engine import Config  # noqa: E402
 from invoice_closer.gateway import Gateway  # noqa: E402
 from invoice_closer.inputs import load_targets  # noqa: E402
@@ -38,6 +38,10 @@ def parse_args(argv=None):
     p.add_argument("--include-physical", action="store_true")
     p.add_argument("--voucher-number", dest="voucher_template", default="ANALYSIS-{invoice_number}",
                    help="only used to mirror the closer's checks; nothing is paid")
+    p.add_argument("--first", type=int, metavar="N",
+                   help="analyse only the first N input records (file rows or set members)")
+    p.add_argument("--quiet", action="store_true",
+                   help="show only progress on screen (log.jsonl is always complete)")
     p.add_argument("--out", type=Path, default=ROOT / "output" / "invoice_closer")
     p.add_argument("--cache-minutes", type=float, default=60,
                    help="reuse the vendor download saved under OUT/cache if younger than this "
@@ -55,7 +59,7 @@ def main(argv=None) -> int:
             print("Refusing: --invoice-date-before must be YYYY-MM-DD.")
             return 2
     run_dir = a.out / f"{datetime.now():%Y%m%d_%H%M%S}_{a.env.lower()}_analysis"
-    log = RunLog(run_dir)
+    log = RunLog(run_dir, stream=not a.quiet)
     log("run_context", **run_context(sys.argv if argv is None else argv))
     cfg = Config(live=False, vendor=a.vendor, owner=a.owner, invoice_date_before=a.invoice_date_before,
                  voucher_number_template=a.voucher_template, include_physical=a.include_physical,
@@ -64,22 +68,26 @@ def main(argv=None) -> int:
                  check_portfolios=False, check_items=False)
     source = f"set {a.set_id}" if a.set_id else f"file {a.file.name}"
     log("analysis_start", env=a.env, source=source, vendor=a.vendor, owner=a.owner,
-        invoice_date_before=a.invoice_date_before, include_physical=a.include_physical)
+        invoice_date_before=a.invoice_date_before, include_physical=a.include_physical, first=a.first,
+        out=str(run_dir))
     try:
         real = Gateway(a.env)
         # One vendor's invoices and order lines load in bulk (a few dozen calls) instead of
         # ~10 calls per order line. Without --vendor, records are read one at a time.
-        gw = ReadOnlyGateway(BulkGateway(real, a.vendor, log).load(
-            a.out / "cache" / f"bulk_{a.env.lower()}_{a.vendor}.json", a.cache_minutes) if a.vendor else real)
+        gw = ReadOnlyGateway(lookup_gateway(real, a.vendor, log,
+                                            a.out / "cache" / f"bulk_{a.env.lower()}_{a.vendor}.json",
+                                            a.cache_minutes, a.first))
         if a.set_id:
             meta = gw.get_set(a.set_id)
             source += f" ({meta.get('name')}, {meta.get('number_of_members', {}).get('value', '?')} members)"
-        targets = load_targets(gw, a.set_id, a.file)
+        targets = take_first(load_targets(gw, a.set_id, a.file), a.first, log)
+        if a.first is not None:
+            source += f"; first {len(targets)} records only"
         rows, results = analyze(gw, targets, cfg, log)
     except Exception as ex:
         import traceback
         log("analysis_failed", error=f"{type(ex).__name__}: {str(ex)[:2000]}", traceback=traceback.format_exc())
-        print(f"Analysis failed: {type(ex).__name__}: {ex}\nLog: {log.path}")
+        log.echo(f"Analysis failed: {type(ex).__name__}: {ex}\nLog: {log.path}")
         log.close()
         return 2
     write_csv(run_dir / "analysis.csv", rows)
@@ -89,8 +97,8 @@ def main(argv=None) -> int:
                           cutoff=a.invoice_date_before, out_dir=run_dir)
     (run_dir / "summary_for_staff.txt").write_text(staff + "\n", encoding="utf-8-sig")
     log("analysis_end", records=len(rows))
+    log.echo(text)
     log.close()
-    print(text)
     return 0
 
 

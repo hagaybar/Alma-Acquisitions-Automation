@@ -159,3 +159,29 @@ class BulkGateway:
             self.calls += 1
             self._cache[key] = getattr(self._gw, name)(*args)
         return self._cache[key]
+
+
+# A subset this small is read record by record (about 5 calls per invoice) rather than
+# waiting for the whole vendor download (about 80 calls, ~5 min), unless a fresh saved
+# download exists.
+SMALL_SUBSET = 50
+
+
+def lookup_gateway(gw, vendor: Optional[str], log, cache: Path, max_age_minutes: float,
+                   first: Optional[int] = None):
+    """The read view for resolving input: the bulk download, or the plain gateway."""
+    if not vendor:
+        return gw
+    fresh = cache.exists() and (time.time() - cache.stat().st_mtime) / 60 <= max_age_minutes
+    if first is not None and first <= SMALL_SUBSET and not fresh:
+        log("bulk_skipped", reason=f"--first {first}: reading records one at a time")
+        return gw
+    return BulkGateway(gw, vendor, log).load(cache, max_age_minutes)
+
+
+def take_first(targets, first: Optional[int], log):
+    """--first N: keep the first N input records (file rows or set members)."""
+    if first is None or first >= len(targets):
+        return targets
+    log("subset", first=first, of=len(targets), last_kept=targets[first - 1].source)
+    return targets[:first]

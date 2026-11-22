@@ -177,6 +177,18 @@ def analyze(gw, targets: List[Target], cfg: Config, log):
                        alerts=" ".join(alerts), invoice_lines=len(pols),
                        lines_not_in_input=" ".join(outside),
                        predicted_outcome=r.outcome, reason=r.reason)
+            if t.kind != "pol" and pols:
+                # Invoice input: describe the order lines from the invoice's lines.
+                types, statuses = [], []
+                for p in pols:
+                    try:
+                        pol = ro.get_pol(p)
+                        types.append(_v(pol, "type") or "?")
+                        statuses.append(_v(pol, "status") or "?")
+                    except Exception as ex:
+                        types.append(f"read failed: {type(ex).__name__}")
+                row.update(pol=" ".join(pols), pol_type=" ".join(dict.fromkeys(types)),
+                           pol_status=" ".join(dict.fromkeys(statuses)))
             if cfg.invoice_date_before:
                 if not row["invoice_date"]:
                     issues.append("NO_INVOICE_DATE")

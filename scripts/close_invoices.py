@@ -22,7 +22,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 from invoice_closer.engine import WOULD_PAY, WOULD_PROCESS, Closer, Config, _v  # noqa: E402
-from invoice_closer.bulk import BulkGateway  # noqa: E402
+from invoice_closer.bulk import lookup_gateway, take_first  # noqa: E402
 from invoice_closer.gateway import Gateway  # noqa: E402
 from invoice_closer.inputs import load_targets  # noqa: E402
 from invoice_closer.reporting import RunLog, run_context, short_report, staff_summary, write_results_csv  # noqa: E402
@@ -56,6 +56,11 @@ def parse_args(argv=None):
     p.add_argument("--limit", type=int, metavar="N",
                    help="handle only the first N invoices (e.g. a small first live run); "
                         "the rest are listed as not attempted")
+    p.add_argument("--first", type=int, metavar="N",
+                   help="use only the first N input records (file rows or set members); "
+                        "the rest are not read. --limit then caps the invoices acted on")
+    p.add_argument("--quiet", action="store_true",
+                   help="show only progress on screen (log.jsonl is always complete)")
     p.add_argument("--out", type=Path, default=ROOT / "output" / "invoice_closer")
     p.add_argument("--cache-minutes", type=float, default=60,
                    help="reuse the vendor download saved under OUT/cache if younger than this "
@@ -79,7 +84,7 @@ def main(argv=None) -> int:
             print("Refusing: --invoice-date-before must be YYYY-MM-DD.")
             return 2
     run_dir = a.out / f"{datetime.now():%Y%m%d_%H%M%S}_{a.env.lower()}_{'live' if a.live else 'dry'}"
-    log = RunLog(run_dir)
+    log = RunLog(run_dir, stream=not a.quiet)
     log("run_context", **run_context(sys.argv if argv is None else argv))
     cfg = Config(live=a.live, vendor=a.vendor, owner=a.owner,
                  invoice_date_before=a.invoice_date_before, voucher_number_template=a.voucher_template,
@@ -90,7 +95,8 @@ def main(argv=None) -> int:
     source = f"set {a.set_id}" if a.set_id else f"file {a.file.name}"
     log("run_start", env=a.env, live=a.live, source=source, vendor=a.vendor, owner=a.owner,
         invoice_date_before=a.invoice_date_before, voucher_template=a.voucher_template, payment_date=cfg.payment_date,
-        include_physical=a.include_physical, limit=a.limit, check_portfolios=a.check_portfolios)
+        include_physical=a.include_physical, limit=a.limit, first=a.first,
+        check_portfolios=a.check_portfolios, out=str(run_dir))
     try:
         gw = Gateway(a.env)
         # Resolve the input against a bulk download of the vendor's invoices and order
@@ -98,8 +104,10 @@ def main(argv=None) -> int:
         # The download only maps the input to invoices. A live run still reads every open
         # invoice fresh before writing, so a recent saved download is safe to reuse.
         cache = a.out / "cache" / f"bulk_{a.env.lower()}_{a.vendor}.json"
-        lookup = BulkGateway(gw, a.vendor, log).load(cache, a.cache_minutes) if a.vendor else gw
-        targets = load_targets(lookup, a.set_id, a.file)
+        lookup = lookup_gateway(gw, a.vendor, log, cache, a.cache_minutes, a.first)
+        targets = take_first(load_targets(lookup, a.set_id, a.file), a.first, log)
+        if a.first is not None:
+            source += f"; first {len(targets)} records only"
         log("targets", count=len(targets), targets=[f"{t.kind}:{t.value} ({t.source})" for t in targets])
         work, results = Closer(lookup, cfg, log).resolve(targets)
         # Live: fresh reads around every write. Dry: the bulk view is enough.
@@ -126,7 +134,7 @@ def main(argv=None) -> int:
     except Exception as ex:
         import traceback
         log("run_failed", error=f"{type(ex).__name__}: {str(ex)[:2000]}", traceback=traceback.format_exc())
-        print(f"Run failed: {type(ex).__name__}: {ex}\nLog: {log.path}")
+        log.echo(f"Run failed: {type(ex).__name__}: {ex}\nLog: {log.path}")
         log.close()
         return 2
     write_results_csv(run_dir / "results.csv", results)
@@ -138,8 +146,8 @@ def main(argv=None) -> int:
     bad = {"ERROR", "WRITE_OUTCOME_UNKNOWN", "WRITE_REJECTED"}
     code = 1 if any(r.outcome in bad for r in results) else 0
     log("run_end", exit_code=code, outcomes={r.invoice_number or "?": r.outcome for r in results})
+    log.echo(report)
     log.close()
-    print(report)
     return code
 
 

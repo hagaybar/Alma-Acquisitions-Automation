@@ -92,8 +92,16 @@ Each run writes a folder under `output/invoice_closer/<time>_<env>_<live|dry>/` 
 
 - `report.txt`: the short report (also printed).
 - `results.csv`: one row per invoice: outcome, reason, before/after states, order lines.
-- `log.jsonl`: every read decision, request and reply. Credentials, e-mail addresses and free-text
-  notes are redacted; record IDs and states are kept.
+- `log.jsonl`: every read decision, request and reply, with millisecond timestamps. Credentials,
+  e-mail addresses and free-text notes are redacted; record IDs and states are kept.
+- `console.txt`: a copy of what was shown on screen. Every log event is shown as one timestamped
+  line while the run goes (bulky records stay in `log.jsonl` only); `--quiet` shows progress only.
+- `summary_for_staff.txt`: plain-language summary.
+
+Subsets (both `close_invoices.py` and `analyze_set.py`): `--first N` uses only the first N input
+records (file rows or set members). Up to 50 rows are read record by record instead of waiting
+for the vendor download, unless a saved download under `OUT/cache` is still fresh. In the closer,
+`--limit N` then caps how many invoices are acted on.
 
 Exit code: 0 when every invoice ended cleanly (closed, already closed, held or dry run), 1 when any
 write was refused or its outcome is unknown, or an error occurred; 2 when the run could not start.

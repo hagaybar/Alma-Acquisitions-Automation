@@ -22,22 +22,57 @@ PLAIN = {
 }
 
 
+# Events too bulky for the screen (they stay in full in log.jsonl).
+_SCREEN_SKIP = {"run_context", "targets"}
+_SCREEN_DROP_KEYS = {"record", "reply", "traceback", "targets", "body", "outcomes"}
+
+
+def screen_line(rec: dict) -> str:
+    """One readable line per event: time, event, then key=value (long values cut)."""
+    parts = []
+    for k, v in rec.items():
+        if k in ("t", "event") or k in _SCREEN_DROP_KEYS or v in (None, "", [], {}):
+            continue
+        if isinstance(v, dict):
+            v = " ".join(f"{a}={b}" for a, b in v.items() if b not in (None, ""))
+        elif isinstance(v, (list, tuple)):
+            v = ",".join(str(x) for x in v)
+        s = str(v)
+        parts.append(f"{k}={s if len(s) <= 160 else s[:157] + '...'}")
+    return f"{rec['t'].replace('T', ' ')}  {rec['event']:<18} " + "  ".join(parts)
+
+
 class RunLog:
-    def __init__(self, out_dir: Path):
+    """log.jsonl: every event in full (redacted). With stream=True (the default) each event
+    is also shown on screen as one timestamped line; console.txt in the run folder keeps a
+    copy of everything shown on screen."""
+
+    def __init__(self, out_dir: Path, stream: bool = True):
         self.dir = out_dir
         self.dir.mkdir(parents=True, exist_ok=True)
         self.path = self.dir / "log.jsonl"
+        self.stream = stream
         self._fh = self.path.open("a", encoding="utf-8")
+        self._con = (self.dir / "console.txt").open("a", encoding="utf-8")
 
     def __call__(self, event: str, **data):
-        rec = {"t": datetime.now().isoformat(timespec="seconds"), "event": event, **data}
-        self._fh.write(json.dumps(redact(rec), ensure_ascii=False, default=str) + "\n")
+        rec = redact({"t": datetime.now().isoformat(timespec="milliseconds"), "event": event, **data})
+        self._fh.write(json.dumps(rec, ensure_ascii=False, default=str) + "\n")
         self._fh.flush()
-        if event == "progress":
-            print(f"{rec['t']}  {data.get('stage')}: {data.get('done')} of {data.get('total')}", flush=True)
+        if event in _SCREEN_SKIP:
+            return
+        if self.stream or event in ("progress", "run_failed", "analysis_failed"):
+            self.echo(screen_line(rec))
+
+    def echo(self, text: str):
+        """Print to screen and keep it in console.txt."""
+        print(text, flush=True)
+        self._con.write(text + "\n")
+        self._con.flush()
 
     def close(self):
         self._fh.close()
+        self._con.close()
 
 
 def write_results_csv(path: Path, results) -> None:
