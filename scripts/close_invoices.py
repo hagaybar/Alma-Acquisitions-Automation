@@ -21,10 +21,11 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from invoice_closer.engine import Closer, Config  # noqa: E402
+from invoice_closer.engine import WOULD_PAY, WOULD_PROCESS, Closer, Config, _v  # noqa: E402
+from invoice_closer.bulk import lookup_gateway, take_first  # noqa: E402
 from invoice_closer.gateway import Gateway  # noqa: E402
 from invoice_closer.inputs import load_targets  # noqa: E402
-from invoice_closer.reporting import RunLog, short_report, write_results_csv  # noqa: E402
+from invoice_closer.reporting import RunLog, run_context, short_report, staff_summary, write_results_csv  # noqa: E402
 
 
 def parse_args(argv=None):
@@ -49,7 +50,21 @@ def parse_args(argv=None):
     p.add_argument("--payment-date", help="YYYY-MM-DD (default: today)")
     p.add_argument("--settle-seconds", type=int, default=30,
                    help="how long to watch for a delayed state change after a write")
+    p.add_argument("--check-portfolios", action="store_true",
+                   help="also require an available portfolio for e-book lines (one call per title; "
+                        "off by default, owner decision 18 Nov 2026)")
+    p.add_argument("--limit", type=int, metavar="N",
+                   help="handle only the first N invoices (e.g. a small first live run); "
+                        "the rest are listed as not attempted")
+    p.add_argument("--first", type=int, metavar="N",
+                   help="use only the first N input records (file rows or set members); "
+                        "the rest are not read. --limit then caps the invoices acted on")
+    p.add_argument("--quiet", action="store_true",
+                   help="show only progress on screen (log.jsonl is always complete)")
     p.add_argument("--out", type=Path, default=ROOT / "output" / "invoice_closer")
+    p.add_argument("--cache-minutes", type=float, default=60,
+                   help="reuse the vendor download saved under OUT/cache if younger than this "
+                        "(0 = always download)")
     return p.parse_args(argv)
 
 
@@ -69,37 +84,71 @@ def main(argv=None) -> int:
             print("Refusing: --invoice-date-before must be YYYY-MM-DD.")
             return 2
     run_dir = a.out / f"{datetime.now():%Y%m%d_%H%M%S}_{a.env.lower()}_{'live' if a.live else 'dry'}"
-    log = RunLog(run_dir)
+    log = RunLog(run_dir, stream=not a.quiet)
+    log("run_context", **run_context(sys.argv if argv is None else argv))
     cfg = Config(live=a.live, vendor=a.vendor, owner=a.owner,
                  invoice_date_before=a.invoice_date_before, voucher_number_template=a.voucher_template,
-                 settle_seconds=a.settle_seconds, include_physical=a.include_physical)
+                 settle_seconds=a.settle_seconds, include_physical=a.include_physical,
+                 check_portfolios=a.check_portfolios, check_items=False)
     if a.payment_date:
         cfg.payment_date = a.payment_date
     source = f"set {a.set_id}" if a.set_id else f"file {a.file.name}"
     log("run_start", env=a.env, live=a.live, source=source, vendor=a.vendor, owner=a.owner,
         invoice_date_before=a.invoice_date_before, voucher_template=a.voucher_template, payment_date=cfg.payment_date,
-        include_physical=a.include_physical)
+        include_physical=a.include_physical, limit=a.limit, first=a.first,
+        check_portfolios=a.check_portfolios, out=str(run_dir))
     try:
         gw = Gateway(a.env)
-        targets = load_targets(gw, a.set_id, a.file)
-        log("targets", count=len(targets), sample=[f"{t.kind}:{t.value}" for t in targets[:20]])
-        closer = Closer(gw, cfg, log)
-        work, results = closer.resolve(targets)
-        for w in work:
-            results.append(closer.run_one(w))
+        # Resolve the input against a bulk download of the vendor's invoices and order
+        # lines (a few dozen calls). Each invoice is then handled with fresh reads from Alma.
+        # The download only maps the input to invoices. A live run still reads every open
+        # invoice fresh before writing, so a recent saved download is safe to reuse.
+        cache = a.out / "cache" / f"bulk_{a.env.lower()}_{a.vendor}.json"
+        lookup = lookup_gateway(gw, a.vendor, log, cache, a.cache_minutes, a.first)
+        targets = take_first(load_targets(lookup, a.set_id, a.file), a.first, log)
+        if a.first is not None:
+            source += f"; first {len(targets)} records only"
+        log("targets", count=len(targets), targets=[f"{t.kind}:{t.value} ({t.source})" for t in targets])
+        work, results = Closer(lookup, cfg, log).resolve(targets)
+        # Live: fresh reads around every write. Dry: the bulk view is enough.
+        closer = Closer(gw if a.live else lookup, cfg, log)
+        # --limit counts invoices that need action; already-closed ones don't use it up.
+        # In a live run, invoices the download shows as closed are reported from it
+        # (nothing is ever written to a closed invoice); open ones are read fresh.
+        reporter = Closer(lookup, cfg, log)
+        acted, not_attempted = 0, []
+        for n, w in enumerate(work, 1):
+            if n % 100 == 0:
+                log("progress", stage="close invoices", done=n, total=len(work))
+            if a.limit is not None and acted >= a.limit:
+                not_attempted.append(w.invoice_number)
+                continue
+            known_closed = lookup is not gw and _v(lookup.get_invoice(w.invoice_id), "invoice_status") == "CLOSED"
+            r = (reporter if known_closed else closer).run_one(w)
+            results.append(r)
+            if r.actions or r.outcome in (WOULD_PROCESS, WOULD_PAY):
+                acted += 1
+        if not_attempted:
+            log("limit", limit=a.limit, not_attempted=not_attempted)
+            source += f"; limited to {a.limit} invoices needing action ({len(not_attempted)} not attempted)"
     except Exception as ex:
-        log("run_failed", error=f"{type(ex).__name__}: {str(ex)[:300]}")
-        print(f"Run failed: {type(ex).__name__}: {ex}\nLog: {log.path}")
+        import traceback
+        log("run_failed", error=f"{type(ex).__name__}: {str(ex)[:2000]}", traceback=traceback.format_exc())
+        log.echo(f"Run failed: {type(ex).__name__}: {ex}\nLog: {log.path}")
         log.close()
         return 2
     write_results_csv(run_dir / "results.csv", results)
     report = short_report(results, env=a.env, live=a.live, source=source, out_dir=run_dir)
     (run_dir / "report.txt").write_text(report + "\n", encoding="utf-8")
-    log("run_end", outcomes={r.invoice_number or "?": r.outcome for r in results})
-    log.close()
-    print(report)
+    staff = staff_summary(results, env=a.env, mode="LIVE" if a.live else "DRY", source=source,
+                          cutoff=a.invoice_date_before, out_dir=run_dir)
+    (run_dir / "summary_for_staff.txt").write_text(staff + "\n", encoding="utf-8-sig")
     bad = {"ERROR", "WRITE_OUTCOME_UNKNOWN", "WRITE_REJECTED"}
-    return 1 if any(r.outcome in bad for r in results) else 0
+    code = 1 if any(r.outcome in bad for r in results) else 0
+    log("run_end", exit_code=code, outcomes={r.invoice_number or "?": r.outcome for r in results})
+    log.echo(report)
+    log.close()
+    return code
 
 
 if __name__ == "__main__":

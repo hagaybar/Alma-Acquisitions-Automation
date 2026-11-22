@@ -1,0 +1,125 @@
+@echo off
+setlocal
+TITLE Invoice closer - invoices dated before 2026-10-01
+
+REM ==========================================================================
+REM  Invoice closer: process and pay invoices dated before 1 Oct 2026, and close
+REM  their electronic order lines. Print orders are paid only (never received).
+REM
+REM  Runs from the clone this file sits in (DevSandbox or Prod), so the same
+REM  script serves both. Edit only the SETTINGS block.
+REM
+REM  MODE:
+REM    ANALYZE  read-only check of the set: possible issues, what would happen
+REM    DRY      the closer's dry run: reads Alma, reports, writes nothing
+REM    LIVE     processes and pays (asks you to type YES)
+REM  The API key is read from ALMA_SB_API_KEY / ALMA_PROD_API_KEY (environment).
+REM
+REM  BEFORE YOU RUN (operator):
+REM    1. The selection must exclude invoice lines with NO FUND (print and e-book).
+REM       An invoice paid without a fund cannot be given one afterwards.
+REM    2. Run MODE=ANALYZE first and read summary_for_staff.txt.
+REM    3. First LIVE run: set LIMIT to a small number (e.g. 5) and check the logs.
+REM  See docs\INVOICE_CLOSER.md, "Operator instructions".
+REM ==========================================================================
+
+REM ---------------------------- SETTINGS -----------------------------------
+REM  SANDBOX or PRODUCTION
+set "ENV=SANDBOX"
+REM  ANALYZE, DRY or LIVE
+set "MODE=ANALYZE"
+REM  Input: an Analytics export (INPUT_FILE, .xlsx/.csv/.tsv, relative to this clone)
+REM  OR an Alma Order lines (PO_LINE) set (SET_ID). If INPUT_FILE is set, it is used.
+set "INPUT_FILE="
+set "SET_ID=43266268550004146"
+REM  FIRST: use only the first N rows of the input (empty = all rows). Works in every
+REM  MODE, e.g. FIRST=20 for a quick ANALYZE or DRY of a sample.
+set "FIRST="
+REM  LIMIT: act on at most N invoices that need action (empty = all). Use a small
+REM  number for a first LIVE run.
+set "LIMIT="
+REM  QUIET=1 shows only progress lines; empty = every log event, with timestamps.
+set "QUIET="
+REM  Hard cutoff, enforced per invoice in code: invoice date must be earlier
+set "DATE_BEFORE=2026-10-01"
+REM  Scope: vendor code and owner library code (AC1 = Sourasky Central Library)
+set "VENDOR=RIALTO"
+set "OWNER=AC1"
+REM  Payment record written by op=paid. Not a real payment: it only moves the
+REM  invoice to Closed. Empty PAYMENT_DATE = the day the job runs.
+set "VOUCHER_TEMPLATE=AUTO-PAY-{invoice_number}"
+set "PAYMENT_DATE="
+REM  Reports and logs, one sub-folder per run, relative to this clone
+set "OUT_DIR=tests\invoice_closer\output"
+REM ---------------------------------------------------------------------------
+
+cd /d "%~dp0.."
+if not exist "%OUT_DIR%" mkdir "%OUT_DIR%"
+
+echo Working directory: %CD%
+echo Environment: %ENV%   Mode: %MODE%   Set: %SET_ID%   File: %INPUT_FILE%   First: %FIRST%   Limit: %LIMIT%
+echo Invoice date before: %DATE_BEFORE%
+echo Output: %OUT_DIR%
+echo Each run folder keeps log.jsonl (full) and console.txt (what is shown here).
+echo.
+
+set "SOURCE=--set-id %SET_ID%"
+if not "%INPUT_FILE%"=="" set "SOURCE=--file "%INPUT_FILE%""
+set "FILTERS=%SOURCE% --env %ENV% --include-physical --invoice-date-before %DATE_BEFORE% --out "%OUT_DIR%""
+if not "%VENDOR%"=="" set "FILTERS=%FILTERS% --vendor %VENDOR%"
+if not "%OWNER%"=="" set "FILTERS=%FILTERS% --owner %OWNER%"
+if not "%FIRST%"=="" set "FILTERS=%FILTERS% --first %FIRST%"
+if not "%QUIET%"=="" set "FILTERS=%FILTERS% --quiet"
+
+if /i "%MODE%"=="ANALYZE" goto :analyze
+if /i "%MODE%"=="DRY" goto :dry
+if /i "%MODE%"=="LIVE" goto :live
+echo ERROR: MODE must be ANALYZE, DRY or LIVE.
+goto :end
+
+:analyze
+echo PRE-ANALYSIS - read only, nothing will be written. About 5 minutes for the full input.
+call :run scripts\analyze_set.py %FILTERS%
+goto :end
+
+:dry
+set "ARGS=%FILTERS% --voucher-number "%VOUCHER_TEMPLATE%""
+if not "%PAYMENT_DATE%"=="" set "ARGS=%ARGS% --payment-date %PAYMENT_DATE%"
+if not "%LIMIT%"=="" set "ARGS=%ARGS% --limit %LIMIT%"
+echo DRY RUN - nothing will be written.
+call :run scripts\close_invoices.py %ARGS%
+goto :end
+
+:live
+set "ARGS=%FILTERS% --voucher-number "%VOUCHER_TEMPLATE%" --live"
+if not "%PAYMENT_DATE%"=="" set "ARGS=%ARGS% --payment-date %PAYMENT_DATE%"
+if not "%LIMIT%"=="" set "ARGS=%ARGS% --limit %LIMIT%"
+if /i "%ENV%"=="PRODUCTION" set "ARGS=%ARGS% --production-approved"
+echo ******************************************************************
+echo  LIVE MODE: this will process and pay invoices in %ENV%.
+if not "%FIRST%"=="" echo  Input: only the first %FIRST% rows.
+if "%LIMIT%"=="" (echo  ALL invoices that need action.) else (echo  At most %LIMIT% invoices.)
+echo ******************************************************************
+set /p "CONFIRM=Type YES to continue: "
+if not "%CONFIRM%"=="YES" (
+    echo Aborted.
+    goto :end
+)
+call :run scripts\close_invoices.py %ARGS%
+goto :end
+
+:run
+REM Output streams live; the program keeps a copy in console.txt in its run folder.
+echo Started %DATE% %TIME%
+echo Command: poetry run python %*
+poetry run python %*
+set "RC=%ERRORLEVEL%"
+echo Finished %DATE% %TIME%, exit code %RC%
+exit /b %RC%
+
+:end
+echo.
+echo Exit code: %ERRORLEVEL%   (0 = clean, 1 = a write failed or is unknown, 2 = did not start)
+echo The plain-language summary is summary_for_staff.txt in the newest run folder.
+pause
+endlocal

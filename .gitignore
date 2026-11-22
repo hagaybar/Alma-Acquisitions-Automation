@@ -58,3 +58,10 @@ Thumbs.db
 .pytest_cache/
 .coverage
 htmlcov/
+
+# Invoice closer batch runs on masedet: input exports and run output stay local.
+# Must be ignored: auto-deploy skips a clone whose working tree is not clean.
+tests/invoice_closer/input/*
+!tests/invoice_closer/input/.gitkeep
+tests/invoice_closer/output/*
+!tests/invoice_closer/output/.gitkeep
