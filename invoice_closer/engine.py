@@ -426,12 +426,17 @@ class Closer:
     def _open_lines(self, states: Dict[str, str]):
         """(e-book lines still open, note). Print order lines stay open by design: they
         close only when items are received, and this job never receives."""
+        is_ebook = lambda p: self._pol_types.get(p, "").startswith("E_")
+        closed = [p for p, s in states.items() if s == "CLOSED"]
         open_ = [p for p, s in states.items() if s != "CLOSED"]
-        printed = [p for p in open_ if not self._pol_types.get(p, "").startswith("E_")]
+        printed = [p for p in open_ if not is_ebook(p)]
         ebook = [p for p in open_ if p not in printed]
         notes = []
+        if closed:
+            kind = "e-book order line" if all(is_ebook(p) for p in closed) else "order line"
+            notes.append(f"{kind} closed: {', '.join(closed)}")
         if ebook:
-            notes.append(f"order lines still open: {', '.join(ebook)}")
+            notes.append(f"e-book order line still open: {', '.join(ebook)}")
         if printed:
             notes.append(f"print order line stays open as expected (not received): {', '.join(printed)}")
         return ebook, "; ".join(notes)
