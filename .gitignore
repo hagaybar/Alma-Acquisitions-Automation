@@ -65,3 +65,6 @@ tests/invoice_closer/input/*
 !tests/invoice_closer/input/.gitkeep
 tests/invoice_closer/output/*
 !tests/invoice_closer/output/.gitkeep
+# Operator copies of batch files with local settings (editing the tracked .bat would leave
+# the clone dirty, and masedet auto-deploy skips a dirty clone).
+batch/*.local.bat
