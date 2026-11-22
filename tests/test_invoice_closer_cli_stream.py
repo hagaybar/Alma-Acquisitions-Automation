@@ -62,3 +62,15 @@ def test_invoice_not_found_is_explained_and_grouped():
     plain = next(p for pat, p, _ in HELD_PLAIN if re.search(pat, reason, re.I))
     assert plain == "Invoice not found in Alma"
     assert _reason_kind(reason) == _reason_kind("0 invoices match number 99")
+
+
+def test_same_missing_invoice_on_several_rows_is_one_held_entry():
+    from invoice_closer.engine import Closer, Config
+
+    class NoInvoices:
+        def find_invoices_by_number(self, n):
+            return []
+
+    ts = [Target("invoice_number", "63670375", f"f row {i}") for i in (2, 3, 4)]
+    work, unresolved = Closer(NoInvoices(), Config(live=False), lambda *a, **k: None).resolve(ts)
+    assert work == [] and len(unresolved) == 1 and len(unresolved[0].sources) == 3

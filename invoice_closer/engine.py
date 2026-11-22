@@ -124,8 +124,18 @@ class Closer:
             if t.voucher and not w.voucher:
                 w.voucher = dict(t.voucher)
 
+        failed: Dict[tuple, Result] = {}
+
         def fail(t: Target, reason: str):
-            unresolved.append(Result(None, None, HELD, reason, [f"{t.kind}:{t.value} ({t.source})"]))
+            # Several rows naming the same record (one per invoice line in an Analytics
+            # export) make one held entry with all their sources, not one per row.
+            src = f"{t.kind}:{t.value} ({t.source})"
+            key = (t.kind, t.value, reason)
+            if key in failed:
+                failed[key].sources.append(src)
+            else:
+                failed[key] = Result(None, None, HELD, reason, [src])
+                unresolved.append(failed[key])
             self.log("resolve_failed", target=t.value, kind=t.kind, source=t.source, reason=reason)
 
         for n, t in enumerate(targets, 1):
