@@ -311,7 +311,8 @@ def test_physical_paid_with_flag_order_line_left_open():
     a.add(invoice("I9", "900"), [pol("POL-9", "900", "9999", ptype="PRINTED_BOOK_OT", status="SENT")])
     (r,), events = run(a, [Target("pol", "POL-9", "t")], physical=True)
     assert [w[1] for w in a.writes] == ["process_invoice", "paid"]
-    assert r.outcome == E.CLOSED_POL_OPEN and "POL-9" in r.reason
+    # A print order line stays open by design (never received): that is a clean close.
+    assert r.outcome == E.CLOSED and "POL-9" in r.reason and "as expected" in r.reason
     assert any(ev == "physical_line" and d["received"] == 1 for ev, d in events)
 
 

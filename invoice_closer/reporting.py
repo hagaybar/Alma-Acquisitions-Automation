@@ -11,7 +11,7 @@ from .redact import redact
 
 PLAIN = {
     "CLOSED": "closed (invoice paid and closed, order lines closed)",
-    "CLOSED_ORDER_LINE_OPEN": "invoice closed, but an order line is still open",
+    "CLOSED_ORDER_LINE_OPEN": "invoice closed, but an e-book order line is still open",
     "ALREADY_CLOSED": "already closed before this run",
     "DRY_RUN_WOULD_PROCESS_AND_PAY": "dry run: would process, then pay",
     "DRY_RUN_WOULD_PAY": "dry run: would pay",
@@ -157,8 +157,8 @@ HELD_PLAIN = [
      "Ask the technical team."),
 ]
 DONE_PLAIN = {
-    "CLOSED": "Closed and recorded as paid; order lines closed",
-    "CLOSED_ORDER_LINE_OPEN": "Closed and recorded as paid; the print order stays open until the item is received",
+    "CLOSED": "Closed and recorded as paid (e-book orders closed; print orders stay open until received)",
+    "CLOSED_ORDER_LINE_OPEN": "Closed and recorded as paid, but an e-book order is still open (please check it)",
     "ALREADY_CLOSED": "Already closed before this run (nothing done)",
     "DRY_RUN_WOULD_PROCESS_AND_PAY": "Would be closed and recorded as paid",
     "DRY_RUN_WOULD_PAY": "Would be recorded as paid and closed",
@@ -207,10 +207,11 @@ def staff_summary(results, *, env: str, mode: str, source: str, cutoff: str = No
             lines.append("    Invoices: " + ", ".join(_who(r) for r in rs[:40])
                          + (f" and {len(rs) - 40} more" if len(rs) > 40 else ""))
 
-    to_receive = [(r, p) for r in results if r.outcome in ("CLOSED_ORDER_LINE_OPEN", "ALREADY_CLOSED")
+    to_receive = [(r, p) for r in results if r.outcome in ("CLOSED", "ALREADY_CLOSED")
                   for p, s in r.order_lines_after.items() if s and s != "CLOSED"]
     if to_receive and real:
-        lines += ["", f"Print orders still open ({len(to_receive)}): receive the items in Alma to close them.",
+        lines += ["", f"Print orders still open ({len(to_receive)}), as expected: this job pays them but "
+                      "does not receive items. They close when the items are received in Alma.",
                   "    " + ", ".join(f"{p} (invoice {_who(r)})" for r, p in to_receive[:60])
                   + (f" and {len(to_receive) - 60} more" if len(to_receive) > 60 else "")]
     if not real:

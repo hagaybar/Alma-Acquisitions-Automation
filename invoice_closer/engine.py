@@ -108,6 +108,7 @@ class Work:
 class Closer:
     def __init__(self, gateway, config: Config, log: Callable[..., None]):
         self.gw, self.cfg, self.log = gateway, config, log
+        self._pol_types: Dict[str, str] = {}
 
     # ---- stage 1: resolve inputs to invoices ------------------------------
     def resolve(self, targets: List[Target]):
@@ -280,8 +281,7 @@ class Closer:
             r.after = r.before
             r.order_lines_after = self._pol_states(r.order_lines)
             r.outcome = ALREADY_CLOSED
-            open_lines = [p for p, s in r.order_lines_after.items() if s != "CLOSED"]
-            r.reason = f"order lines still open: {', '.join(open_lines)}" if open_lines else ""
+            r.reason = self._open_lines(r.order_lines_after)[1]
             return
 
         if not w.whole_invoice:
@@ -416,7 +416,25 @@ class Closer:
         return body, problem
 
     def _pol_states(self, pols: List[str]) -> Dict[str, str]:
-        return {p: _v(self.gw.get_pol(p), "status") for p in pols}
+        out = {}
+        for p in pols:
+            pol = self.gw.get_pol(p)
+            self._pol_types[p] = _v(pol, "type") or ""
+            out[p] = _v(pol, "status")
+        return out
+
+    def _open_lines(self, states: Dict[str, str]):
+        """(e-book lines still open, note). Print order lines stay open by design: they
+        close only when items are received, and this job never receives."""
+        open_ = [p for p, s in states.items() if s != "CLOSED"]
+        printed = [p for p in open_ if not self._pol_types.get(p, "").startswith("E_")]
+        ebook = [p for p in open_ if p not in printed]
+        notes = []
+        if ebook:
+            notes.append(f"order lines still open: {', '.join(ebook)}")
+        if printed:
+            notes.append(f"print order line stays open as expected (not received): {', '.join(printed)}")
+        return ebook, "; ".join(notes)
 
     # ---- writes ---------------------------------------------------------------
     def _settle(self, w: Work, before_wf: Optional[str], want) -> Dict:
@@ -495,8 +513,6 @@ class Closer:
         self.log("after_pay", invoice=r.invoice_number, state=after, order_lines=r.order_lines_after)
         if after["status"] != "CLOSED" or after["payment"] != "PAID":
             return self._hold(r, f"paid, but invoice is {after['status']}/{after['payment']}")
-        open_lines = [p for p, s in r.order_lines_after.items() if s != "CLOSED"]
-        if open_lines:
-            r.outcome, r.reason = CLOSED_POL_OPEN, f"order lines still open: {', '.join(open_lines)}"
-        else:
-            r.outcome = CLOSED
+        ebook_open, note = self._open_lines(r.order_lines_after)
+        r.outcome = CLOSED_POL_OPEN if ebook_open else CLOSED
+        r.reason = note

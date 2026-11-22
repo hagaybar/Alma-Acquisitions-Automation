@@ -141,8 +141,10 @@ poetry run python scripts/close_invoices.py --file input/to_close.xlsx --vendor 
   and has no process type; order lines SENT). `process_invoice` answered in 0.7–5.6 s with Waiting
   for Payment / APPROVED; `paid` closed every invoice (CLOSED/PAID). **Every order line stayed SENT**
   after processing and after payment: an item's arrival date does not make the order line received,
-  and paying does not close a physical order line. Outcome `CLOSED_ORDER_LINE_OPEN` for all five.
-  Closing those lines needs receiving in Alma (by a person).
+  and paying does not close a physical order line. Outcome then was `CLOSED_ORDER_LINE_OPEN`;
+  since 22 Nov 2026 an open *print* line is the expected end state and the outcome is `CLOSED`
+  (reason: "print order line stays open as expected"). `CLOSED_ORDER_LINE_OPEN` now means an
+  *e-book* line stayed open. Closing print lines needs receiving in Alma (by a person).
 
 - 15 Nov 2026, **items not received**: live run with `--include-physical` on order-line set
   43266194870004146. It held 5 Rialto PRINTED_BOOK_OT lines with one-line invoices; invoice, order
