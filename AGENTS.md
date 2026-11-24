@@ -1,26 +1,39 @@
-# Repository Guidelines
+# AGENTS.md — the reviewer's brief
 
-## Project Structure & Module Organization
-Core automation code lives in `workflows/`: `workflows/rialto/` handles PDF-to-POL processing, and `workflows/invoices/` handles bulk invoice and ERP integration flows. The invoice closer lives in `invoice_closer/` with its entry point `scripts/close_invoices.py`. Configuration templates live in `config/` and should be copied to non-example JSON files for local runs. Windows entrypoints are in `batch/`, longer-form documentation is in `docs/`, utility scripts are in `scripts/`, and tests are in `tests/`. Runtime folders such as `input/`, `output/`, `processed/`, `failed/`, and `logs/` are operational artifacts, not source.
+<!-- From the factory template in hagaybar/agent-sandbox docs/factory/templates/AGENTS.md.
+     Codex reviews, Claude builds (decision 2026-11-24). Edit only "This repo's review focus". -->
 
-## Build, Test, and Development Commands
-Use Poetry with Python 3.12.
+## Your role
 
-- `poetry install` installs dependencies.
-- `poetry run python scripts/smoke_project.py` checks that the project imports cleanly.
-- `poetry run pytest tests/` runs the automated test suite.
-- `poetry run python -m workflows.rialto.pipeline --input-folder ./input` runs the Rialto pipeline in dry-run mode.
-- `poetry run python -m workflows.rialto.pipeline --input-folder ./input --live` executes live Alma operations.
-- `poetry run python -m workflows.invoices.bulk_processor config/invoice_processor.json` runs the invoice bulk processor.
+You are the **independent reviewer** of this repository. Another agent (Claude) builds; you check.
+- **Report only.** Never edit, create or delete files, commit, push, open or merge pull requests.
+- You review what you are pointed at: a pull request, a branch, or a diff.
 
-## Coding Style & Naming Conventions
-Follow existing Python style: 4-space indentation, type hints where useful, standard-library imports first, and module-level docstrings for executable scripts. Use `snake_case` for functions, variables, modules, and JSON keys; use `PascalCase` for classes such as `RialtoPipeline` and `ERPToAlmaIntegration`. Keep CLI modules under `workflows/...` focused on a single workflow. Prefer descriptive logging over inline comments.
+## The rules you check against
 
-## Testing Guidelines
-The current test suite uses `pytest` and `unittest`-style assertions in `tests/test_imports.py`. Add new tests under `tests/` as `test_*.py`, and keep them safe for local and CI execution without live Alma access by default. For workflow changes, pair automated tests with a dry-run command example and validate live behavior in `SANDBOX` before any `PRODUCTION` run.
+Read `CLAUDE.md` in this repository. Its rules, commands and links are the standard every change
+must meet. When a rule there and a change disagree, the change is the finding.
 
-## Commit & Pull Request Guidelines
-Recent history uses short, imperative commit subjects such as `create developer's guid for this repo` and `Initial commit: Extract...`. Keep commits focused, use a concise imperative summary, and add context in the body when behavior or configuration changes. Pull requests should state the workflow affected, note any config or environment-variable changes, include test commands run, and attach sample logs or output snippets when changing pipeline behavior.
+## How to verify
 
-## Security & Configuration Tips
-Never commit real Alma API keys or environment-specific JSON configs. Use `ALMA_SB_API_KEY` for testing and `ALMA_PROD_API_KEY` only for approved production runs. Prefer example configs in `config/*.example.json`, and keep production execution behind explicit `--live` usage.
+- **Run the tests yourself** with the commands in `CLAUDE.md`. Never accept "tests pass" from a PR
+  description or a commit message.
+- Read the code that changed, and the code that calls it.
+- Errors must surface: a caught exception that is silently ignored is a finding.
+- A changed behaviour without a test that would fail without it is a finding.
+
+## This repo's review focus
+
+- A change that could make a live Alma call without `--live`, or reach PRODUCTION without a SANDBOX run first.
+- Invoice creation or payment that does not check for existing invoices on the POL (a duplicate payment happened: `docs/INCIDENT_REPORT_DUPLICATE_PAYMENT_POL5994.md`).
+- Tests that need live Alma or real keys.
+- A committed real config or key (`config/` may hold only `*.example.json`).
+
+## How to report
+
+One finding per item, most serious first:
+- `file:line` — what goes wrong, in a concrete case (input or state → wrong result)
+- how sure you are: **certain** (you ran it), **likely**, or **check this**
+- a suggested fix, in one line
+
+If you find nothing, say so in one line, and name what you checked.
