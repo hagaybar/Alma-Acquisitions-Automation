@@ -38,4 +38,5 @@ scripts, descriptive logging). Commits: a short imperative subject; context in t
 - Alma acquisitions API (POs, POLs, invoices, receiving, funds): load the `alma-acquisitions-specialist` skill
 - Invoice closer: `docs/INVOICE_CLOSER.md`; Rialto: `docs/RIALTO_README.md`
 - Developer guide: `docs/DEVELOPER_GUIDE.md`; open work: `docs/OPEN-TASKS.md`
+- Bumping `almaapitk`: follow `docs/almaapitk-bump-protocol.md` (binding)
 - `AGENTS.md` is the reviewer's brief (Codex reviews, report only)
