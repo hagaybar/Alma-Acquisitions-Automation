@@ -1,7 +1,7 @@
 # Invoice closer: plan for Sunday 22 Nov 2026
 
 Goal of the day: drive the closer from an **Alma Analytics report**, test it in the Alma
-Sandbox, then run it on masedet DevSandbox. Production comes after, in a separate session.
+Sandbox, then run it in the DevSandbox clone. Production comes after, in a separate session.
 
 ## Where we are (end of 18 Nov)
 
@@ -84,11 +84,11 @@ Put the export where Claude can read it, or send it in the chat. Then:
 3. **Live, 5 invoices:** add `--limit 5 --live`. Check `log.jsonl`, `results.csv` and
    `summary_for_staff.txt` together. Expect `fund_check` before every `paid`.
 4. Fix whatever the first three steps show. Then mark PR #26 ready; you review and merge it to
-   `main`. The next scheduled pull brings it to masedet DevSandbox.
+   `main`. The next scheduled pull brings it to the DevSandbox clone.
 
-## Step 3: masedet DevSandbox (you, Claude guides)
+## Step 3: DevSandbox clone (you, Claude guides)
 
-1. In `D:\Scripts\DevSandbox\Alma-Acquisitions-Automation`:
+1. In the DevSandbox clone:
    - `git log -1 --oneline` shows the merge commit;
    - `poetry run python -c "import importlib.metadata as m; print(m.version('almaapitk'))"` prints 0.7.0.
 2. Copy the export to `tests\invoice_closer\input\`.

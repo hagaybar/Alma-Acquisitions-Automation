@@ -39,4 +39,5 @@ scripts, descriptive logging). Commits: a short imperative subject; context in t
 - Invoice closer: `docs/INVOICE_CLOSER.md`; Rialto: `docs/RIALTO_README.md`
 - Developer guide: `docs/DEVELOPER_GUIDE.md`; open work: `docs/OPEN-TASKS.md`
 - Bumping `almaapitk`: follow `docs/almaapitk-bump-protocol.md` (binding)
+- Deployment and operations notes for the production host are kept in the owner's private documentation; the user-level instructions say where.
 - `AGENTS.md` is the reviewer's brief (Codex reviews, report only)

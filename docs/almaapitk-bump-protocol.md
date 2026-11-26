@@ -3,7 +3,7 @@
 Every change to this repo's `almaapitk` pin follows this document, step by step. It is binding:
 a bump that skips a step is not done. `CLAUDE.md` points here.
 
-**Why it exists.** This repo is a production consumer of `almaapitk`. It runs on masedet, and
+**Why it exists.** This repo is a production consumer of `almaapitk`. It runs on the production workstation, and
 `main` and `prod` auto-deploy on a schedule with no second checkpoint. A bad bump on a
 scheduled repo can fail silently in production. A bump is therefore a small, audited change
 made inside this repo, never a one-line pin edit pushed from somewhere else.
@@ -77,9 +77,9 @@ owner runs it before merging.
 - Tick the issue's boxes that are actually done.
 - The owner merges.
 
-### 8. DevSandbox (masedet)
+### 8. DevSandbox
 
-After the next auto-deploy of `main`, run the repo's DevSandbox check on masedet (see "This
+After the next auto-deploy of `main`, run the repo's DevSandbox check (see "This
 repo"). If L3 in step 6 already ran there, on the deployed `main`, it counts. Note the result in
 the issue.
 
@@ -152,9 +152,9 @@ keep it, as step 3 says, instead of switching to `>=`.
 
   Not determined: whether a SANDBOX fixture exists for a full Rialto run with writes (receive
   and pay). The 0.7.0 bump found none; if there is still none, the PR says so.
-- **DevSandbox check (masedet):** no scheduled task is known to run from the DevSandbox clone,
+- **DevSandbox check:** no scheduled task is known to run from the DevSandbox clone,
   so there is no clean cycle to wait for. Instead, in
-  `D:\Scripts\DevSandbox\Alma-Acquisitions-Automation`:
+  the DevSandbox clone:
   1. `git status --porcelain` prints nothing (an edited tracked file makes auto-deploy skip
      the clone); `git log -1 --oneline` shows the merged `main`;
      `poetry run python -c "import importlib.metadata as m; print(m.version('almaapitk'))"`
@@ -165,7 +165,7 @@ keep it, as step 3 says, instead of switching to `>=`.
      `.bat`. Don't use the `rialto_pipeline_*.bat` files for this check: they `cd` into the
      Prod clone.
 - **Not determined:** which jobs, if any, run on a schedule from the Prod clone (the Rialto
-  daemon `.bat` exists, but its Task Scheduler status is not recorded here), and whether
-  masedet runs the bulk invoice processor (`docs/OPEN-TASKS.md`). The "Prod" step's log check
+  daemon `.bat` exists, but whether it runs on a schedule is not recorded here), and whether
+  the production workstation runs the bulk invoice processor (`docs/OPEN-TASKS.md`). The "Prod" step's log check
   covers whatever does run; if nothing runs, the owner names the first Prod run to check.
 - **More:** `docs/INVOICE_CLOSER.md`, `docs/RIALTO_README.md`, `docs/DEVELOPER_GUIDE.md`.
