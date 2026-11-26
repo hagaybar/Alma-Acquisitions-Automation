@@ -805,7 +805,7 @@ poetry run python -m workflows.rialto.workflow \
 
 ### Location Considerations
 
-The batch scripts assume a Windows environment at `D:\Scripts\Prod\`:
+The Rialto batch scripts assume the production workstation's Windows folder layout (absolute paths to the Prod clone and its config):
 
 - **Development/Linux**: Run from WSL or Linux machine
 - **Production/Windows**: Run from Windows with proper folder structure

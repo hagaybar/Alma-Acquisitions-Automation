@@ -59,12 +59,12 @@ Thumbs.db
 .coverage
 htmlcov/
 
-# Invoice closer batch runs on masedet: input exports and run output stay local.
+# Invoice closer batch runs on the production workstation: input exports and run output stay local.
 # Must be ignored: auto-deploy skips a clone whose working tree is not clean.
 tests/invoice_closer/input/*
 !tests/invoice_closer/input/.gitkeep
 tests/invoice_closer/output/*
 !tests/invoice_closer/output/.gitkeep
 # Operator copies of batch files with local settings (editing the tracked .bat would leave
-# the clone dirty, and masedet auto-deploy skips a dirty clone).
+# the clone dirty, and the scheduled auto-deploy skips a dirty clone).
 batch/*.local.bat

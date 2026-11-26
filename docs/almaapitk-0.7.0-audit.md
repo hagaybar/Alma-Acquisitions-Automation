@@ -52,7 +52,7 @@ apart from unused exception variables.
 
 ## (d) Repo-specific risks
 
-- The Rialto pipeline runs in production on masedet from `prod`. Nothing here changes its code;
+- The Rialto pipeline runs in production from `prod`. Nothing here changes its code;
   the behaviour differences it will see are: POSTs (receive, pay) are no longer auto-retried on
   5xx (safer: no duplicate payment), and less console/file logging by default.
 - `search_invoices(limit=100)` keeps returning at most 100 invoices per call, as before.
@@ -79,4 +79,4 @@ apart from unused exception variables.
 - Rialto full L3 with writes: **not run**. A dry run on POL-4836 showed the workflow takes the invoice
   from the POL's `invoice_reference` (an invoice number, not an Alma ID: issue #13), so a live run
   would fail at the payment step on any almaapitk version. Needs #13 (and #14) fixed first.
-- **Left:** Rialto L3 after #13/#14; the DevSandbox cycle on masedet after merge.
+- **Left:** Rialto L3 after #13/#14; the DevSandbox cycle after merge.

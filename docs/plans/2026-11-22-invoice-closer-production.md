@@ -12,7 +12,7 @@ explicit OK after reviewing the step before it.
 
 - Code: PR #26 merged to `main` (`2603a99`). almaapitk 0.7.0.
 - Tested in the Alma Sandbox with the production report (1,513 invoice lines, 1,271 invoices):
-  - pre-analysis and dry run agree, both from the sandbox (Linux) and from masedet DevSandbox
+  - pre-analysis and dry run agree, both from the sandbox (Linux) and from the DevSandbox clone
     (Windows `.bat`);
   - two live runs of 5 invoices each (one per host): 10 print invoices processed and paid. Alma
     read back CLOSED / APPROVED / PAID, voucher `AUTO-PAY-<number>`, AAC_FUND on every line, and
@@ -39,7 +39,7 @@ explicit OK after reviewing the step before it.
 
 ## Where to run it
 
-On masedet, from the **Prod** clone `D:\Scripts\Prod\Alma-Acquisitions-Automation`, which tracks
+On the production workstation, from the **Prod** clone, which tracks
 `prod` and holds the production API key. (The sandbox here would need a production window and
 is meant for development; it is used below only for read-only checks.)
 
@@ -51,7 +51,7 @@ the scheduled auto-deploy then skips it. Copy it to
 
 ### 0. Fix the DevSandbox clone (now)
 
-The `.bat` was edited in place in `D:\Scripts\DevSandbox\Alma-Acquisitions-Automation` on 22 Nov,
+The `.bat` was edited in place in the DevSandbox clone on 22 Nov,
 so auto-deploy now skips that clone. Keep your settings, then restore the file:
 
 1. `copy batch\close_invoices_before_2026-10-01.bat %TEMP%\closer_settings.bat` (your settings);
@@ -63,7 +63,7 @@ After the next pull brings the `.gitignore` change (this plan's PR), make the `.
 ### 1. Bring the code to Prod (owner)
 
 1. Merge this plan's PR to `main`, then `main` into `prod` (owner only; agents never touch `prod`).
-2. On masedet, after the scheduled pull, in the Prod clone:
+2. On the production workstation, after the scheduled pull, in the Prod clone:
    - `git log -1 --oneline` shows the merge;
    - `poetry run python -c "import importlib.metadata as m; print(m.version('almaapitk'))"`
      prints `0.7.0`;

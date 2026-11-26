@@ -167,7 +167,7 @@ This suggests these were originally one project that was split or duplicated.
 - Shared domain knowledge (Acquisitions API patterns)
 - Significant code overlap (invoice handling, POL processing)
 - Shared documentation already exists
-- Single deployment target (Masedet)
+- Single deployment target (the production workstation)
 - Easier maintenance with unified error handling
 
 **Proposed Structure**:
@@ -400,11 +400,11 @@ from almaapitk import AlmaAPIClient, Acquisitions, BibliographicRecords
 **Batch files**:
 ```batch
 # OLD
-cd /d D:\Scripts\Prod\AlmaAPITK
+cd /d <Prod clone root>\AlmaAPITK
 poetry run python src\projects\RialtoProduction\rialto_pipeline.py ...
 
 # NEW
-cd /d D:\Scripts\DevSandbox\Alma-Acquisitions-Automation
+cd /d <DevSandbox clone root>\Alma-Acquisitions-Automation
 poetry run python -m workflows.rialto.pipeline ...
 ```
 
@@ -482,9 +482,9 @@ class TestImports(unittest.TestCase):
    poetry run python -m pytest tests/ -v
    ```
 
-2. **DevSandbox (Masedet)**:
+2. **DevSandbox (production workstation, test clone)**:
    ```powershell
-   cd D:\Scripts\DevSandbox\Alma-Acquisitions-Automation
+   cd <DevSandbox clone root>\Alma-Acquisitions-Automation
    poetry install
    poetry run python scripts\smoke_project.py
 
@@ -510,7 +510,7 @@ class TestImports(unittest.TestCase):
 2. **Code Reuse**: Invoice handling patterns are nearly identical
 3. **Maintenance**: Single repo is easier for user to maintain
 4. **Documentation**: Technical findings are already duplicated between projects
-5. **Deployment**: Same target machine (Masedet)
+5. **Deployment**: Same target machine (the production workstation)
 
 ### subscriptions_pilot
 
