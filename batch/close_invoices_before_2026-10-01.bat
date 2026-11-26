@@ -36,7 +36,8 @@ set "MODE=ANALYZE"
 REM  Input: an Analytics export (INPUT_FILE, .xlsx/.csv/.tsv, relative to this clone)
 REM  OR an Alma Order lines (PO_LINE) set (SET_ID). If INPUT_FILE is set, it is used.
 set "INPUT_FILE="
-set "SET_ID=43266268550004146"
+REM  Fill SET_ID in your git-ignored .local.bat copy, never in this tracked file.
+set "SET_ID="
 REM  FIRST: use only the first N rows of the input (empty = all rows). Works in every
 REM  MODE, e.g. FIRST=20 for a quick ANALYZE or DRY of a sample.
 set "FIRST="
