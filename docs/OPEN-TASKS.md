@@ -1,6 +1,6 @@
 # Open tasks
 
-Last updated: 2026-11-22
+Last updated: 2026-11-26
 
 ## PRs
 - #21 (bulk invoice processor: read nested payment status, stops paying already-paid invoices again) — review and merge; check whether the production workstation runs the bulk processor
@@ -13,6 +13,7 @@ Last updated: 2026-11-22
 - #10 (research: failure-mode audit of the run context) — not started
 
 ## Other
+- Rialto launchers in `batch/` still hard-code absolute host paths (clone and config) — owner: choose the approach later (e.g. an environment variable set on the host first)
 - Invoice closer production run (22 Nov, done): 1,259 of 1,271 invoices paid/closed. Follow-ups: 12 invoices held because a line's fund share is not 100% — staff fix in Alma, then rerun the same command; 6 e-book order lines still SENT after payment (likely not activated) — check in Alma; add a pre-analysis check for fund share ≠ 100%; fix the plan's step 5 (`FIRST` does not skip rows)
 - #29 (production workstation: poetry cache permission error) — investigate
 - DevSandbox clone has the tracked `.bat` edited — user runs `git checkout -- batch\close_invoices_before_2026-10-01.bat` so auto-deploy resumes
